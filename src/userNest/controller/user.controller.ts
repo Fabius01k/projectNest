@@ -35,8 +35,13 @@ export class UserController {
     if (!sortBy) {
       sortBy = 'accountData.createdAt';
     }
-    //sorting by login
-    // sortBy = 'accountData.userName.login'
+    if (sortBy === 'login') {
+      sortBy = 'accountData.userName.login';
+    }
+    if (sortBy === 'email') {
+      sortBy = 'accountData.userName.email';
+    }
+
     if (!sortDirection || sortDirection.toLowerCase() !== 'asc') {
       sortDirection = 'desc';
     }
