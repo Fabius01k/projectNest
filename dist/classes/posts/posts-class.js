@@ -1,0 +1,1 @@
+//# sourceMappingURL=posts-class.js.map
