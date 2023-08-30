@@ -29,9 +29,11 @@ import { BlogRepository } from './blogNest/repository/blog.repository';
 import { TestingController } from './testingNest/testing.controller';
 import { TestingService } from './testingNest/testing.service';
 import { settings } from './application/settings';
+import { ConfigModule } from '@nestjs/config';
 const dbName = 'myApi';
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     MongooseModule.forRoot(
       settings.MONGO_URI || `mongodb://0.0.0.0:27017/${dbName}`,
     ), // ConfigModule
