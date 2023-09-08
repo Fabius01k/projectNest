@@ -30,13 +30,36 @@ import { TestingController } from './testingNest/testing.controller';
 import { TestingService } from './testingNest/testing.service';
 import { settings } from './application/settings';
 import { ConfigModule } from '@nestjs/config';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthService } from './authNest/service/auth.service';
+
+import { JwtAccessStrategyStrategy } from './authNest/strategies/jwt-access.strategy';
+import {
+  UserSession,
+  UserSessionSchema,
+} from './userNest/schema/user-session.schema';
+import { EmailManager } from './managers/email-manager';
+import { ThrottlerModule } from '@nestjs/throttler';
+
+import { BasicAuthGuard } from './authNest/strategies/basic.strategy';
+import { RefreshTokenGuard } from './authNest/strategies/local-refreshToken.strategy';
+import { AuthController } from './authNest/controller/auth.controller';
+
 const dbName = 'myApi';
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 10,
+        limit: 5,
+      },
+    ]),
     MongooseModule.forRoot(
       settings.MONGO_URI || `mongodb://0.0.0.0:27017/${dbName}`,
-    ), // ConfigModule
+    ),
     MongooseModule.forFeature([
       {
         name: Blog.name,
@@ -62,7 +85,13 @@ const dbName = 'myApi';
         name: User.name,
         schema: UserSchema,
       },
+      { name: UserSession.name, schema: UserSessionSchema },
     ]),
+    PassportModule,
+    JwtModule.register({
+      global: true,
+      secret: settings.JWT_SECRET,
+    }),
   ],
   controllers: [
     AppController,
@@ -71,6 +100,7 @@ const dbName = 'myApi';
     CommentController,
     UserController,
     TestingController,
+    AuthController,
   ],
   providers: [
     AppService,
@@ -83,6 +113,13 @@ const dbName = 'myApi';
     UserService,
     UserRepository,
     TestingService,
+    AuthService,
+
+    JwtAccessStrategyStrategy,
+
+    EmailManager,
+    BasicAuthGuard,
+    RefreshTokenGuard,
   ],
 })
 export class AppModule {}

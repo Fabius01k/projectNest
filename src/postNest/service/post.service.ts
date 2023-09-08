@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Post, PostResponse, PostView } from '../schema/post-schema';
+import {
+  Post,
+  PostCreateByBlogIdInputModel,
+  PostCreateInputModel,
+  PostResponse,
+  PostView,
+} from '../schema/post-schema';
 import { PostRepository } from '../repository/post.repository';
 import { BlogRepository } from '../../blogNest/repository/blog.repository';
 import { ObjectId } from 'mongodb';
@@ -44,25 +50,21 @@ export class PostService {
   async getPostById(id: string): Promise<PostView | null> {
     return await this.postRepository.findPostByIdInDb(id);
   }
-  async postPost(
-    title: string,
-    shortDescription: string,
-    content: string,
-    blogId: string,
-  ): Promise<PostView | null> {
+  async postPost(postDto: PostCreateInputModel): Promise<PostView | null> {
     const dateNow = new Date().getTime().toString();
-    const blog = await this.blogRepository.findBlogByIdInDb(blogId);
+    const blog = await this.blogRepository.findBlogByIdInDb(postDto.blogId);
 
     if (!blog) {
       return null;
     }
+
     const newPost = new Post(
       new ObjectId(),
       dateNow,
-      title,
-      shortDescription,
-      content,
-      blogId,
+      postDto.title,
+      postDto.shortDescription,
+      postDto.content,
+      postDto.blogId,
       blog.name,
       new Date().toISOString(),
     );
@@ -81,9 +83,7 @@ export class PostService {
     return await this.postRepository.createPostInDb(newPost);
   }
   async postPostForSpecifeldBlog(
-    title: string,
-    shortDescription: string,
-    content: string,
+    postDto: PostCreateByBlogIdInputModel,
     blogId: string,
   ): Promise<PostView | null> {
     const dateNow = new Date().getTime().toString();
@@ -95,9 +95,9 @@ export class PostService {
     const newPost = new Post(
       new ObjectId(),
       dateNow,
-      title,
-      shortDescription,
-      content,
+      postDto.title,
+      postDto.shortDescription,
+      postDto.content,
       blogId,
       blog.name,
       new Date().toISOString(),
@@ -116,19 +116,13 @@ export class PostService {
 
     return await this.postRepository.createPostInDb(newPost);
   }
-  async putPost(
-    id: string,
-    title: string,
-    shortDescription: string,
-    content: string,
-    blogId: string,
-  ): Promise<boolean> {
+  async putPost(id: string, postDto: PostCreateInputModel): Promise<boolean> {
     const updatedPost = await this.postRepository.updatePostInDb(
       id,
-      title,
-      shortDescription,
-      content,
-      blogId,
+      postDto.title,
+      postDto.shortDescription,
+      postDto.content,
+      postDto.blogId,
     );
     if (!updatedPost) {
       return false;

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,11 +8,14 @@ import {
   Post,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { UserResponse, UserView } from '../schema/user.schema';
 import { UserService } from '../service/user.service';
 import { Response } from 'express';
-
+import { UserInputModel } from '../../authNest/auth-inputModel.ts/auth.inputModel';
+import { BasicAuthGuard } from '../../authNest/strategies/basic.strategy';
+@UseGuards(BasicAuthGuard)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -70,12 +74,8 @@ export class UserController {
     );
   }
   @Post()
-  async postUser(
-    @Body('login') login: string,
-    @Body('password') password: string,
-    @Body('email') email: string,
-  ): Promise<UserView> {
-    return await this.userService.postUser(login, password, email);
+  async postUser(@Body() userDto: UserInputModel): Promise<UserView> {
+    return await this.userService.postUser(userDto);
   }
   @Delete(':id')
   async deleteUser(
@@ -84,8 +84,11 @@ export class UserController {
   ): Promise<boolean> {
     const userDeleted = await this.userService.deleteUser(id);
     if (!userDeleted) {
-      res.sendStatus(404);
-      return false;
+      throw new BadRequestException([
+        {
+          message: 'User not found',
+        },
+      ]);
     } else {
       res.sendStatus(204);
       return true;

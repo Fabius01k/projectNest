@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -9,7 +10,11 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { PostResponse, PostView } from '../schema/post-schema';
+import {
+  PostCreateInputModel,
+  PostResponse,
+  PostView,
+} from '../schema/post-schema';
 import { PostService } from '../service/post.service';
 import { CommentService } from '../../commentNest/service/comment.service';
 import { CommentResponse } from '../../commentNest/schema/comment.schema';
@@ -65,51 +70,53 @@ export class PostController {
   }
 
   @Get(':id')
-  async getPostById(
-    @Param('id') id: string,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<PostView | null> {
+  async getPostById(@Param('id') id: string): Promise<PostView | null> {
     const post = await this.postService.getPostById(id);
     if (post) {
       return post;
     } else {
-      res.sendStatus(404);
-      return null;
+      throw new BadRequestException([
+        {
+          message: 'Post not found',
+        },
+      ]);
     }
   }
+  // @Post('posts')
+  // async postPost(
+  //   @Body() postDto: PostCreateInputModel,
+  // ): Promise<PostView | null> {
+  //   return await this.postService.postPost(postDto);
+  // }
   @Post()
   async postPost(
-    @Body('title') title: string,
-    @Body('shortDescription') shortDescription: string,
-    @Body('content') content: string,
-    @Body('blogId') blogId: string,
+    @Body() postDto: PostCreateInputModel,
   ): Promise<PostView | null> {
-    return await this.postService.postPost(
-      title,
-      shortDescription,
-      content,
-      blogId,
-    );
+    const post = await this.postService.postPost(postDto);
+
+    if (!post) {
+      throw new BadRequestException([
+        {
+          message: 'Blog not found',
+        },
+      ]);
+    }
+
+    return post;
   }
   @Put(':id')
   async putPost(
     @Param('id') id: string,
-    @Body('title') title: string,
-    @Body('shortDescription') shortDescription: string,
-    @Body('content') content: string,
-    @Body('blogId') blogId: string,
+    @Body() postDto: PostCreateInputModel,
     @Res({ passthrough: true }) res: Response,
   ): Promise<boolean> {
-    const updetedPost = await this.postService.putPost(
-      id,
-      title,
-      shortDescription,
-      content,
-      blogId,
-    );
+    const updetedPost = await this.postService.putPost(id, postDto);
     if (!updetedPost) {
-      res.sendStatus(404);
-      return false;
+      throw new BadRequestException([
+        {
+          message: 'Post not found',
+        },
+      ]);
     } else {
       res.sendStatus(204);
       return true;
@@ -122,8 +129,11 @@ export class PostController {
   ): Promise<boolean> {
     const postDeleted = await this.postService.deletePost(id);
     if (!postDeleted) {
-      res.sendStatus(404);
-      return false;
+      throw new BadRequestException([
+        {
+          message: 'Post not found',
+        },
+      ]);
     } else {
       res.sendStatus(204);
       return true;
@@ -136,7 +146,6 @@ export class PostController {
     @Query('sortDirection') sortDirection: 'asc' | 'desc',
     @Query('pageSize') pageSize: number,
     @Query('pageNumber') pageNumber: number,
-    @Res({ passthrough: true }) res: Response,
   ): Promise<CommentResponse | null> {
     if (!sortBy) {
       sortBy = 'createdAt';
@@ -162,8 +171,11 @@ export class PostController {
 
     const post = await this.postService.getPostById(postId);
     if (!post) {
-      res.sendStatus(404);
-      return null;
+      throw new BadRequestException([
+        {
+          message: 'Post not found',
+        },
+      ]);
     }
 
     return await this.commentService.getAllCommentForSpecifeldPost(

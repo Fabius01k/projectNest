@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Blog, BlogResponse, BlogView } from '../schema/blog-schema';
+import {
+  Blog,
+  BlogInputModel,
+  BlogResponse,
+  BlogView,
+} from '../schema/blog-schema';
 import { BlogRepository } from '../repository/blog.repository';
 import { ObjectId } from 'mongodb';
 
@@ -32,35 +37,26 @@ export class BlogService {
   async getBlogById(id: string): Promise<BlogView | null> {
     return await this.blogRepository.findBlogByIdInDb(id);
   }
-  async postBlog(
-    name: string,
-    description: string,
-    websiteUrl: string,
-  ): Promise<BlogView> {
+  async postBlog(blogDto: BlogInputModel): Promise<BlogView> {
     const dateNow = new Date().getTime().toString();
     const newBlog = new Blog(
       new ObjectId(),
       dateNow,
-      name,
-      description,
-      websiteUrl,
+      blogDto.name,
+      blogDto.description,
+      blogDto.websiteUrl,
       new Date().toISOString(),
       false,
     );
 
     return await this.blogRepository.createBlogInDb(newBlog);
   }
-  async putBlog(
-    id: string,
-    name: string,
-    description: string,
-    websiteUrl: string,
-  ): Promise<boolean> {
+  async putBlog(id: string, blogDto: BlogInputModel): Promise<boolean> {
     const updatedBlog = await this.blogRepository.updateBlogInDb(
       id,
-      name,
-      description,
-      websiteUrl,
+      blogDto.name,
+      blogDto.description,
+      blogDto.websiteUrl,
     );
     if (!updatedBlog) {
       return false;

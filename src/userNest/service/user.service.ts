@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
 import { ObjectId } from 'mongodb';
+import { UserInputModel } from '../../authNest/auth-inputModel.ts/auth.inputModel';
 
 @Injectable()
 export class UserService {
@@ -30,13 +31,24 @@ export class UserService {
       pageNumber,
     );
   }
-  async postUser(
-    login: string,
-    password: string,
-    email: string,
-  ): Promise<UserView> {
+  async postUser(userDto: UserInputModel): Promise<UserView> {
+    const emailAlreadyUse = await this.userRepository.getUserByLoginOrEmail(
+      userDto.email,
+    );
+    if (emailAlreadyUse) {
+      throw new Error('This email is already in use');
+    }
+    const loginAlreadyUse = await this.userRepository.getUserByLoginOrEmail(
+      userDto.login,
+    );
+    if (loginAlreadyUse) {
+      throw new Error('This login is already in use');
+    }
     const passwordSalt = await bcrypt.genSalt(10);
-    const passwordHash = await this._generateHash(password, passwordSalt);
+    const passwordHash = await this._generateHash(
+      userDto.password,
+      passwordSalt,
+    );
 
     const dateNow = new Date().getTime().toString();
     const newUser = new User(
@@ -44,8 +56,8 @@ export class UserService {
       dateNow,
       {
         userName: {
-          login: login,
-          email: email,
+          login: userDto.login,
+          email: userDto.email,
         },
         passwordHash,
         passwordSalt,
@@ -72,5 +84,10 @@ export class UserService {
       return false;
     }
     return true;
+  }
+  async getUserById(userId: string): Promise<UserView | null> {
+    const user = await this.userRepository.findUserByIdInDb(userId);
+
+    return user;
   }
 }

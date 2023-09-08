@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -10,8 +11,12 @@ import {
   Res,
 } from '@nestjs/common';
 import { BlogService } from '../service/blog.service';
-import { BlogResponse, BlogView } from '../schema/blog-schema';
-import { PostResponse, PostView } from '../../postNest/schema/post-schema';
+import { BlogResponse, BlogView, BlogInputModel } from '../schema/blog-schema';
+import {
+  PostCreateByBlogIdInputModel,
+  PostResponse,
+  PostView,
+} from '../../postNest/schema/post-schema';
 import { PostService } from '../../postNest/service/post.service';
 import { Response } from 'express';
 
@@ -21,7 +26,6 @@ export class BlogController {
     private readonly blogService: BlogService,
     private readonly postService: PostService,
   ) {}
-
   @Get()
   async getAllBlogs(
     @Query('searchNameTerm') searchNameTerm: string | null,
@@ -65,43 +69,35 @@ export class BlogController {
     );
   }
   @Get(':id')
-  async getBlogById(
-    @Param('id') id: string,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<BlogView | null> {
+  async getBlogById(@Param('id') id: string): Promise<BlogView | null> {
     const blog = await this.blogService.getBlogById(id);
     if (blog) {
       return blog;
     } else {
-      res.sendStatus(404);
-      return null;
+      throw new BadRequestException([
+        {
+          message: 'Blog not found',
+        },
+      ]);
     }
   }
   @Post()
-  async postBlog(
-    @Body('name') name: string,
-    @Body('description') description: string,
-    @Body('websiteUrl') websiteUrl: string,
-  ): Promise<BlogView> {
-    return await this.blogService.postBlog(name, description, websiteUrl);
+  async postBlog(@Body() blogDto: BlogInputModel): Promise<BlogView> {
+    return await this.blogService.postBlog(blogDto);
   }
   @Put(':id')
   async putBlog(
     @Param('id') id: string,
-    @Body('name') name: string,
-    @Body('description') description: string,
-    @Body('websiteUrl') websiteUrl: string,
+    @Body() blogDto: BlogInputModel,
     @Res({ passthrough: true }) res: Response,
   ): Promise<boolean> {
-    const updatedBlog = await this.blogService.putBlog(
-      id,
-      name,
-      description,
-      websiteUrl,
-    );
+    const updatedBlog = await this.blogService.putBlog(id, blogDto);
     if (!updatedBlog) {
-      res.sendStatus(404);
-      return false;
+      throw new BadRequestException([
+        {
+          message: 'Blog not found',
+        },
+      ]);
     } else {
       res.sendStatus(204);
       return true;
@@ -114,8 +110,11 @@ export class BlogController {
   ): Promise<boolean> {
     const blogDeleted = await this.blogService.deleteBlog(id);
     if (!blogDeleted) {
-      res.sendStatus(404);
-      return false;
+      throw new BadRequestException([
+        {
+          message: 'Blog not found',
+        },
+      ]);
     } else {
       res.sendStatus(204);
       return true;
@@ -128,7 +127,6 @@ export class BlogController {
     @Query('sortDirection') sortDirection: 'asc' | 'desc',
     @Query('pageSize') pageSize: number,
     @Query('pageNumber') pageNumber: number,
-    @Res({ passthrough: true }) res: Response,
   ): Promise<PostResponse | null> {
     if (!sortBy) {
       sortBy = 'createdAt';
@@ -154,8 +152,11 @@ export class BlogController {
 
     const blog = await this.blogService.getBlogById(blogId);
     if (!blog) {
-      res.sendStatus(404);
-      return null;
+      throw new BadRequestException([
+        {
+          message: 'Blog not found',
+        },
+      ]);
     }
 
     return await this.postService.getAllPostsForSpecifeldBlog(
@@ -169,21 +170,19 @@ export class BlogController {
   @Post(':blogId/posts')
   async postPostForSpecifeldBlog(
     @Param('blogId') blogId: string,
-    @Body('title') title: string,
-    @Body('shortDescription') shortDescription: string,
-    @Body('content') content: string,
-    @Res({ passthrough: true }) res: Response,
+    @Body() postDto: PostCreateByBlogIdInputModel,
   ): Promise<PostView | null> {
     const post = await this.postService.postPostForSpecifeldBlog(
-      title,
-      shortDescription,
-      content,
+      postDto,
       blogId,
     );
 
     if (!post) {
-      res.sendStatus(404);
-      return null;
+      throw new BadRequestException([
+        {
+          message: 'Blog not found',
+        },
+      ]);
     }
 
     return post;

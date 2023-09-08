@@ -18,7 +18,7 @@ export class TestingService {
     @InjectModel(Comment.name) private commentModel: Model<Comment>,
     @InjectModel(InformationOfLikeAndDislikeComment.name)
     private CInfoModel: Model<InformationOfLikeAndDislikeComment>,
-    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(User.name) private userModel: Model<User>, // @Injectable(UserSession.name) private userSessionModel: Model<UserSession>,
   ) {}
 
   async deleteAllData() {
@@ -28,5 +28,6 @@ export class TestingService {
     await this.commentModel.deleteMany({});
     await this.CInfoModel.deleteMany({});
     await this.userModel.deleteMany({});
+    // await this.userSessionModel.deleteMany({});
   }
 }

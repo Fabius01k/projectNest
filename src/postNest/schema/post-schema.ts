@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { HydratedDocument } from 'mongoose';
+import { IsNotEmpty, IsString, Length } from 'class-validator';
 
 export type PostDocument = HydratedDocument<Post>;
 @Schema()
@@ -70,14 +71,41 @@ export interface PostResponse {
   items: PostView[];
 }
 
-// export type PaginationResponse<T> = {
-//   pagesCount: number;
-//   page: number;
-//   pageSize: number;
-//   totalCount: number;
-//   items: T[];
-// };
+export class PostCreateInputModel {
+  @IsString()
+  @IsNotEmpty()
+  @Length(1, 30)
+  title: string;
 
-// const any = (): PaginationResponse<PostView> => {}
+  @IsString()
+  @IsNotEmpty()
+  @Length(1, 100)
+  shortDescription: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(1, 1000)
+  content: string;
+
+  @IsString()
+  @IsNotEmpty()
+  blogId: string;
+}
+export class PostCreateByBlogIdInputModel {
+  @IsString()
+  @IsNotEmpty()
+  @Length(1, 30)
+  title: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(1, 100)
+  shortDescription: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(1, 1000)
+  content: string;
+}
 
 export const PostSchema = SchemaFactory.createForClass(Post);
