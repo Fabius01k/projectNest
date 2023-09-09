@@ -9,6 +9,7 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { BlogService } from '../service/blog.service';
 import { BlogResponse, BlogView, BlogInputModel } from '../schema/blog-schema';
@@ -19,6 +20,7 @@ import {
 } from '../../postNest/schema/post-schema';
 import { PostService } from '../../postNest/service/post.service';
 import { Response } from 'express';
+import { BasicAuthGuard } from '../../authNest/strategies/basic.strategy';
 
 @Controller('blogs')
 export class BlogController {
@@ -81,10 +83,12 @@ export class BlogController {
       ]);
     }
   }
+  @UseGuards(BasicAuthGuard)
   @Post()
   async postBlog(@Body() blogDto: BlogInputModel): Promise<BlogView> {
     return await this.blogService.postBlog(blogDto);
   }
+  @UseGuards(BasicAuthGuard)
   @Put(':id')
   async putBlog(
     @Param('id') id: string,
@@ -103,6 +107,7 @@ export class BlogController {
       return true;
     }
   }
+  @UseGuards(BasicAuthGuard)
   @Delete(':id')
   async deleteBlog(
     @Param('id') id: string,
@@ -167,6 +172,7 @@ export class BlogController {
       blog.id,
     );
   }
+  @UseGuards(BasicAuthGuard)
   @Post(':blogId/posts')
   async postPostForSpecifeldBlog(
     @Param('blogId') blogId: string,

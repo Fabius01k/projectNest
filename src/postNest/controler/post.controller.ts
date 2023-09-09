@@ -9,6 +9,7 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import {
   PostCreateInputModel,
@@ -19,6 +20,7 @@ import { PostService } from '../service/post.service';
 import { CommentService } from '../../commentNest/service/comment.service';
 import { CommentResponse } from '../../commentNest/schema/comment.schema';
 import { Response } from 'express';
+import { BasicAuthGuard } from '../../authNest/strategies/basic.strategy';
 
 @Controller('posts')
 export class PostController {
@@ -88,6 +90,7 @@ export class PostController {
   // ): Promise<PostView | null> {
   //   return await this.postService.postPost(postDto);
   // }
+  @UseGuards(BasicAuthGuard)
   @Post()
   async postPost(
     @Body() postDto: PostCreateInputModel,
@@ -104,6 +107,7 @@ export class PostController {
 
     return post;
   }
+  @UseGuards(BasicAuthGuard)
   @Put(':id')
   async putPost(
     @Param('id') id: string,
@@ -122,6 +126,7 @@ export class PostController {
       return true;
     }
   }
+  @UseGuards(BasicAuthGuard)
   @Delete(':id')
   async deletePost(
     @Param('id') id: string,
