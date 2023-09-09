@@ -103,7 +103,7 @@ export class AuthController {
     return true;
   }
 
-  @UseGuards(RefreshTokenGuard) // добавить стратегию для рефреш токена
+  @UseGuards(RefreshTokenGuard)
   @Post('logout')
   async logoutUser(@Request() req, @Response() res): Promise<boolean> {
     await this.authService.deleteSession(req.deviceId);
