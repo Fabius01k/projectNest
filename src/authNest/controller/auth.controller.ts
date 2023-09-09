@@ -6,6 +6,7 @@ import {
   Request,
   Response,
   Get,
+  HttpCode,
 } from '@nestjs/common';
 import { UserService } from '../../userNest/service/user.service';
 import { AuthService } from '../service/auth.service';
@@ -124,22 +125,22 @@ export class AuthController {
   }
 
   @Post('registration-confirmation')
+  @HttpCode(204)
   async registrationConfirmationUser(
     @Body() codeConfirmationDto: ConfirmationCodeModel,
-    @Response() res,
   ): Promise<boolean> {
     await this.authService.registrationConfirmationUser(codeConfirmationDto);
-    res.sendStatus(204);
+
     return true;
   }
 
   @Post('registration-email-resending')
+  @HttpCode(204)
   async resendingRegistrationCode(
     @Body() resendCodeConfirmationDto: ConfirmationResendingCodeModel,
-    @Response() res,
   ): Promise<boolean> {
     await this.authService.resendingCode(resendCodeConfirmationDto);
-    res.sendStatus(204);
+
     return true;
   }
 

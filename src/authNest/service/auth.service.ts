@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '../../userNest/repository/user.repository';
 import bcrypt from 'bcrypt';
@@ -150,16 +150,16 @@ export class AuthService {
         codeConfirmationDto.code,
       );
     if (!user) {
-      throw new Error('User not found');
+      throw new BadRequestException('User not found');
     }
     if (user.emailConfirmation.isConfirmed) {
-      throw new Error('User already confirmed');
+      throw new BadRequestException('User already confirmed');
     }
     if (user.emailConfirmation.confirmationCode !== codeConfirmationDto.code) {
-      throw new Error('Invalid confirmation code');
+      throw new BadRequestException('Invalid confirmation code');
     }
     if (user.emailConfirmation.expirationDate < new Date()) {
-      throw new Error('The confirmation code has expired');
+      throw new BadRequestException('The confirmation code has expired');
     }
 
     const result = await this.userRepository.updateConfirmation(user.id);
