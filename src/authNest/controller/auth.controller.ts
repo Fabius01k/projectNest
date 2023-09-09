@@ -32,6 +32,7 @@ export class AuthController {
   ) {}
 
   @Post('login')
+  @HttpCode(200)
   async LoginUser(
     @Body('loginOrEmail') loginOrEmail: string,
     @Body('password') password: string,
@@ -115,12 +116,12 @@ export class AuthController {
   }
 
   @Post('registration')
+  @HttpCode(204)
   async registrationUser(
     @Body() registrationDto: UserRegistrationInputModel,
-    @Response() res,
   ): Promise<boolean> {
     await this.authService.registrationUser(registrationDto);
-    res.sendStatus(204);
+
     return true;
   }
 
@@ -145,22 +146,22 @@ export class AuthController {
   }
 
   @Post('new-password')
+  @HttpCode(204)
   async recoveryPasswordForUser(
     @Body() recoveryPasswordDto: RecoveryPasswordInputModel,
-    @Response() res,
   ): Promise<boolean> {
     await this.authService.makeNewPassword(recoveryPasswordDto);
-    res.sendStatus(204);
+
     return true;
   }
 
   @Post('password-recovery')
+  @HttpCode(204)
   async sendRecoveryPasswordCode(
     @Body() recoveryPasswordCodeDto: EmailPasswordResendingInputModel,
-    @Response() res,
   ): Promise<boolean> {
     await this.authService.resendingPasswordCode(recoveryPasswordCodeDto);
-    res.sendStatus(204);
+
     return true;
   }
 

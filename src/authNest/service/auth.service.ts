@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '../../userNest/repository/user.repository';
 import bcrypt from 'bcrypt';
@@ -98,13 +98,19 @@ export class AuthService {
       registrationDto.email,
     );
     if (emailAlreadyUse) {
-      throw new Error('This email is already in use');
+      throw new BadRequestException({
+        message: 'This email is already in use',
+        field: 'email',
+      });
     }
     const loginAlreadyUse = await this.userRepository.getUserByLoginOrEmail(
       registrationDto.login,
     );
     if (loginAlreadyUse) {
-      throw new Error('This login is already in use');
+      throw new BadRequestException({
+        message: 'This login is already in use',
+        filed: 'login',
+      });
     }
 
     const dateNow = new Date().getTime().toString();
@@ -150,18 +156,23 @@ export class AuthService {
         codeConfirmationDto.code,
       );
     if (!user) {
-      throw new BadRequestException(['User not found']);
+      throw new BadRequestException([
+        { message: 'User not found', field: 'code' },
+      ]);
     }
+
     if (user.emailConfirmation.isConfirmed) {
       throw new BadRequestException([
         { message: 'User already confirmed', field: 'code' },
       ]);
     }
     if (user.emailConfirmation.confirmationCode !== codeConfirmationDto.code) {
-      throw new BadRequestException(['Invalid confirmation code']);
+      throw new BadRequestException([{ message: 'Invalid confirmation code' }]);
     }
     if (user.emailConfirmation.expirationDate < new Date()) {
-      throw new BadRequestException(['The confirmation code has expired']);
+      throw new BadRequestException([
+        { message: 'The confirmation code has expired' },
+      ]);
     }
 
     const result = await this.userRepository.updateConfirmation(user.id);
@@ -174,10 +185,15 @@ export class AuthService {
       resendCodeConfirmationDto.email,
     );
     if (!user) {
-      throw new Error('User not found');
+      throw new BadRequestException([
+        { message: 'User not found', field: 'email' },
+      ]);
     }
     if (user.emailConfirmation.isConfirmed) {
-      throw new Error('User already confirmed');
+      throw new BadRequestException({
+        message: 'User already confirmed',
+        field: 'email',
+      });
     }
 
     const confirmationCode = randomUUID();
@@ -199,14 +215,20 @@ export class AuthService {
         recoveryPasswordDto.recoveryCode,
       );
     if (!user) {
-      throw new Error('User not found');
+      throw new BadRequestException({
+        message: 'User not found',
+        filed: 'code',
+      });
     }
     if (
       user.passwordUpdate &&
       user.passwordUpdate.expirationDatePasswordCode &&
       user.passwordUpdate.expirationDatePasswordCode < new Date()
     ) {
-      throw new Error('The code has expired');
+      throw new BadRequestException({
+        message: 'The code has expired',
+        field: 'code',
+      });
     }
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this._generateHash(
