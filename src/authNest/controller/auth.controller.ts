@@ -140,7 +140,7 @@ export class AuthController {
   async resendingRegistrationCode(
     @Body() resendCodeConfirmationDto: ConfirmationResendingCodeModel,
   ): Promise<boolean> {
-    this.authService.resendingCode(resendCodeConfirmationDto);
+    await this.authService.resendingCode(resendCodeConfirmationDto);
 
     return true;
   }
@@ -160,7 +160,7 @@ export class AuthController {
   async sendRecoveryPasswordCode(
     @Body() recoveryPasswordCodeDto: EmailPasswordResendingInputModel,
   ): Promise<boolean> {
-    this.authService.resendingPasswordCode(recoveryPasswordCodeDto);
+    await this.authService.resendingPasswordCode(recoveryPasswordCodeDto);
 
     return true;
   }
