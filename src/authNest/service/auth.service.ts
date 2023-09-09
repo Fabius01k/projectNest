@@ -149,7 +149,7 @@ export class AuthService {
     );
     await this.userRepository.registrationUser(newUserToRegistration);
 
-    await this.emailManager.sendEmailConfirmationMessage(newUserToRegistration);
+    this.emailManager.sendEmailConfirmationMessage(newUserToRegistration);
     return true;
   }
   async registrationConfirmationUser(
@@ -204,7 +204,7 @@ export class AuthService {
 
     await this.userRepository.changeConfirmationCode(user.id, confirmationCode);
 
-    await this.emailManager.resendEmailConfirmationMessage(
+    this.emailManager.resendEmailConfirmationMessage(
       resendCodeConfirmationDto.email,
       confirmationCode,
     );
