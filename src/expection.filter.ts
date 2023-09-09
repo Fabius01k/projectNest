@@ -31,6 +31,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
 
+    if (status === 404) {
+      const errorResponse = {
+        errorsMessages: [] as { message: string }[],
+      };
+      const responseBody: any = exception.getResponse();
+
+      responseBody.message.forEach((m) => errorResponse.errorsMessages.push(m));
+
+      response.status(status).json(errorResponse);
+    }
+
     if (status === 400) {
       const errorResponse = {
         errorsMessages: [] as { message: string; field: string }[],

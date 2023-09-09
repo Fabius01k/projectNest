@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   Put,
@@ -73,15 +74,7 @@ export class BlogController {
   @Get(':id')
   async getBlogById(@Param('id') id: string): Promise<BlogView | null> {
     const blog = await this.blogService.getBlogById(id);
-    if (blog) {
-      return blog;
-    } else {
-      throw new BadRequestException([
-        {
-          message: 'Blog not found',
-        },
-      ]);
-    }
+    return blog;
   }
   @UseGuards(BasicAuthGuard)
   @Post()
@@ -90,40 +83,22 @@ export class BlogController {
   }
   @UseGuards(BasicAuthGuard)
   @Put(':id')
+  @HttpCode(204)
   async putBlog(
     @Param('id') id: string,
     @Body() blogDto: BlogInputModel,
-    @Res({ passthrough: true }) res: Response,
   ): Promise<boolean> {
-    const updatedBlog = await this.blogService.putBlog(id, blogDto);
-    if (!updatedBlog) {
-      throw new BadRequestException([
-        {
-          message: 'Blog not found',
-        },
-      ]);
-    } else {
-      res.sendStatus(204);
-      return true;
-    }
+    await this.blogService.putBlog(id, blogDto);
+
+    return true;
   }
   @UseGuards(BasicAuthGuard)
   @Delete(':id')
-  async deleteBlog(
-    @Param('id') id: string,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<boolean> {
-    const blogDeleted = await this.blogService.deleteBlog(id);
-    if (!blogDeleted) {
-      throw new BadRequestException([
-        {
-          message: 'Blog not found',
-        },
-      ]);
-    } else {
-      res.sendStatus(204);
-      return true;
-    }
+  @HttpCode(204)
+  async deleteBlog(@Param('id') id: string): Promise<boolean> {
+    await this.blogService.deleteBlog(id);
+
+    return true;
   }
   @Get(':blogId/posts')
   async getAllPostsForSpecifeldBlog(
@@ -156,20 +131,13 @@ export class BlogController {
     }
 
     const blog = await this.blogService.getBlogById(blogId);
-    if (!blog) {
-      throw new BadRequestException([
-        {
-          message: 'Blog not found',
-        },
-      ]);
-    }
 
     return await this.postService.getAllPostsForSpecifeldBlog(
       sortBy,
       sortDirection,
       pageSize,
       pageNumber,
-      blog.id,
+      blog!.id,
     );
   }
   @UseGuards(BasicAuthGuard)
@@ -182,14 +150,6 @@ export class BlogController {
       postDto,
       blogId,
     );
-
-    if (!post) {
-      throw new BadRequestException([
-        {
-          message: 'Blog not found',
-        },
-      ]);
-    }
 
     return post;
   }

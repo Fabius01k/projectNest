@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   Put,
@@ -74,15 +75,7 @@ export class PostController {
   @Get(':id')
   async getPostById(@Param('id') id: string): Promise<PostView | null> {
     const post = await this.postService.getPostById(id);
-    if (post) {
-      return post;
-    } else {
-      throw new BadRequestException([
-        {
-          message: 'Post not found',
-        },
-      ]);
-    }
+    return post;
   }
   // @Post('posts')
   // async postPost(
@@ -97,52 +90,26 @@ export class PostController {
   ): Promise<PostView | null> {
     const post = await this.postService.postPost(postDto);
 
-    if (!post) {
-      throw new BadRequestException([
-        {
-          message: 'Blog not found',
-        },
-      ]);
-    }
-
     return post;
   }
   @UseGuards(BasicAuthGuard)
   @Put(':id')
+  @HttpCode(204)
   async putPost(
     @Param('id') id: string,
     @Body() postDto: PostCreateInputModel,
-    @Res({ passthrough: true }) res: Response,
   ): Promise<boolean> {
-    const updetedPost = await this.postService.putPost(id, postDto);
-    if (!updetedPost) {
-      throw new BadRequestException([
-        {
-          message: 'Post not found',
-        },
-      ]);
-    } else {
-      res.sendStatus(204);
-      return true;
-    }
+    await this.postService.putPost(id, postDto);
+
+    return true;
   }
   @UseGuards(BasicAuthGuard)
   @Delete(':id')
-  async deletePost(
-    @Param('id') id: string,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<boolean> {
-    const postDeleted = await this.postService.deletePost(id);
-    if (!postDeleted) {
-      throw new BadRequestException([
-        {
-          message: 'Post not found',
-        },
-      ]);
-    } else {
-      res.sendStatus(204);
-      return true;
-    }
+  @HttpCode(204)
+  async deletePost(@Param('id') id: string): Promise<boolean> {
+    await this.postService.deletePost(id);
+
+    return true;
   }
   @Get(':postId/comments')
   async getAllCommentForSpecifeldPost(
@@ -175,20 +142,13 @@ export class PostController {
     }
 
     const post = await this.postService.getPostById(postId);
-    if (!post) {
-      throw new BadRequestException([
-        {
-          message: 'Post not found',
-        },
-      ]);
-    }
 
     return await this.commentService.getAllCommentForSpecifeldPost(
       sortBy,
       sortDirection,
       pageSize,
       pageNumber,
-      post.id,
+      post!.id,
     );
   }
 }

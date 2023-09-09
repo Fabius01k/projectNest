@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CommentResponse, CommentView } from '../schema/comment.schema';
 import { CommentRepository } from '../repository/comment.repository';
 
@@ -6,7 +6,15 @@ import { CommentRepository } from '../repository/comment.repository';
 export class CommentService {
   constructor(protected commentRepository: CommentRepository) {}
   async getCommentById(id: string): Promise<CommentView | null> {
-    return await this.commentRepository.findCommentByIdInDb(id);
+    const comment = await this.commentRepository.findCommentByIdInDb(id);
+    if (!comment) {
+      throw new NotFoundException([
+        {
+          message: 'Comment not found',
+        },
+      ]);
+    }
+    return comment;
   }
   async getAllCommentForSpecifeldPost(
     sortBy: string,

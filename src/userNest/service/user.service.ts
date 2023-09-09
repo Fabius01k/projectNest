@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User, UserResponse, UserView } from '../schema/user.schema';
 import { UserRepository } from '../repository/user.repository';
 import bcrypt from 'bcrypt';
@@ -36,13 +40,23 @@ export class UserService {
       userDto.email,
     );
     if (emailAlreadyUse) {
-      throw new Error('This email is already in use');
+      throw new BadRequestException([
+        {
+          message: 'This email is already in use',
+          field: 'email',
+        },
+      ]);
     }
     const loginAlreadyUse = await this.userRepository.getUserByLoginOrEmail(
       userDto.login,
     );
     if (loginAlreadyUse) {
-      throw new Error('This login is already in use');
+      throw new BadRequestException([
+        {
+          message: 'This login is already in use',
+          field: 'login',
+        },
+      ]);
     }
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this._generateHash(
@@ -81,7 +95,11 @@ export class UserService {
   async deleteUser(id: string): Promise<boolean> {
     const userDeleted = await this.userRepository.deleteUserInDb(id);
     if (!userDeleted) {
-      return false;
+      throw new NotFoundException([
+        {
+          message: 'User not found',
+        },
+      ]);
     }
     return true;
   }

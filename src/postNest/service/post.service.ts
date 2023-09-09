@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   Post,
   PostCreateByBlogIdInputModel,
@@ -48,14 +48,26 @@ export class PostService {
     );
   }
   async getPostById(id: string): Promise<PostView | null> {
-    return await this.postRepository.findPostByIdInDb(id);
+    const post = await this.postRepository.findPostByIdInDb(id);
+    if (!post) {
+      throw new NotFoundException([
+        {
+          message: 'Post not found',
+        },
+      ]);
+    }
+    return post;
   }
   async postPost(postDto: PostCreateInputModel): Promise<PostView | null> {
     const dateNow = new Date().getTime().toString();
     const blog = await this.blogRepository.findBlogByIdInDb(postDto.blogId);
 
     if (!blog) {
-      return null;
+      throw new NotFoundException([
+        {
+          message: 'Blog not found',
+        },
+      ]);
     }
 
     const newPost = new Post(
@@ -90,7 +102,11 @@ export class PostService {
     const blog = await this.blogRepository.findBlogByIdInDb(blogId);
 
     if (!blog) {
-      return null;
+      throw new NotFoundException([
+        {
+          message: 'Blog not found',
+        },
+      ]);
     }
     const newPost = new Post(
       new ObjectId(),
@@ -125,14 +141,22 @@ export class PostService {
       postDto.blogId,
     );
     if (!updatedPost) {
-      return false;
+      throw new NotFoundException([
+        {
+          message: 'Post not found',
+        },
+      ]);
     }
     return true;
   }
   async deletePost(id: string): Promise<boolean> {
     const postDeleted = await this.postRepository.deletePostInDb(id);
     if (!postDeleted) {
-      return false;
+      throw new NotFoundException([
+        {
+          message: 'Post not found',
+        },
+      ]);
     }
     return true;
   }

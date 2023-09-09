@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   Blog,
   BlogInputModel,
@@ -35,7 +35,15 @@ export class BlogService {
     );
   }
   async getBlogById(id: string): Promise<BlogView | null> {
-    return await this.blogRepository.findBlogByIdInDb(id);
+    const blog = await this.blogRepository.findBlogByIdInDb(id);
+    if (!blog) {
+      throw new NotFoundException([
+        {
+          message: 'Blog not found',
+        },
+      ]);
+    }
+    return blog;
   }
   async postBlog(blogDto: BlogInputModel): Promise<BlogView> {
     const dateNow = new Date().getTime().toString();
@@ -59,14 +67,22 @@ export class BlogService {
       blogDto.websiteUrl,
     );
     if (!updatedBlog) {
-      return false;
+      throw new NotFoundException([
+        {
+          message: 'Blog not found',
+        },
+      ]);
     }
     return true;
   }
   async deleteBlog(id: string): Promise<boolean> {
     const blogDeleted = await this.blogRepository.deleteBlogInDb(id);
     if (!blogDeleted) {
-      return false;
+      throw new NotFoundException([
+        {
+          message: 'Blog not found',
+        },
+      ]);
     }
     return true;
   }
