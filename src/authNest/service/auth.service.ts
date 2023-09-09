@@ -153,7 +153,9 @@ export class AuthService {
       throw new BadRequestException(['User not found']);
     }
     if (user.emailConfirmation.isConfirmed) {
-      throw new BadRequestException(['User already confirmed']);
+      throw new BadRequestException([
+        { message: 'User already confirmed', field: 'code' },
+      ]);
     }
     if (user.emailConfirmation.confirmationCode !== codeConfirmationDto.code) {
       throw new BadRequestException(['Invalid confirmation code']);
