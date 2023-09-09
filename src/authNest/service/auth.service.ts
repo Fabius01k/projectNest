@@ -98,19 +98,23 @@ export class AuthService {
       registrationDto.email,
     );
     if (emailAlreadyUse) {
-      throw new BadRequestException({
-        message: 'This email is already in use',
-        field: 'email',
-      });
+      throw new BadRequestException([
+        {
+          message: 'This email is already in use',
+          field: 'email',
+        },
+      ]);
     }
     const loginAlreadyUse = await this.userRepository.getUserByLoginOrEmail(
       registrationDto.login,
     );
     if (loginAlreadyUse) {
-      throw new BadRequestException({
-        message: 'This login is already in use',
-        field: 'login',
-      });
+      throw new BadRequestException([
+        {
+          message: 'This login is already in use',
+          field: 'login',
+        },
+      ]);
     }
 
     const dateNow = new Date().getTime().toString();
