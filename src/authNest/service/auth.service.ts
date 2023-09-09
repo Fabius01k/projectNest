@@ -109,7 +109,7 @@ export class AuthService {
     if (loginAlreadyUse) {
       throw new BadRequestException({
         message: 'This login is already in use',
-        filed: 'login',
+        field: 'login',
       });
     }
 

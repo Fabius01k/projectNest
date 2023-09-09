@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Query,
@@ -84,7 +85,7 @@ export class UserController {
   ): Promise<boolean> {
     const userDeleted = await this.userService.deleteUser(id);
     if (!userDeleted) {
-      throw new BadRequestException([
+      throw new NotFoundException([
         {
           message: 'User not found',
         },
