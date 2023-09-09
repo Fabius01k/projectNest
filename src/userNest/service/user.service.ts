@@ -92,7 +92,7 @@ export class UserService {
 
     return await this.userRepository.createUserInDb(newUser);
   }
-  async deleteUser(id: string): Promise<boolean> {
+  async deleteUser(id: string): Promise<void> {
     const userDeleted = await this.userRepository.deleteUserInDb(id);
     if (!userDeleted) {
       throw new NotFoundException([
@@ -101,7 +101,7 @@ export class UserService {
         },
       ]);
     }
-    return true;
+    return;
   }
   async getUserById(userId: string): Promise<UserView | null> {
     const user = await this.userRepository.findUserByIdInDb(userId);

@@ -40,6 +40,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       responseBody.message.forEach((m) => errorResponse.errorsMessages.push(m));
 
       response.status(status).json(errorResponse);
+      return;
     }
 
     if (status === 400) {
