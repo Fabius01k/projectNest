@@ -7,6 +7,7 @@ import { InformationOfLikeAndDislikePost } from '../postNest/schema/likeOrDislik
 import { Comment } from '../commentNest/schema/comment.schema';
 import { InformationOfLikeAndDislikeComment } from '../commentNest/schema/likeOrDislikeInfoComment.schema';
 import { User } from '../userNest/schema/user.schema';
+import { UserSession } from '../userNest/schema/user-session.schema';
 
 @Injectable()
 export class TestingService {
@@ -18,7 +19,8 @@ export class TestingService {
     @InjectModel(Comment.name) private commentModel: Model<Comment>,
     @InjectModel(InformationOfLikeAndDislikeComment.name)
     private CInfoModel: Model<InformationOfLikeAndDislikeComment>,
-    @InjectModel(User.name) private userModel: Model<User>, // @Injectable(UserSession.name) private userSessionModel: Model<UserSession>,
+    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(UserSession.name) private userSessionModel: Model<UserSession>,
   ) {}
 
   async deleteAllData() {
@@ -28,6 +30,6 @@ export class TestingService {
     await this.commentModel.deleteMany({});
     await this.CInfoModel.deleteMany({});
     await this.userModel.deleteMany({});
-    // await this.userSessionModel.deleteMany({});
+    await this.userSessionModel.deleteMany({});
   }
 }

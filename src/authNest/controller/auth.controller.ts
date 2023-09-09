@@ -69,7 +69,7 @@ export class AuthController {
         secure: true,
         maxAge: 20 * 1000,
       });
-
+      console.log(refreshToken);
       res.send({ accessToken });
       return true;
     }
