@@ -85,7 +85,7 @@ export class UserController {
   ): Promise<boolean> {
     const userDeleted = await this.userService.deleteUser(id);
     if (!userDeleted) {
-      throw new NotFoundException([
+      throw new BadRequestException([
         {
           message: 'User not found',
         },

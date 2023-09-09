@@ -149,7 +149,7 @@ export class AuthService {
     );
     await this.userRepository.registrationUser(newUserToRegistration);
 
-    this.emailManager.sendEmailConfirmationMessage(newUserToRegistration);
+    await this.emailManager.sendEmailConfirmationMessage(newUserToRegistration);
     return true;
   }
   async registrationConfirmationUser(
@@ -194,17 +194,19 @@ export class AuthService {
       ]);
     }
     if (user.emailConfirmation.isConfirmed) {
-      throw new BadRequestException({
-        message: 'User already confirmed',
-        field: 'email',
-      });
+      throw new BadRequestException([
+        {
+          message: 'User already confirmed',
+          field: 'email',
+        },
+      ]);
     }
 
     const confirmationCode = randomUUID();
 
     await this.userRepository.changeConfirmationCode(user.id, confirmationCode);
 
-    this.emailManager.resendEmailConfirmationMessage(
+    await this.emailManager.resendEmailConfirmationMessage(
       resendCodeConfirmationDto.email,
       confirmationCode,
     );
