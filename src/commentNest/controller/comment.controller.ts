@@ -13,13 +13,13 @@ import {
 import { CommentView } from '../schema/comment.schema';
 import { CommentService } from '../service/comment.service';
 import { CommentInputModel } from '../../inputmodels-validation/comments.inputModel';
-import { AuthGuard } from '../../authNest/guards/bearer.guard';
+import { AuthGuard, GetToken } from '../../authNest/guards/bearer.guard';
 import { LikeInputModel } from '../../inputmodels-validation/like.inputModel';
 
 @Controller('comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
-  @UseGuards(AuthGuard)
+  @UseGuards(GetToken)
   @Get(':id')
   async getCommentById(
     @Param('id') id: string,

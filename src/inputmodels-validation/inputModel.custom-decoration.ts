@@ -11,13 +11,10 @@ import { BlogService } from '../blogNest/service/blog.service';
 @ValidatorConstraint({ name: 'blogExist', async: true })
 @Injectable()
 export class BlogNotFoundValidation implements ValidatorConstraintInterface {
-  constructor(
-    private readonly blogRepository: BlogRepository,
-    private readonly blogService: BlogService,
-  ) {}
+  constructor(private readonly blogRepository: BlogRepository) {}
   async validate(blogId: string) {
-    // const blog = await this.blogRepository.findBlogByIdInDb(blogId);
-    const blog = await this.blogService.getBlogById(blogId);
+    const blog = await this.blogRepository.findBlogByIdInDb(blogId);
+
     if (!blog) return false;
     return true;
   }
