@@ -12,10 +12,25 @@ export class BasicAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest();
     const auth = req.headers.authorization;
-    if (!auth) throw new UnauthorizedException();
+    if (!auth)
+      throw new UnauthorizedException([
+        {
+          message: 'Unauthorized',
+        },
+      ]);
     const [authType, authValue] = auth.split(' ');
-    if (authType !== 'Basic') throw new UnauthorizedException();
-    if (authValue !== 'YWRtaW46cXdlcnR5') throw new UnauthorizedException();
+    if (authType !== 'Basic')
+      throw new UnauthorizedException([
+        {
+          message: 'Unauthorized',
+        },
+      ]);
+    if (authValue !== 'YWRtaW46cXdlcnR5')
+      throw new UnauthorizedException([
+        {
+          message: 'Unauthorized',
+        },
+      ]);
     return true;
   }
 }

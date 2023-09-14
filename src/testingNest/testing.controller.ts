@@ -8,7 +8,6 @@ export class TestingController {
 
   @Delete('/all-data')
   @HttpCode(204)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async deleteAllData(@Res({ passthrough: true }) res: Response) {
     await this.myService.deleteAllData();
     return;
