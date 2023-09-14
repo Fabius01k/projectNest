@@ -4,22 +4,16 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { BlogRepository } from '../blogNest/repository/blog.repository';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class BlogNotFound implements ValidatorConstraintInterface {
+export class BlogNotFoundValidation implements ValidatorConstraintInterface {
   constructor(protected blogRepository: BlogRepository) {}
   async validate(blogId: string) {
     const blog = await this.blogRepository.findBlogByIdInDb(blogId);
-    if (!blog) {
-      throw new NotFoundException([
-        {
-          message: 'Blog not found',
-        },
-      ]);
-    }
+    if (!blog) return false;
     return true;
   }
 
@@ -34,7 +28,7 @@ export function FindBlogInDb(validationOptions?: ValidationOptions) {
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
-      validator: BlogNotFound,
+      validator: BlogNotFoundValidation,
     });
   };
 }
