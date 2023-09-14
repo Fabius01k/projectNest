@@ -122,7 +122,6 @@ const dbName = 'myApi';
     RefreshTokenGuard,
     AuthGuard,
     GetToken,
-    BlogNotFoundValidation,
   ],
 })
 export class AppModule {}
