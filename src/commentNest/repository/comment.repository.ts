@@ -89,6 +89,7 @@ export class CommentRepository {
     pageSize: number,
     pageNumber: number,
     postId: string,
+    userId: string | null,
   ): Promise<CommentResponse> {
     const comments: Comment[] = await this.commentModel
       .find({ postId: postId })
@@ -97,7 +98,6 @@ export class CommentRepository {
       .limit(pageSize)
       .exec();
 
-    const userId = null;
     const items = await Promise.all(
       comments.map((c) => this.mapCommentToView(c, userId)),
     );

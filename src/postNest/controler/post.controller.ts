@@ -216,6 +216,7 @@ export class PostController {
       pageSize,
       pageNumber,
       post!.id,
+      userId,
     );
   }
 }

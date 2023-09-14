@@ -43,6 +43,7 @@ export class CommentService {
     pageSize: number,
     pageNumber: number,
     postId: string,
+    userId: string | null,
   ): Promise<CommentResponse> {
     return await this.commentRepository.findAllCommentsForSpecifeldPostInDb(
       sortBy,
@@ -50,6 +51,7 @@ export class CommentService {
       pageSize,
       pageNumber,
       postId,
+      userId,
     );
   }
   async postComment(
