@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { FindBlogInDb } from './inputModel.custom-decoration';
 
 export class PostCreateInputModel {
   @IsString()
@@ -23,6 +24,7 @@ export class PostCreateInputModel {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }) => value.trim())
+  @FindBlogInDb()
   blogId: string;
 }
 export class PostCreateByBlogIdInputModel {
