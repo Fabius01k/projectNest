@@ -2,18 +2,22 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './expection.filter';
-import { ValidationError } from 'class-validator';
+import { useContainer, ValidationError } from 'class-validator';
 import { isNil } from '@nestjs/common/utils/shared.utils';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
   app.use(cookieParser());
   app.enableCors({});
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
+      transformOptions: { enableImplicitConversion: true },
       stopAtFirstError: true,
+      whitelist: true,
       exceptionFactory: (errors) => {
         const errorsForResponse: {
           message: string | undefined;
@@ -36,9 +40,7 @@ async function bootstrap() {
       },
     }),
   );
-
   app.useGlobalFilters(new HttpExceptionFilter());
-  // useContainer(app.use(AppModule), { fallbackOnErrors: true });
   await app.listen(3000);
 }
 bootstrap();
