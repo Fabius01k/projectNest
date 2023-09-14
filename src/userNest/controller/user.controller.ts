@@ -11,9 +11,8 @@ import {
 } from '@nestjs/common';
 import { UserResponse, UserView } from '../schema/user.schema';
 import { UserService } from '../service/user.service';
-
-import { UserInputModel } from '../../authNest/auth-inputModel.ts/auth.inputModel';
-import { BasicAuthGuard } from '../../authNest/strategies/basic.strategy';
+import { BasicAuthGuard } from '../../authNest/guards/basic-auth.guard';
+import { UserInputModel } from '../../inputmodels-validation/user.inputModel';
 @UseGuards(BasicAuthGuard)
 @Controller('users')
 export class UserController {

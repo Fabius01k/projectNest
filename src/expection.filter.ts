@@ -7,22 +7,22 @@ import {
 import { Request, Response } from 'express';
 import * as process from 'process';
 
-@Catch(Error)
-export class ErrorExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-
-    if (process.env.envorinment !== 'production') {
-      response.status(500).send({
-        error: exception.toString(),
-        // stack: exception.stack,
-      });
-    } else {
-      response.status(500).send('Some error has occurred');
-    }
-  }
-}
+// @Catch(Error)
+// export class ErrorExceptionFilter implements ExceptionFilter {
+//   catch(exception: HttpException, host: ArgumentsHost) {
+//     const ctx = host.switchToHttp();
+//     const response = ctx.getResponse<Response>();
+//
+//     if (process.env.envorinment !== 'production') {
+//       response.status(500).send({
+//         error: exception.toString(),
+//         // stack: exception.stack,
+//       });
+//     } else {
+//       response.status(500).send('Some error has occurred');
+//     }
+//   }
+// }
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
@@ -32,6 +32,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus();
 
     if (status === 404) {
+      const errorResponse = {
+        errorsMessages: [] as { message: string }[],
+      };
+      const responseBody: any = exception.getResponse();
+
+      responseBody.message.forEach((m) => errorResponse.errorsMessages.push(m));
+
+      response.status(status).json(errorResponse);
+      return;
+    }
+
+    if (status === 401) {
       const errorResponse = {
         errorsMessages: [] as { message: string }[],
       };

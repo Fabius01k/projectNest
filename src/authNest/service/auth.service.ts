@@ -13,7 +13,7 @@ import {
   ConfirmationResendingCodeModel,
   EmailPasswordResendingInputModel,
   RecoveryPasswordInputModel,
-} from '../auth-inputModel.ts/auth.inputModel';
+} from '../../inputmodels-validation/auth.inputModel';
 
 @Injectable()
 export class AuthService {

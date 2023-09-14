@@ -1,12 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  Blog,
-  BlogInputModel,
-  BlogResponse,
-  BlogView,
-} from '../schema/blog-schema';
+import { Blog, BlogResponse, BlogView } from '../schema/blog-schema';
 import { BlogRepository } from '../repository/blog.repository';
 import { ObjectId } from 'mongodb';
+import { BlogInputModel } from '../../inputmodels-validation/blog.inputModel';
 
 // @Injectable()
 // export class BlogService {

@@ -9,7 +9,8 @@ import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
 import { ObjectId } from 'mongodb';
-import { UserInputModel } from '../../authNest/auth-inputModel.ts/auth.inputModel';
+import { UserInputModel } from '../../inputmodels-validation/user.inputModel';
+import { LikeInputModel } from '../../inputmodels-validation/like.inputModel';
 
 @Injectable()
 export class UserService {

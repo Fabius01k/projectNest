@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { HydratedDocument } from 'mongoose';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
 
 export type CommentDocument = HydratedDocument<Comment>;
 @Schema()
@@ -68,12 +67,7 @@ export type CommentView = {
     myStatus: string;
   };
 };
-export class CommentInputModel {
-  @IsString()
-  @IsNotEmpty()
-  @Length(20, 300)
-  content: string;
-}
+
 export interface CommentResponse {
   pagesCount: number;
   page: number;

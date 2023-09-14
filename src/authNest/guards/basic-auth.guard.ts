@@ -5,21 +5,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
-// @Injectable()
-// export class BasicStrategy extends PassportStrategy(Strategy) {
-//   constructor() {
-//     super();
-//   }
-//   async validate(username, passwrod): Promise<boolean> {
-//     if (
-//       bacisConstans.userName === username &&
-//       bacisConstans.password === passwrod
-//     ) {
-//       return true;
-//     }
-//     throw new UnauthorizedException();
-//   }
-// }
 @Injectable()
 export class BasicAuthGuard implements CanActivate {
   constructor() {}

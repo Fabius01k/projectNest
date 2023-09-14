@@ -205,6 +205,11 @@ export class UserRepository {
 
     return user ? mapUserToDto(user) : null;
   }
+  async findUserInformationByIdInDb(id: string) {
+    const user = await this.userModel.findOne({ id: id });
+
+    return user;
+  }
   async findSessionByRefreshToken(refreshToken: string) {
     const session = await this.userSessionModel.findOne({
       refreshToken: refreshToken,

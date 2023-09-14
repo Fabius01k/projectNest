@@ -12,6 +12,7 @@ import {
   InformationOfLikeAndDislikePostDocument,
 } from '../schema/likeOrDislikeInfoPost-schema';
 import { Blog, BlogDocument } from '../../blogNest/schema/blog-schema';
+import { CommentsLikesInfo } from '../../commentNest/schema/likeOrDislikeInfoComment.schema';
 
 // export const mapPostToDto = async (
 //   post: Post,
@@ -112,6 +113,7 @@ export class PostRepository {
     sortDirection: 'asc' | 'desc',
     pageSize: number,
     pageNumber: number,
+    userId: string | null,
   ): Promise<PostResponse> {
     const filter = searchNameTerm
       ? { name: new RegExp(searchNameTerm, 'gi') }
@@ -124,7 +126,6 @@ export class PostRepository {
       .limit(pageSize)
       .exec();
 
-    const userId = null;
     const items = await Promise.all(
       posts.map((p) => this.mapPostToView(p, userId)),
     );
@@ -144,6 +145,7 @@ export class PostRepository {
     pageSize: number,
     pageNumber: number,
     blogId: string,
+    userId: string | null,
   ): Promise<PostResponse> {
     const posts: Post[] = await this.postModel
       .find({ blogId: blogId })
@@ -152,7 +154,6 @@ export class PostRepository {
       .limit(pageSize)
       .exec();
 
-    const userId = null;
     const items = await Promise.all(
       posts.map((p) => this.mapPostToView(p, userId)),
     );
@@ -166,18 +167,22 @@ export class PostRepository {
       items: items,
     };
   }
-  async findPostByIdInDb(id: string): Promise<PostView | null> {
+  async findPostByIdInDb(
+    id: string,
+    userId: string | null,
+  ): Promise<PostView | null> {
     const post: Post | null = await this.postModel.findOne({ id: id });
     if (!post) return null;
 
-    const userId = null;
     return this.mapPostToView(post, userId);
   }
-  async createPostInDb(newPost: Post): Promise<PostView> {
+  async createPostInDb(
+    newPost: Post,
+    userId: string | null,
+  ): Promise<PostView> {
     const createdPost = new this.postModel(newPost);
     await createdPost.save();
 
-    const userId = null;
     return this.mapPostToView(newPost, userId);
   }
   async updatePostInDb(
@@ -218,5 +223,58 @@ export class PostRepository {
   ): Promise<InformationOfLikeAndDislikePost> {
     const createdInfo = new this.infoModel(InfOfLikeAndDislikePost);
     return await createdInfo.save();
+  }
+  async findPostForLikeOrDislike(postId: string): Promise<Post | null> {
+    const post = await this.postModel.findOne({ id: postId });
+    return post;
+  }
+  async findOldLikeOrDislike(postId: string, userId: string) {
+    const result = await this.infoModel.findOne({
+      postId,
+      'likesInfo.userId': userId,
+    });
+    if (result?.likesInfo) {
+      const likeInfo = result.likesInfo.find((info) => info.userId === userId);
+      return likeInfo;
+    }
+    return null;
+  }
+  async deleteNumberOfLikes(postId: string): Promise<void> {
+    await this.infoModel.updateOne({ postId }, { $inc: { numberOfLikes: -1 } });
+    return;
+  }
+  async deleteNumberOfDislikes(postId: string): Promise<void> {
+    await this.infoModel.updateOne(
+      { postId },
+      { $inc: { numberOfDislikes: -1 } },
+    );
+    return;
+  }
+  async deleteOldLikeDislike(postId: string, userId: string): Promise<void> {
+    await this.infoModel.updateOne(
+      { postId, 'likesInfo.userId': userId },
+      { $pull: { likesInfo: { userId: userId } } },
+    );
+    return;
+  }
+  async updateNumberOfLikes(
+    postId: string,
+    newLikeInfo: CommentsLikesInfo,
+  ): Promise<boolean> {
+    const result = await this.infoModel.updateOne(
+      { postId },
+      { $inc: { numberOfLikes: 1 }, $push: { likesInfo: newLikeInfo } },
+    );
+    return result.modifiedCount === 1;
+  }
+  async updateNumberOfDislikes(
+    postId: string,
+    newLikeInfo: CommentsLikesInfo,
+  ): Promise<boolean> {
+    const result = await this.infoModel.updateOne(
+      { postId },
+      { $inc: { numberOfDislikes: 1 }, $push: { likesInfo: newLikeInfo } },
+    );
+    return result.modifiedCount === 1;
   }
 }

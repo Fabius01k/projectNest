@@ -7,6 +7,7 @@ import {
 } from '../schema/comment.schema';
 import { Model } from 'mongoose';
 import {
+  CommentsLikesInfo,
   InformationOfLikeAndDislikeComment,
   InformationOfLikeAndDislikeCommentDocument,
 } from '../schema/likeOrDislikeInfoComment.schema';
@@ -73,11 +74,13 @@ export class CommentRepository {
       },
     };
   };
-  async findCommentByIdInDb(id: string): Promise<CommentView | null> {
+  async findCommentByIdInDb(
+    id: string,
+    userId: string,
+  ): Promise<CommentView | null> {
     const comment: Comment | null = await this.commentModel.findOne({ id: id });
     if (!comment) return null;
 
-    const userId = null;
     return this.mapCommentToView(comment, userId);
   }
   async findAllCommentsForSpecifeldPostInDb(
@@ -109,5 +112,104 @@ export class CommentRepository {
       totalCount: totalCount,
       items: items,
     };
+  }
+  async createInformationOfLikeAndDislikeComment(
+    newInformationOfLikeAndDislikeComment: InformationOfLikeAndDislikeComment,
+  ): Promise<InformationOfLikeAndDislikeComment> {
+    const createdInformation = new this.infoModelC(
+      newInformationOfLikeAndDislikeComment,
+    );
+    await createdInformation.save();
+    return newInformationOfLikeAndDislikeComment;
+  }
+  async createCommentInDb(newComment: Comment): Promise<CommentView> {
+    const createdComment = new this.commentModel(newComment);
+    await createdComment.save();
+
+    return this.mapCommentToView(newComment, newComment.commentatorInfo.userId);
+  }
+  async updateCommentInDb(
+    commentId: string,
+    content: string,
+  ): Promise<boolean> {
+    const updateComment = await this.commentModel.updateOne(
+      { id: commentId },
+      {
+        $set: {
+          content: content,
+        },
+      },
+    );
+
+    const comment = updateComment.matchedCount === 1;
+    return comment;
+  }
+  async deleteCommentInDb(commentId: string): Promise<boolean> {
+    const deletedComment = await this.commentModel.deleteOne({
+      id: commentId,
+    });
+
+    return deletedComment.deletedCount === 1;
+  }
+  async findCommentForLikeOrDislike(
+    commentId: string,
+  ): Promise<Comment | null> {
+    const comment = await this.commentModel.findOne({
+      id: commentId,
+    });
+    return comment;
+  }
+  async findOldLikeOrDislike(commentId: string, userId: string) {
+    const result = await this.infoModelC.findOne({
+      commentId,
+      'likesInfo.userId': userId,
+    });
+    if (result?.likesInfo) {
+      const likeInfo = result.likesInfo.find((info) => info.userId === userId);
+      return likeInfo;
+    }
+    return null;
+  }
+
+  async deleteNumberOfLikes(commentId: string): Promise<void> {
+    await this.infoModelC.updateOne(
+      { commentId },
+      { $inc: { numberOfLikes: -1 } },
+    );
+    return;
+  }
+  async deleteNumberOfDislikes(commentId: string): Promise<void> {
+    await this.infoModelC.updateOne(
+      { commentId },
+      { $inc: { numberOfDislikes: -1 } },
+    );
+    return;
+  }
+  async deleteOldLikeDislike(commentId: string, userId: string): Promise<void> {
+    await this.infoModelC.updateOne(
+      { commentId, 'likesInfo.userId': userId },
+      { $pull: { likesInfo: { userId: userId } } },
+    );
+    return;
+  }
+  async updateNumberOfLikes(
+    commentId: string,
+    newLikeInfo: CommentsLikesInfo,
+  ): Promise<boolean> {
+    const result = await this.infoModelC.updateOne(
+      { commentId },
+      { $inc: { numberOfLikes: 1 }, $push: { likesInfo: newLikeInfo } },
+    );
+    return result.modifiedCount === 1;
+  }
+  async updateNumberOfDislikes(
+    commentId: string,
+    newLikeInfo: CommentsLikesInfo,
+  ): Promise<boolean> {
+    const result = await this.infoModelC.updateOne(
+      { commentId },
+      { $inc: { numberOfDislikes: 1 }, $push: { likesInfo: newLikeInfo } },
+    );
+    return result.modifiedCount === 1;
   }
 }

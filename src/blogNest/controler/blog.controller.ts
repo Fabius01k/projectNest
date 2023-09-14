@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -9,19 +8,17 @@ import {
   Post,
   Put,
   Query,
-  Res,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { BlogService } from '../service/blog.service';
-import { BlogResponse, BlogView, BlogInputModel } from '../schema/blog-schema';
-import {
-  PostCreateByBlogIdInputModel,
-  PostResponse,
-  PostView,
-} from '../../postNest/schema/post-schema';
+import { BlogResponse, BlogView } from '../schema/blog-schema';
+import { PostResponse, PostView } from '../../postNest/schema/post-schema';
 import { PostService } from '../../postNest/service/post.service';
-import { Response } from 'express';
-import { BasicAuthGuard } from '../../authNest/strategies/basic.strategy';
+import { BasicAuthGuard } from '../../authNest/guards/basic-auth.guard';
+import { PostCreateByBlogIdInputModel } from '../../inputmodels-validation/post.inputModel';
+import { BlogInputModel } from '../../inputmodels-validation/blog.inputModel';
+import { GetToken } from '../../authNest/guards/bearer.guard';
 
 @Controller('blogs')
 export class BlogController {
@@ -95,11 +92,12 @@ export class BlogController {
   @UseGuards(BasicAuthGuard)
   @Delete(':id')
   @HttpCode(204)
-  async deleteBlog(@Param('id') id: string): Promise<boolean> {
+  async deleteBlog(@Param('id') id: string): Promise<void> {
     await this.blogService.deleteBlog(id);
 
-    return true;
+    return;
   }
+  @UseGuards(GetToken)
   @Get(':blogId/posts')
   async getAllPostsForSpecifeldBlog(
     @Param('blogId') blogId: string,
@@ -107,7 +105,12 @@ export class BlogController {
     @Query('sortDirection') sortDirection: 'asc' | 'desc',
     @Query('pageSize') pageSize: number,
     @Query('pageNumber') pageNumber: number,
+    @Request() req,
   ): Promise<PostResponse | null> {
+    let userId = null;
+    if (req.userId) {
+      userId = req.userId;
+    }
     if (!sortBy) {
       sortBy = 'createdAt';
     }
@@ -138,17 +141,25 @@ export class BlogController {
       pageSize,
       pageNumber,
       blog!.id,
+      userId,
     );
   }
+  @UseGuards(GetToken)
   @UseGuards(BasicAuthGuard)
   @Post(':blogId/posts')
   async postPostForSpecifeldBlog(
     @Param('blogId') blogId: string,
     @Body() postDto: PostCreateByBlogIdInputModel,
+    @Request() req,
   ): Promise<PostView | null> {
+    let userId = null;
+    if (req.userId) {
+      userId = req.userId;
+    }
     const post = await this.postService.postPostForSpecifeldBlog(
       postDto,
       blogId,
+      userId,
     );
 
     return post;

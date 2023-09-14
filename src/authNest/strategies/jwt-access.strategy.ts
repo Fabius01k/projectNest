@@ -12,7 +12,7 @@ export class JwtAccessStrategyStrategy extends PassportStrategy(Strategy) {
       secretOrKey: settings.JWT_SECRET,
     });
   }
-  async validation(payload: any) {
+  async validate(payload: any) {
     return {
       userId: payload.sub,
       deviceId: payload.deviceId,

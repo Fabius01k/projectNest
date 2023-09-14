@@ -28,7 +28,7 @@ import { BlogController } from './blogNest/controler/blog.controller';
 import { BlogRepository } from './blogNest/repository/blog.repository';
 import { TestingController } from './testingNest/testing.controller';
 import { TestingService } from './testingNest/testing.service';
-import { settings } from './application/settings';
+import { jwtConstants, settings } from './application/settings';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
@@ -42,9 +42,10 @@ import {
 import { EmailManager } from './managers/email-manager';
 import { ThrottlerModule } from '@nestjs/throttler';
 
-import { BasicAuthGuard } from './authNest/strategies/basic.strategy';
-import { RefreshTokenGuard } from './authNest/strategies/local-refreshToken.strategy';
+import { BasicAuthGuard } from './authNest/guards/basic-auth.guard';
+import { RefreshTokenGuard } from './authNest/guards/refresh-token.guard';
 import { AuthController } from './authNest/controller/auth.controller';
+import { AuthGuard, GetToken } from './authNest/guards/bearer.guard';
 
 const dbName = 'myApi';
 
@@ -90,7 +91,7 @@ const dbName = 'myApi';
     PassportModule,
     JwtModule.register({
       global: true,
-      secret: settings.JWT_SECRET,
+      secret: jwtConstants.secret,
     }),
   ],
   controllers: [
@@ -114,12 +115,12 @@ const dbName = 'myApi';
     UserRepository,
     TestingService,
     AuthService,
-
     JwtAccessStrategyStrategy,
-
     EmailManager,
     BasicAuthGuard,
     RefreshTokenGuard,
+    AuthGuard,
+    GetToken,
   ],
 })
 export class AppModule {}

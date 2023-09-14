@@ -21,8 +21,8 @@ import {
   EmailPasswordResendingInputModel,
   RecoveryPasswordInputModel,
   UserRegistrationInputModel,
-} from '../auth-inputModel.ts/auth.inputModel';
-import { RefreshTokenGuard } from '../strategies/local-refreshToken.strategy';
+} from '../../inputmodels-validation/auth.inputModel';
+import { RefreshTokenGuard } from '../guards/refresh-token.guard';
 
 @Controller('auth')
 export class AuthController {

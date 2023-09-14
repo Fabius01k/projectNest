@@ -45,5 +45,10 @@ export class InformationOfLikeAndDislikeComment {
     this.likesInfo = likesInfo;
   }
 }
+export interface CommentsLikesInfo {
+  userId: string;
+  likeStatus: string;
+  dateOfLikeDislike: Date;
+}
 export const InformationOfLikeAndDislikeCommentSchema =
   SchemaFactory.createForClass(InformationOfLikeAndDislikeComment);
