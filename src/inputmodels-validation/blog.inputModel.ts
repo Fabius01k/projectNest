@@ -12,6 +12,7 @@ export class BlogInputModel {
   description: string;
   @IsString()
   @IsNotEmpty()
+  @Length(1, 100)
   @Matches(
     /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/,
   )
