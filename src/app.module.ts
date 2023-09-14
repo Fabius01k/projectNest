@@ -46,6 +46,7 @@ import { BasicAuthGuard } from './authNest/guards/basic-auth.guard';
 import { RefreshTokenGuard } from './authNest/guards/refresh-token.guard';
 import { AuthController } from './authNest/controller/auth.controller';
 import { AuthGuard, GetToken } from './authNest/guards/bearer.guard';
+import { BlogNotFoundValidation } from './inputmodels-validation/inputModel.custom-decoration';
 
 const dbName = 'myApi';
 
@@ -121,6 +122,7 @@ const dbName = 'myApi';
     RefreshTokenGuard,
     AuthGuard,
     GetToken,
+    BlogNotFoundValidation,
   ],
 })
 export class AppModule {}

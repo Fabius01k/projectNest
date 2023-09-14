@@ -24,7 +24,9 @@ export class PostCreateInputModel {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }) => value.trim())
-  // @FindBlogInDb()
+  @FindBlogInDb({
+    message: 'Blog not found',
+  })
   blogId: string;
 }
 export class PostCreateByBlogIdInputModel {
