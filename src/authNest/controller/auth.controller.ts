@@ -11,7 +11,6 @@ import {
 import { UserService } from '../../userNest/service/user.service';
 import { AuthService } from '../service/auth.service';
 import { randomUUID } from 'crypto';
-import { JwtAccessGuard } from '../guards/jwt-access.guard';
 import { User, UserView } from '../../userNest/schema/user.schema';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import {
@@ -81,6 +80,7 @@ export class AuthController {
 
   @UseGuards(RefreshTokenGuard)
   @Post('refresh-token')
+  @HttpCode(200)
   async GenerateNewTokens(@Request() req, @Response() res): Promise<boolean> {
     const accessToken = await this.authService.createAccessToken(req.userId);
     const oldDeviceID = req.deviceId;
