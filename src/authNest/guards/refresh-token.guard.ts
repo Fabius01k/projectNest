@@ -22,9 +22,10 @@ export class RefreshTokenGuard implements CanActivate {
     const refreshToken = request.cookies['refreshToken'];
 
     if (!refreshToken) {
+      console.log(123);
       throw new UnauthorizedException([
         {
-          message: 'Unauthorized',
+          message: 'Unauthorized1',
         },
       ]);
     }
@@ -36,23 +37,14 @@ export class RefreshTokenGuard implements CanActivate {
       decoded.deviceId !== userSession?.deviceId &&
       decoded.tokenCreationDate !== userSession?.tokenCreationDate
     ) {
+      console.log(1234);
       throw new UnauthorizedException([
         {
-          message: 'Unauthorized',
+          message: 'Unauthorized2',
         },
       ]);
     }
-    try {
-      await this.jwtService.verifyAsync(refreshToken, {
-        secret: jwtConstants.secret,
-      });
-    } catch {
-      throw new UnauthorizedException([
-        {
-          message: 'Unauthorized',
-        },
-      ]);
-    }
+
     request['userId'] = decoded.userId;
     request['deviceId'] = decoded.deviceId;
     request['tokenCreationDate'] = decoded.tokenCreationDate;
