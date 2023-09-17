@@ -62,49 +62,58 @@ export class RefreshTokenGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
-    const refreshToken = request.cookies.refreshToken;
-    console.log(refreshToken);
+    try {
+      const request = context.switchToHttp().getRequest<Request>();
+      const refreshToken = request.cookies.refreshToken;
+      console.log(refreshToken);
 
-    if (!refreshToken) {
-      console.log(123);
+      if (!refreshToken) {
+        console.log(123);
+        throw new UnauthorizedException([
+          {
+            message: 'Unauthorized1',
+          },
+        ]);
+      }
+
+      const result = this.jwtService.verify(refreshToken, {
+        secret: jwtConstants.secret,
+      });
+      if (!result) {
+        throw new UnauthorizedException([
+          {
+            message: 'Unauthorized2',
+          },
+        ]);
+      }
+
+      const decoded = await this.authService.decodeRefreshToken(refreshToken);
+      const userSession =
+        await this.authService.getUserSessionInDb(refreshToken);
+
+      if (
+        decoded.deviceId !== userSession?.deviceId &&
+        decoded.tokenCreationDate !== userSession?.tokenCreationDate
+      ) {
+        console.log(1234);
+        throw new UnauthorizedException([
+          {
+            message: 'Unauthorized3',
+          },
+        ]);
+      }
+
+      request['userId'] = decoded.userId;
+      request['deviceId'] = decoded.deviceId;
+      request['tokenCreationDate'] = decoded.tokenCreationDate;
+
+      return true;
+    } catch (e) {
       throw new UnauthorizedException([
         {
-          message: 'Unauthorized1',
+          message: 'Unauthorized4',
         },
       ]);
     }
-
-    const result = this.jwtService.verify(refreshToken, {
-      secret: jwtConstants.secret,
-    });
-    if (!result) {
-      throw new UnauthorizedException([
-        {
-          message: 'Unauthorized2',
-        },
-      ]);
-    }
-
-    const decoded = await this.authService.decodeRefreshToken(refreshToken);
-    const userSession = await this.authService.getUserSessionInDb(refreshToken);
-
-    if (
-      decoded.deviceId !== userSession?.deviceId &&
-      decoded.tokenCreationDate !== userSession?.tokenCreationDate
-    ) {
-      console.log(1234);
-      throw new UnauthorizedException([
-        {
-          message: 'Unauthorized3',
-        },
-      ]);
-    }
-
-    request['userId'] = decoded.userId;
-    request['deviceId'] = decoded.deviceId;
-    request['tokenCreationDate'] = decoded.tokenCreationDate;
-
-    return true;
   }
 }
