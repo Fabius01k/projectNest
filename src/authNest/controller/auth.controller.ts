@@ -90,7 +90,7 @@ export class AuthController {
     };
 
     const refreshToken = await this.authService.createRefreshToken(
-      req.user.id,
+      req.userId,
       refreshTokenPayload,
     );
     await this.authService.changeDataInSession(oldDeviceID, refreshToken);
@@ -100,6 +100,8 @@ export class AuthController {
       secure: true,
       maxAge: 20 * 1000,
     });
+    console.log(refreshToken);
+    console.log(accessToken);
 
     res.send({ accessToken });
     return true;
