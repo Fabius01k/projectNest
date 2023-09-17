@@ -36,7 +36,7 @@ export class AuthService {
     refreshTokenPayload: any,
   ): Promise<string> {
     const payload = { userId, ...refreshTokenPayload };
-    return this.jwtService.sign(payload, { expiresIn: '7m' });
+    return this.jwtService.sign(payload, { expiresIn: '20s' });
   }
 
   async validateLoginUser(
@@ -53,13 +53,13 @@ export class AuthService {
   }
   async decodeRefreshToken(
     refreshToken: string,
-  ): Promise<{ deviceId: string; userId: string; creationDate: Date }> {
+  ): Promise<{ deviceId: string; userId: string; tokenCreationDate: Date }> {
     const decoded: any = this.jwtService.verify(refreshToken);
     const tokenCreationDate = new Date(decoded.iat * 1000);
     return {
       deviceId: decoded.deviceId,
       userId: decoded.userId,
-      creationDate: tokenCreationDate,
+      tokenCreationDate: tokenCreationDate,
     };
   }
   async createSession(

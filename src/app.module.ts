@@ -47,6 +47,9 @@ import { RefreshTokenGuard } from './authNest/guards/refresh-token.guard';
 import { AuthController } from './authNest/controller/auth.controller';
 import { AuthGuard, GetToken } from './authNest/guards/bearer.guard';
 import { BlogNotFoundValidation } from './inputmodels-validation/inputModel.custom-decoration';
+import { SecurityController } from './securityNest/controler/security.controller';
+import { SecurityService } from './securityNest/service/security.service';
+import { SecurityRepository } from './securityNest/repository/security.repository';
 
 const dbName = 'myApi';
 
@@ -103,6 +106,7 @@ const dbName = 'myApi';
     UserController,
     TestingController,
     AuthController,
+    SecurityController,
   ],
   providers: [
     AppService,
@@ -116,6 +120,8 @@ const dbName = 'myApi';
     UserRepository,
     TestingService,
     AuthService,
+    SecurityService,
+    SecurityRepository,
     JwtAccessStrategyStrategy,
     EmailManager,
     BasicAuthGuard,

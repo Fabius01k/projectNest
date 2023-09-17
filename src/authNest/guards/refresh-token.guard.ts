@@ -17,7 +17,11 @@ export class RefreshTokenGuard implements CanActivate {
     const refreshToken = request.cookies['refreshToken'];
 
     if (!refreshToken) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException([
+        {
+          message: 'Unauthorized',
+        },
+      ]);
     }
 
     const decoded = await this.authService.decodeRefreshToken(refreshToken);
@@ -25,10 +29,18 @@ export class RefreshTokenGuard implements CanActivate {
 
     if (
       decoded.deviceId !== userSession?.deviceId &&
-      decoded.creationDate !== userSession?.tokenCreationDate
+      decoded.tokenCreationDate !== userSession?.tokenCreationDate
     ) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException([
+        {
+          message: 'Unauthorized',
+        },
+      ]);
     }
+    request['userId'] = decoded.userId;
+    request['deviceId'] = decoded.deviceId;
+    request['tokenCreationDate'] = decoded.tokenCreationDate;
+
     return true;
   }
 }

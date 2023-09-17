@@ -10,11 +10,10 @@ import {
 } from '@nestjs/common';
 import { UserService } from '../../userNest/service/user.service';
 import { AuthService } from '../service/auth.service';
-// import { LocalLoginGuard } from '../guards/local-login.guard';
 import { randomUUID } from 'crypto';
 import { JwtAccessGuard } from '../guards/jwt-access.guard';
 import { User, UserView } from '../../userNest/schema/user.schema';
-// import { ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import {
   ConfirmationCodeModel,
   ConfirmationResendingCodeModel,
@@ -30,7 +29,7 @@ export class AuthController {
     private readonly usersService: UserService,
     private readonly authService: AuthService,
   ) {}
-
+  @UseGuards(ThrottlerGuard)
   @Post('login')
   @HttpCode(200)
   async LoginUser(
@@ -114,7 +113,7 @@ export class AuthController {
     res.sendStatus(204);
     return true;
   }
-
+  @UseGuards(ThrottlerGuard)
   @Post('registration')
   @HttpCode(204)
   async registrationUser(
@@ -124,7 +123,7 @@ export class AuthController {
 
     return true;
   }
-
+  @UseGuards(ThrottlerGuard)
   @Post('registration-confirmation')
   @HttpCode(204)
   async registrationConfirmationUser(
@@ -134,7 +133,7 @@ export class AuthController {
 
     return true;
   }
-
+  @UseGuards(ThrottlerGuard)
   @Post('registration-email-resending')
   @HttpCode(204)
   async resendingRegistrationCode(
@@ -144,7 +143,7 @@ export class AuthController {
 
     return true;
   }
-
+  @UseGuards(ThrottlerGuard)
   @Post('new-password')
   @HttpCode(204)
   async recoveryPasswordForUser(
@@ -154,7 +153,7 @@ export class AuthController {
 
     return true;
   }
-
+  @UseGuards(ThrottlerGuard)
   @Post('password-recovery')
   @HttpCode(204)
   async sendRecoveryPasswordCode(
