@@ -28,7 +28,7 @@ export class AuthService {
   }
   async createAccessToken(userId: string): Promise<string> {
     const payload = { userId };
-    return this.jwtService.sign(payload, { expiresIn: '7m' });
+    return this.jwtService.sign(payload, { expiresIn: '10s' });
   }
 
   async createRefreshToken(
