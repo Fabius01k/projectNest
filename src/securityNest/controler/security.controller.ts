@@ -17,7 +17,7 @@ export class SecurityController {
   @UseGuards(RefreshTokenGuard)
   @Get('devices')
   async getAllActiveUsersSession(@Request() req): Promise<UserSessionView[]> {
-    const sessionId = req.user.id;
+    const sessionId = req.userId;
     const sessionOfUser: UserSessionView[] =
       await this.securityService.getAllActiveUsersSession(sessionId);
 
