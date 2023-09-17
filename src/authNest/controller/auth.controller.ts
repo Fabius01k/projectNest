@@ -22,6 +22,7 @@ import {
   UserRegistrationInputModel,
 } from '../../inputmodels-validation/auth.inputModel';
 import { RefreshTokenGuard } from '../guards/refresh-token.guard';
+import { AuthGuard } from '../guards/bearer.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -164,13 +165,13 @@ export class AuthController {
     return true;
   }
 
-  @UseGuards(JwtAccessGuard)
+  @UseGuards(AuthGuard)
   @Get('me')
   async getInformationAboutUser(
     @Request() req,
     @Response() res,
   ): Promise<UserView | null> {
-    const user = await this.usersService.getUserById(req.user.userId);
+    const user = await this.usersService.getUserById(req.userId);
     if (!user) {
       return res.sendStatus(401);
     }
