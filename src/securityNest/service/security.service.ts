@@ -48,10 +48,13 @@ export class SecurityService {
         },
       ]);
     }
+
     if (ownerOfSendToken!.id !== userSessionInDb?.sessionId) {
-      throw new ForbiddenException(
-        'You are not allowed to delete this session',
-      );
+      throw new ForbiddenException([
+        {
+          message: 'You are not allowed to delete this session',
+        },
+      ]);
     }
 
     if (
