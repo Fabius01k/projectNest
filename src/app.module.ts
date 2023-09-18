@@ -59,7 +59,7 @@ const dbName = 'myApi';
     ConfigModule.forRoot(),
     ThrottlerModule.forRoot([
       {
-        ttl: 10000,
+        ttl: 10,
         limit: 5,
       },
     ]),
