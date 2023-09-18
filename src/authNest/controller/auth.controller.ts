@@ -116,7 +116,7 @@ export class AuthController {
     res.sendStatus(204);
     return true;
   }
-  // @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 5, ttl: 10000 } })
   // @Throttle(5, 10)
   @Post('registration')
