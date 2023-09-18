@@ -40,7 +40,7 @@ import {
   UserSessionSchema,
 } from './userNest/schema/user-session.schema';
 import { EmailManager } from './managers/email-manager';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { BasicAuthGuard } from './authNest/guards/basic-auth.guard';
 import { RefreshTokenGuard } from './authNest/guards/refresh-token.guard';
@@ -50,6 +50,7 @@ import { BlogNotFoundValidation } from './inputmodels-validation/inputModel.cust
 import { SecurityController } from './securityNest/controler/security.controller';
 import { SecurityService } from './securityNest/service/security.service';
 import { SecurityRepository } from './securityNest/repository/security.repository';
+import { APP_GUARD } from '@nestjs/core';
 
 const dbName = 'myApi';
 
@@ -129,6 +130,7 @@ const dbName = 'myApi';
     AuthGuard,
     GetToken,
     BlogNotFoundValidation,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
 export class AppModule {}
