@@ -42,6 +42,7 @@ export class SecurityController {
   ): Promise<void> {
     const creationDateOfToken = req.tokenCreationDate;
     const userId = req.userId;
+    console.log(deviceId, 'controller');
 
     await this.securityService.deleteSessionByDeviceId(
       deviceId,

@@ -36,6 +36,7 @@ export class SecurityService {
     userId: string,
     creationDateOfToken: Date,
   ): Promise<boolean> {
+    console.log(deviceId, 'service');
     const ownerOfSendToken =
       await this.userRepository.findUserInformationByIdInDb(userId);
     const userSessionInDb =

@@ -36,9 +36,10 @@ export class SecurityRepository {
     });
     return sessionsDeleted.deletedCount === 1;
   }
-  async findSessionsForDelete(sessionId: string): Promise<UserSession | null> {
+  async findSessionsForDelete(deviceId: string): Promise<UserSession | null> {
+    console.log(deviceId, 'controller');
     const session = await this.userSessionModel.findOne({
-      sessionId: sessionId,
+      deviceId: deviceId,
     });
     return session;
   }
