@@ -40,7 +40,7 @@ import {
   UserSessionSchema,
 } from './userNest/schema/user-session.schema';
 import { EmailManager } from './managers/email-manager';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { BasicAuthGuard } from './authNest/guards/basic-auth.guard';
 import { RefreshTokenGuard } from './authNest/guards/refresh-token.guard';
@@ -57,12 +57,12 @@ const dbName = 'myApi';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    ThrottlerModule.forRoot([
-      {
-        ttl: 10,
-        limit: 5,
-      },
-    ]),
+    // ThrottlerModule.forRoot([
+    //   {
+    //     ttl: 10,
+    //     limit: 5,
+    //   },
+    // ]),
     MongooseModule.forRoot(
       settings.MONGO_URI || `mongodb://0.0.0.0:27017/${dbName}`,
     ),
