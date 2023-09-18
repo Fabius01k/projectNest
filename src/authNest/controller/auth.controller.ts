@@ -116,7 +116,7 @@ export class AuthController {
     res.sendStatus(204);
     return true;
   }
-  // @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 5, ttl: 10000 } })
   @Post('registration')
   @HttpCode(204)
@@ -128,7 +128,6 @@ export class AuthController {
     return true;
   }
   @UseGuards(ThrottlerGuard)
-  // @Throttle({ default: { limit: 5, ttl: 10000 } })
   @Post('registration-confirmation')
   @HttpCode(204)
   async registrationConfirmationUser(
@@ -139,7 +138,6 @@ export class AuthController {
     return true;
   }
   @UseGuards(ThrottlerGuard)
-  // @Throttle({ default: { limit: 5, ttl: 10000 } })
   @Post('registration-email-resending')
   @HttpCode(204)
   async resendingRegistrationCode(
@@ -150,7 +148,6 @@ export class AuthController {
     return true;
   }
   @UseGuards(ThrottlerGuard)
-  // @Throttle({ default: { limit: 5, ttl: 10000 } })
   @Post('new-password')
   @HttpCode(204)
   async recoveryPasswordForUser(
@@ -160,8 +157,7 @@ export class AuthController {
 
     return true;
   }
-  // @UseGuards(ThrottlerGuard)
-  @Throttle({ default: { limit: 5, ttl: 10000 } })
+  @UseGuards(ThrottlerGuard)
   @Post('password-recovery')
   @HttpCode(204)
   async sendRecoveryPasswordCode(
