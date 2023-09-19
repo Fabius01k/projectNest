@@ -59,7 +59,7 @@ const dbName = 'myApi';
     ConfigModule.forRoot(),
     ThrottlerModule.forRoot([
       {
-        ttl: 10,
+        ttl: 10000,
         limit: 5,
       },
     ]),
@@ -130,7 +130,7 @@ const dbName = 'myApi';
     AuthGuard,
     GetToken,
     BlogNotFoundValidation,
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
 export class AppModule {}

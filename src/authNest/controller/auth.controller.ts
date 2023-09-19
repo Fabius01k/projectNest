@@ -117,7 +117,7 @@ export class AuthController {
     return true;
   }
   @UseGuards(ThrottlerGuard)
-  @Throttle({ default: { limit: 5, ttl: 10000 } })
+  //@Throttle({ default: { limit: 5, ttl: 10000 } })
   // @Throttle(5, 10)
   @Post('registration')
   @HttpCode(204)
