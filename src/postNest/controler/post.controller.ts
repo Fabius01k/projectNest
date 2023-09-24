@@ -25,6 +25,15 @@ import { CommentInputModel } from '../../inputmodels-validation/comments.inputMo
 import { AuthGuard, GetToken } from '../../authNest/guards/bearer.guard';
 import { LikeInputModel } from '../../inputmodels-validation/like.inputModel';
 import { UserService } from '../../userNest/service/user.service';
+import { CommandBus } from '@nestjs/cqrs';
+import { GetAllPostsCommand } from '../post.use-cases/getAllPosts.use-case';
+import { GetPostByIdCommand } from '../post.use-cases/getPotsById.use-case';
+import { CreatePostCommand } from '../post.use-cases/createPost.use-case';
+import { UpdatePostCommand } from '../post.use-cases/updatePost.use-case';
+import { DeletePostCommand } from '../post.use-cases/deletePost.use-case';
+import { MakeLikeOrDislikePCommand } from '../post.use-cases/makeLikeOrDislike.use-case';
+import { GetAllCommentsForSpecificPostCommand } from '../../commentNest/comment.use-cases/getAllCommentsForSpecificPost.use-case';
+import { CreateCommentCommand } from '../../commentNest/comment.use-cases/createComment.use-case';
 
 @Controller('posts')
 export class PostController {
@@ -32,6 +41,7 @@ export class PostController {
     private readonly postService: PostService,
     private readonly commentService: CommentService,
     private readonly userService: UserService,
+    private readonly commandBus: CommandBus,
   ) {}
   @UseGuards(GetToken)
   @Get()
@@ -73,13 +83,15 @@ export class PostController {
       pageNumber = 1;
     }
 
-    return await this.postService.getAllPosts(
-      searchNameTerm,
-      sortBy,
-      sortDirection,
-      pageSize,
-      pageNumber,
-      userId,
+    return await this.commandBus.execute(
+      new GetAllPostsCommand(
+        searchNameTerm,
+        sortBy,
+        sortDirection,
+        pageSize,
+        pageNumber,
+        userId,
+      ),
     );
   }
   @UseGuards(GetToken)
@@ -92,15 +104,11 @@ export class PostController {
     if (req.userId) {
       userId = req.userId;
     }
-    const post = await this.postService.getPostById(id, userId);
+    const post = await this.commandBus.execute(
+      new GetPostByIdCommand(id, userId),
+    );
     return post;
   }
-  // @Post('posts')
-  // async postPost(
-  //   @Body() postDto: PostCreateInputModel,
-  // ): Promise<PostView | null> {
-  //   return await this.postService.postPost(postDto);
-  // }
   @UseGuards(GetToken)
   @UseGuards(BasicAuthGuard)
   @Post()
@@ -112,7 +120,9 @@ export class PostController {
     if (req.userId) {
       userId = req.userId;
     }
-    const post = await this.postService.postPost(postDto, userId);
+    const post = await this.commandBus.execute(
+      new CreatePostCommand(postDto, userId),
+    );
 
     return post;
   }
@@ -123,10 +133,8 @@ export class PostController {
     @Body() commentDto: CommentInputModel,
     @Request() req,
   ): Promise<CommentView | null> {
-    const comment = await this.commentService.postComment(
-      commentDto,
-      postId,
-      req.userId,
+    const comment = await this.commandBus.execute(
+      new CreateCommentCommand(commentDto, postId, req.userId),
     );
 
     return comment;
@@ -138,7 +146,7 @@ export class PostController {
     @Param('id') id: string,
     @Body() postDto: PostCreateInputModel,
   ): Promise<boolean> {
-    await this.postService.putPost(id, postDto);
+    await this.commandBus.execute(new UpdatePostCommand(id, postDto));
 
     return true;
   }
@@ -154,12 +162,14 @@ export class PostController {
     const user = await this.userService.getUserById(req.userId);
     const dateOfLikeDislike = new Date();
 
-    await this.postService.makeLikeOrDislike(
-      req.userId,
-      user!.login,
-      postId,
-      likeDto,
-      dateOfLikeDislike,
+    await this.commandBus.execute(
+      new MakeLikeOrDislikePCommand(
+        req.userId,
+        user!.login,
+        postId,
+        likeDto,
+        dateOfLikeDislike,
+      ),
     );
 
     return true;
@@ -168,7 +178,7 @@ export class PostController {
   @Delete(':id')
   @HttpCode(204)
   async deletePost(@Param('id') id: string): Promise<void> {
-    await this.postService.deletePost(id);
+    await this.commandBus.execute(new DeletePostCommand(id));
 
     return;
   }
@@ -208,15 +218,19 @@ export class PostController {
       pageNumber = 1;
     }
 
-    const post = await this.postService.getPostById(postId, userId);
+    const post = await this.commandBus.execute(
+      new GetPostByIdCommand(postId, userId),
+    );
 
-    return await this.commentService.getAllCommentForSpecifeldPost(
-      sortBy,
-      sortDirection,
-      pageSize,
-      pageNumber,
-      post!.id,
-      userId,
+    return await this.commandBus.execute(
+      new GetAllCommentsForSpecificPostCommand(
+        sortBy,
+        sortDirection,
+        pageSize,
+        pageNumber,
+        post!.id,
+        userId,
+      ),
     );
   }
 }

@@ -13,10 +13,17 @@ import { UserResponse, UserView } from '../schema/user.schema';
 import { UserService } from '../service/user.service';
 import { BasicAuthGuard } from '../../authNest/guards/basic-auth.guard';
 import { UserInputModel } from '../../inputmodels-validation/user.inputModel';
+import { CommandBus } from '@nestjs/cqrs';
+import { GetAllUsersCommand } from '../user.use-cases/getAllUsers.use-case';
+import { CreateUserCommand } from '../user.use-cases/createUser.use-case';
+import { DeleteUserCommand } from '../user.use-cases/deleteUser.use-case';
 @UseGuards(BasicAuthGuard)
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly commandBus: CommandBus,
+  ) {}
   @Get()
   async getAllUsers(
     @Query('searchLoginTerm') searchLoginTerm: string | null,
@@ -62,23 +69,25 @@ export class UserController {
       pageNumber = 1;
     }
 
-    return await this.userService.getAllUsers(
-      searchLoginTerm,
-      searchEmailTerm,
-      sortBy,
-      sortDirection,
-      pageSize,
-      pageNumber,
+    return await this.commandBus.execute(
+      new GetAllUsersCommand(
+        searchLoginTerm,
+        searchEmailTerm,
+        sortBy,
+        sortDirection,
+        pageSize,
+        pageNumber,
+      ),
     );
   }
   @Post()
   async postUser(@Body() userDto: UserInputModel): Promise<UserView> {
-    return await this.userService.postUser(userDto);
+    return await this.commandBus.execute(new CreateUserCommand(userDto));
   }
 
   @Delete(':id')
   @HttpCode(204)
   async deleteUser(@Param('id') id: string): Promise<void> {
-    return await this.userService.deleteUser(id);
+    return await this.commandBus.execute(new DeleteUserCommand(id));
   }
 }

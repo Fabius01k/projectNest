@@ -40,7 +40,6 @@ import {
   UserSessionSchema,
 } from './userNest/schema/user-session.schema';
 import { EmailManager } from './managers/email-manager';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { BasicAuthGuard } from './authNest/guards/basic-auth.guard';
 import { RefreshTokenGuard } from './authNest/guards/refresh-token.guard';
@@ -50,12 +49,113 @@ import { BlogNotFoundValidation } from './inputmodels-validation/inputModel.cust
 import { SecurityController } from './securityNest/controler/security.controller';
 import { SecurityService } from './securityNest/service/security.service';
 import { SecurityRepository } from './securityNest/repository/security.repository';
-import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { GetAllBlogsUseCase } from './blogNest/blog.use-cases/getAllBlogs.use-case';
+import { CqrsModule } from '@nestjs/cqrs';
+import { GetBlogByIdUseCase } from './blogNest/blog.use-cases/getBlogById.use-case';
+import { CreateBlogUseCase } from './blogNest/blog.use-cases/createBlog.use-case';
+import { UpdateBlogUseCase } from './blogNest/blog.use-cases/updateBlog.use-case';
+import { DeleteBlogUseCase } from './blogNest/blog.use-cases/deleteBlog.use-case';
+import { GetAllPostsUseCase } from './postNest/post.use-cases/getAllPosts.use-case';
+import { GetPostByIdUseCase } from './postNest/post.use-cases/getPotsById.use-case';
+import { GetAllPostsForSpecificBlogUseCase } from './postNest/post.use-cases/getAllPostForSpecificBlog.use-case';
+import { CreatePostForSpecificBlogUseCase } from './postNest/post.use-cases/createPostForSpecificBlog.use-case';
+import { CreatePostUseCase } from './postNest/post.use-cases/createPost.use-case';
+import { UpdatePostUseCase } from './postNest/post.use-cases/updatePost.use-case';
+import { DeletePostUseCase } from './postNest/post.use-cases/deletePost.use-case';
+import { MakeLikeOrDislikeUseCase } from './postNest/post.use-cases/makeLikeOrDislike.use-case';
+import { GetCommentByIdUseCase } from './commentNest/comment.use-cases/getCommentById.use-case';
+import { GetAllCommentsForSpecificPostCommand } from './commentNest/comment.use-cases/getAllCommentsForSpecificPost.use-case';
+import { CreateCommentUseCase } from './commentNest/comment.use-cases/createComment.use-case';
+import { UpdateCommentUseCase } from './commentNest/comment.use-cases/updateComment.use-case';
+import { DeleteCommentUseCase } from './commentNest/comment.use-cases/deleteComment.use-case';
+import { GetAllUsersUseCase } from './userNest/user.use-cases/getAllUsers.use-case';
+import { CreateUserUserCase } from './userNest/user.use-cases/createUser.use-case';
+import { DeleteUserUseCase } from './userNest/user.use-cases/deleteUser.use-case';
+import { GetAllActiveSessionsUseCase } from './securityNest/security.use.cases/getAllActiveSessions.use-case';
+import { DeleteAllOtherSessionsUseCase } from './securityNest/security.use.cases/deleteAllOtherSessions.use-case';
+import { DeleteSessionByDeviceIdUseCase } from './securityNest/security.use.cases/deleteSessionByDeviceId.use-case';
+import { CreateSessionUseCase } from './authNest/auth-inputModel.ts/createSession.use-case';
+import { RegistrationUserUseCase } from './authNest/auth-inputModel.ts/registrationUser.use-case';
+import { RegistrationConfirmationUserUseCase } from './authNest/auth-inputModel.ts/registrationConfirmationUser.use-case';
+import { ResendingConfirmationCodeUseCase } from './authNest/auth-inputModel.ts/resendingConfirmationCode.use-case';
+import { MakeNewPasswordUseCase } from './authNest/auth-inputModel.ts/makeNewPassword.use-case';
+import { ResendingPasswordCodeUseCase } from './authNest/auth-inputModel.ts/resendingPasswordCode.use-case';
 
 const dbName = 'myApi';
+const services = [
+  AppService,
+  BlogService,
+  PostService,
+  CommentService,
+  UserService,
+  AuthService,
+  SecurityService,
+  TestingService,
+];
+const adapters = [
+  BlogRepository,
+  PostRepository,
+  CommentRepository,
+  UserRepository,
+  SecurityRepository,
+];
+const guardsAndValidations = [
+  JwtAccessStrategyStrategy,
+  EmailManager,
+  BasicAuthGuard,
+  RefreshTokenGuard,
+  AuthGuard,
+  GetToken,
+  BlogNotFoundValidation,
+];
+const blogUseCases = [
+  GetAllBlogsUseCase,
+  GetBlogByIdUseCase,
+  CreateBlogUseCase,
+  UpdateBlogUseCase,
+  DeleteBlogUseCase,
+];
+const postUseCases = [
+  GetAllPostsUseCase,
+  GetAllPostsForSpecificBlogUseCase,
+  GetPostByIdUseCase,
+  CreatePostForSpecificBlogUseCase,
+  CreatePostUseCase,
+  UpdatePostUseCase,
+  DeletePostUseCase,
+  MakeLikeOrDislikeUseCase,
+];
+const commentUseCases = [
+  GetCommentByIdUseCase,
+  GetAllCommentsForSpecificPostCommand,
+  CreateCommentUseCase,
+  UpdateCommentUseCase,
+  DeleteCommentUseCase,
+  MakeLikeOrDislikeUseCase,
+];
+const userUseCases = [
+  GetAllUsersUseCase,
+  CreateUserUserCase,
+  DeleteUserUseCase,
+];
+const securityUseCases = [
+  GetAllActiveSessionsUseCase,
+  DeleteAllOtherSessionsUseCase,
+  DeleteSessionByDeviceIdUseCase,
+];
+const authUseCases = [
+  CreateSessionUseCase,
+  RegistrationUserUseCase,
+  RegistrationConfirmationUserUseCase,
+  ResendingConfirmationCodeUseCase,
+  MakeNewPasswordUseCase,
+  ResendingPasswordCodeUseCase,
+];
 
 @Module({
   imports: [
+    CqrsModule,
     ConfigModule.forRoot(),
     ThrottlerModule.forRoot([
       {
@@ -110,27 +210,15 @@ const dbName = 'myApi';
     SecurityController,
   ],
   providers: [
-    AppService,
-    BlogService,
-    BlogRepository,
-    PostService,
-    PostRepository,
-    CommentService,
-    CommentRepository,
-    UserService,
-    UserRepository,
-    TestingService,
-    AuthService,
-    SecurityService,
-    SecurityRepository,
-    JwtAccessStrategyStrategy,
-    EmailManager,
-    BasicAuthGuard,
-    RefreshTokenGuard,
-    AuthGuard,
-    GetToken,
-    BlogNotFoundValidation,
-    // { provide: APP_GUARD, useClass: ThrottlerGuard },
+    ...guardsAndValidations,
+    ...adapters,
+    ...services,
+    ...blogUseCases,
+    ...postUseCases,
+    ...commentUseCases,
+    ...userUseCases,
+    ...securityUseCases,
+    ...authUseCases,
   ],
 })
 export class AppModule {}

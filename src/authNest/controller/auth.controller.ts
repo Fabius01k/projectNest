@@ -12,7 +12,7 @@ import { UserService } from '../../userNest/service/user.service';
 import { AuthService } from '../service/auth.service';
 import { randomUUID } from 'crypto';
 import { User, UserView } from '../../userNest/schema/user.schema';
-import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import {
   ConfirmationCodeModel,
   ConfirmationResendingCodeModel,
@@ -22,12 +22,20 @@ import {
 } from '../../inputmodels-validation/auth.inputModel';
 import { RefreshTokenGuard } from '../guards/refresh-token.guard';
 import { AuthGuard } from '../guards/bearer.guard';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateSessionCommand } from '../auth-inputModel.ts/createSession.use-case';
+import { RegistrationUserCommand } from '../auth-inputModel.ts/registrationUser.use-case';
+import { RegistrationConfirmationUserCommand } from '../auth-inputModel.ts/registrationConfirmationUser.use-case';
+import { ResendingConfirmationCodeCommand } from '../auth-inputModel.ts/resendingConfirmationCode.use-case';
+import { MakeNewPasswordCommand } from '../auth-inputModel.ts/makeNewPassword.use-case';
+import { ResendingPasswordCodeCommand } from '../auth-inputModel.ts/resendingPasswordCode.use-case';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly usersService: UserService,
     private readonly authService: AuthService,
+    private readonly commandBus: CommandBus,
   ) {}
   @UseGuards(ThrottlerGuard)
   @Post('login')
@@ -57,12 +65,14 @@ export class AuthController {
       const ip = req.ip;
       const title = req.headers['user-agent'] || 'Unknown';
 
-      await this.authService.createSession(
-        sessionId,
-        ip,
-        title,
-        refreshTokenPayload.deviceId,
-        refreshToken,
+      await this.commandBus.execute(
+        new CreateSessionCommand(
+          sessionId,
+          ip,
+          title,
+          refreshTokenPayload.deviceId,
+          refreshToken,
+        ),
       );
 
       res.cookie('refreshToken', refreshToken, {
@@ -124,7 +134,7 @@ export class AuthController {
   async registrationUser(
     @Body() registrationDto: UserRegistrationInputModel,
   ): Promise<boolean> {
-    await this.authService.registrationUser(registrationDto);
+    await this.commandBus.execute(new RegistrationUserCommand(registrationDto));
 
     return true;
   }
@@ -134,7 +144,9 @@ export class AuthController {
   async registrationConfirmationUser(
     @Body() codeConfirmationDto: ConfirmationCodeModel,
   ): Promise<boolean> {
-    await this.authService.registrationConfirmationUser(codeConfirmationDto);
+    await this.commandBus.execute(
+      new RegistrationConfirmationUserCommand(codeConfirmationDto),
+    );
 
     return true;
   }
@@ -144,7 +156,9 @@ export class AuthController {
   async resendingRegistrationCode(
     @Body() resendCodeConfirmationDto: ConfirmationResendingCodeModel,
   ): Promise<boolean> {
-    await this.authService.resendingCode(resendCodeConfirmationDto);
+    await this.commandBus.execute(
+      new ResendingConfirmationCodeCommand(resendCodeConfirmationDto),
+    );
 
     return true;
   }
@@ -154,7 +168,9 @@ export class AuthController {
   async recoveryPasswordForUser(
     @Body() recoveryPasswordDto: RecoveryPasswordInputModel,
   ): Promise<boolean> {
-    await this.authService.makeNewPassword(recoveryPasswordDto);
+    await this.commandBus.execute(
+      new MakeNewPasswordCommand(recoveryPasswordDto),
+    );
 
     return true;
   }
@@ -164,7 +180,9 @@ export class AuthController {
   async sendRecoveryPasswordCode(
     @Body() recoveryPasswordCodeDto: EmailPasswordResendingInputModel,
   ): Promise<boolean> {
-    await this.authService.resendingPasswordCode(recoveryPasswordCodeDto);
+    await this.commandBus.execute(
+      new ResendingPasswordCodeCommand(recoveryPasswordCodeDto),
+    );
 
     return true;
   }

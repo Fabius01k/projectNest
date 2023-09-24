@@ -19,12 +19,21 @@ import { BasicAuthGuard } from '../../authNest/guards/basic-auth.guard';
 import { PostCreateByBlogIdInputModel } from '../../inputmodels-validation/post.inputModel';
 import { BlogInputModel } from '../../inputmodels-validation/blog.inputModel';
 import { GetToken } from '../../authNest/guards/bearer.guard';
+import { GetAllBlogsCommand } from '../blog.use-cases/getAllBlogs.use-case';
+import { CommandBus } from '@nestjs/cqrs';
+import { GetBlogByIdCommand } from '../blog.use-cases/getBlogById.use-case';
+import { CreateBlogCommand } from '../blog.use-cases/createBlog.use-case';
+import { UpdateBlogCommand } from '../blog.use-cases/updateBlog.use-case';
+import { DeleteBlogCommand } from '../blog.use-cases/deleteBlog.use-case';
+import { GetAllPostsForSpecificBlogCommand } from '../../postNest/post.use-cases/getAllPostForSpecificBlog.use-case';
+import { CreatePostForSpecificBlogCommand } from '../../postNest/post.use-cases/createPostForSpecificBlog.use-case';
 
 @Controller('blogs')
 export class BlogController {
   constructor(
     private readonly blogService: BlogService,
     private readonly postService: PostService,
+    private readonly commandBus: CommandBus,
   ) {}
   @Get()
   async getAllBlogs(
@@ -60,23 +69,25 @@ export class BlogController {
       pageNumber = 1;
     }
 
-    return await this.blogService.getAllBlogs(
-      searchNameTerm,
-      sortBy,
-      sortDirection,
-      pageSize,
-      pageNumber,
+    return await this.commandBus.execute(
+      new GetAllBlogsCommand(
+        searchNameTerm,
+        sortBy,
+        sortDirection,
+        pageSize,
+        pageNumber,
+      ),
     );
   }
   @Get(':id')
   async getBlogById(@Param('id') id: string): Promise<BlogView | null> {
-    const blog = await this.blogService.getBlogById(id);
+    const blog = await this.commandBus.execute(new GetBlogByIdCommand(id));
     return blog;
   }
   @UseGuards(BasicAuthGuard)
   @Post()
   async postBlog(@Body() blogDto: BlogInputModel): Promise<BlogView> {
-    return await this.blogService.postBlog(blogDto);
+    return await this.commandBus.execute(new CreateBlogCommand(blogDto));
   }
   @UseGuards(BasicAuthGuard)
   @Put(':id')
@@ -85,7 +96,7 @@ export class BlogController {
     @Param('id') id: string,
     @Body() blogDto: BlogInputModel,
   ): Promise<boolean> {
-    await this.blogService.putBlog(id, blogDto);
+    await this.commandBus.execute(new UpdateBlogCommand(id, blogDto));
 
     return true;
   }
@@ -93,7 +104,7 @@ export class BlogController {
   @Delete(':id')
   @HttpCode(204)
   async deleteBlog(@Param('id') id: string): Promise<void> {
-    await this.blogService.deleteBlog(id);
+    await this.commandBus.execute(new DeleteBlogCommand(id));
 
     return;
   }
@@ -133,15 +144,17 @@ export class BlogController {
       pageNumber = 1;
     }
 
-    const blog = await this.blogService.getBlogById(blogId);
+    const blog = await this.commandBus.execute(blogId);
 
-    return await this.postService.getAllPostsForSpecifeldBlog(
-      sortBy,
-      sortDirection,
-      pageSize,
-      pageNumber,
-      blog!.id,
-      userId,
+    return await this.commandBus.execute(
+      new GetAllPostsForSpecificBlogCommand(
+        sortBy,
+        sortDirection,
+        pageSize,
+        pageNumber,
+        blog!.id,
+        userId,
+      ),
     );
   }
   @UseGuards(GetToken)
@@ -156,10 +169,8 @@ export class BlogController {
     if (req.userId) {
       userId = req.userId;
     }
-    const post = await this.postService.postPostForSpecifeldBlog(
-      postDto,
-      blogId,
-      userId,
+    const post = await this.commandBus.execute(
+      new CreatePostForSpecificBlogCommand(postDto, blogId, userId),
     );
 
     return post;

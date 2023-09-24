@@ -15,17 +15,27 @@ import { CommentService } from '../service/comment.service';
 import { CommentInputModel } from '../../inputmodels-validation/comments.inputModel';
 import { AuthGuard, GetToken } from '../../authNest/guards/bearer.guard';
 import { LikeInputModel } from '../../inputmodels-validation/like.inputModel';
+import { CommandBus } from '@nestjs/cqrs';
+import { GetCommentByIdCommand } from '../comment.use-cases/getCommentById.use-case';
+import { UpdateCommentCommand } from '../comment.use-cases/updateComment.use-case';
+import { DeleteCommentCommand } from '../comment.use-cases/deleteComment.use-case';
+import { MakeLikeOrDislikeCCommand } from '../comment.use-cases/makeLikeOrDislike.use-case';
 
 @Controller('comments')
 export class CommentController {
-  constructor(private readonly commentService: CommentService) {}
+  constructor(
+    private readonly commentService: CommentService,
+    private readonly commandBus: CommandBus,
+  ) {}
   @UseGuards(GetToken)
   @Get(':id')
   async getCommentById(
     @Param('id') id: string,
     @Request() req,
   ): Promise<CommentView | null> {
-    const comment = await this.commentService.getCommentById(id, req.userId);
+    const comment = await this.commandBus.execute(
+      new GetCommentByIdCommand(id, req.userId),
+    );
     return comment;
   }
   @UseGuards(AuthGuard)
@@ -36,9 +46,8 @@ export class CommentController {
     @Body() commentDto: CommentInputModel,
     @Request() req,
   ): Promise<boolean> {
-    const commentBeforeUpdating = await this.commentService.getCommentById(
-      commentId,
-      req.userId,
+    const commentBeforeUpdating = await this.commandBus.execute(
+      new GetCommentByIdCommand(commentId, req.userId),
     );
     const commentatorId = commentBeforeUpdating!.commentatorInfo.userId;
     if (commentatorId !== req.userId) {
@@ -46,7 +55,9 @@ export class CommentController {
         'You are not allowed to update this comment',
       );
     }
-    await this.commentService.putComment(commentId, commentDto);
+    await this.commandBus.execute(
+      new UpdateCommentCommand(commentId, commentDto),
+    );
 
     return true;
   }
@@ -62,11 +73,13 @@ export class CommentController {
       await this.commentService.getCommentForLikeOrDislike(commentId);
     const dateOfLikeDislike = new Date();
 
-    await this.commentService.makeLikeOrDislike(
-      req.userId,
-      commentId,
-      likeDto,
-      dateOfLikeDislike,
+    await this.commandBus.execute(
+      new MakeLikeOrDislikeCCommand(
+        req.userId,
+        commentId,
+        likeDto,
+        dateOfLikeDislike,
+      ),
     );
 
     return true;
@@ -78,9 +91,8 @@ export class CommentController {
     @Param('commentId') commentId: string,
     @Request() req,
   ): Promise<void> {
-    const commentBeforeUpdating = await this.commentService.getCommentById(
-      commentId,
-      req.userId,
+    const commentBeforeUpdating = await this.commandBus.execute(
+      new GetCommentByIdCommand(commentId, req.userId),
     );
     const commentatorId = commentBeforeUpdating!.commentatorInfo.userId;
     if (commentatorId !== req.userId) {
@@ -88,7 +100,7 @@ export class CommentController {
         'You are not allowed to delete this comment',
       );
     }
-    await this.commentService.deleteComment(commentId);
+    await this.commandBus.execute(new DeleteCommentCommand(commentId));
 
     return;
   }
