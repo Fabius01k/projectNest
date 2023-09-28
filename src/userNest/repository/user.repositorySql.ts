@@ -34,7 +34,7 @@ export class UserRepositorySql {
     FROM public."Users"      
     WHERE
       "login" LIKE '%${searchLoginTerm ?? ''}%'
-      AND
+      OR
       "email" LIKE '%${searchEmailTerm ?? ''}%'
     ORDER BY
       "${sortBy}" ${sortDirection}
