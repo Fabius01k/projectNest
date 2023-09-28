@@ -33,9 +33,9 @@ export class UserRepositorySql {
     SELECT *      
     FROM public."Users"      
     WHERE
-      "login" LIKE '%${searchLoginTerm ?? ''}%'
+      "login" ILIKE '%${searchLoginTerm ?? ''}%'
       OR
-      "email" LIKE '%${searchEmailTerm ?? ''}%'
+      "email" ILIKE '%${searchEmailTerm ?? ''}%'
     ORDER BY
       "${sortBy}" ${sortDirection}
     LIMIT
