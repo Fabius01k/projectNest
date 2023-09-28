@@ -4,8 +4,8 @@ export const emailAdapter = {
   async sendEmail(email: string, subject: string, message: string) {
     const transport = nodemailer.createTransport({
       host: 'smtp.yandex.ru',
-      // port: 465,
-      // secure: true,
+      port: 465,
+      secure: true,
       auth: {
         user: 'pav.murashckin@yandex.ru',
         pass: 'nhrdmesfbmhzfktd',
