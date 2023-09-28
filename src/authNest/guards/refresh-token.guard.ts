@@ -65,7 +65,6 @@ export class RefreshTokenGuard implements CanActivate {
     try {
       const request = context.switchToHttp().getRequest<Request>();
       const refreshToken = request.cookies.refreshToken;
-      console.log(refreshToken);
 
       if (!refreshToken) {
         console.log(123);
@@ -90,10 +89,12 @@ export class RefreshTokenGuard implements CanActivate {
       const decoded = await this.authService.decodeRefreshToken(refreshToken);
       const userSession =
         await this.authService.getUserSessionInDb(refreshToken);
+      console.log(userSession, '11111');
+      console.log(decoded, '22222');
 
       if (
-        decoded.deviceId !== userSession?.deviceId &&
-        decoded.tokenCreationDate !== userSession?.tokenCreationDate
+        decoded.deviceId !== userSession[0].deviceId &&
+        decoded.tokenCreationDate !== userSession[0].tokenCreationDate
       ) {
         console.log(1234);
         throw new UnauthorizedException([

@@ -1,15 +1,14 @@
 import { emailAdapter } from '../adapters/email-adatper';
 import { UserRepository } from '../userNest/repository/user.repository';
-import { User } from '../userNest/schema/user.schema';
+import { UserSql } from '../userNest/schema/user.schema';
 
 export class EmailManager {
   constructor(protected userRepository: UserRepository) {}
 
-  async sendEmailConfirmationMessage(newUserToRegistration: User) {
-    const userConfirmationCode =
-      newUserToRegistration.emailConfirmation.confirmationCode;
+  async sendEmailConfirmationMessage(newUserToRegistration: UserSql) {
+    const userConfirmationCode = newUserToRegistration.confirmationCode;
 
-    const email = newUserToRegistration.accountData.userName.email;
+    const email = newUserToRegistration.email;
     const message = `<h1>Thank for your registration</h1>
         <p>To finish registration please follow the link below:
             <a href=https://project-nu-silk.vercel.app/registration-confirmation?code=${userConfirmationCode}>complete registration</a>

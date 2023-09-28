@@ -1,6 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserRepository } from '../../userNest/repository/user.repository';
-import { UserSession } from '../../userNest/schema/user-session.schema';
+import {
+  UserSession,
+  UserSessionSql,
+} from '../../userNest/schema/user-session.schema';
+import { UserRepositorySql } from '../../userNest/repository/user.repositorySql';
 
 export class CreateSessionCommand {
   constructor(
@@ -16,10 +20,13 @@ export class CreateSessionCommand {
 export class CreateSessionUseCase
   implements ICommandHandler<CreateSessionCommand>
 {
-  constructor(protected userRepository: UserRepository) {}
+  constructor(
+    protected userRepository: UserRepository,
+    protected userRepositorySql: UserRepositorySql,
+  ) {}
 
   async execute(command: CreateSessionCommand): Promise<UserSession> {
-    const newUserSession = new UserSession(
+    const newUserSession = new UserSessionSql(
       command.sessionId,
       command.ip,
       command.title,
@@ -29,6 +36,8 @@ export class CreateSessionUseCase
       new Date(),
       new Date(Date.now() + 20000),
     );
-    return await this.userRepository.createUserSessionInDb(newUserSession);
+    return await this.userRepositorySql.createUserSessionInDbSql(
+      newUserSession,
+    );
   }
 }

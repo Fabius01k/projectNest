@@ -75,12 +75,14 @@ import { DeleteUserUseCase } from './userNest/user.use-cases/deleteUser.use-case
 import { GetAllActiveSessionsUseCase } from './securityNest/security.use.cases/getAllActiveSessions.use-case';
 import { DeleteAllOtherSessionsUseCase } from './securityNest/security.use.cases/deleteAllOtherSessions.use-case';
 import { DeleteSessionByDeviceIdUseCase } from './securityNest/security.use.cases/deleteSessionByDeviceId.use-case';
-import { CreateSessionUseCase } from './authNest/auth-inputModel.ts/createSession.use-case';
-import { RegistrationUserUseCase } from './authNest/auth-inputModel.ts/registrationUser.use-case';
-import { RegistrationConfirmationUserUseCase } from './authNest/auth-inputModel.ts/registrationConfirmationUser.use-case';
-import { ResendingConfirmationCodeUseCase } from './authNest/auth-inputModel.ts/resendingConfirmationCode.use-case';
-import { MakeNewPasswordUseCase } from './authNest/auth-inputModel.ts/makeNewPassword.use-case';
-import { ResendingPasswordCodeUseCase } from './authNest/auth-inputModel.ts/resendingPasswordCode.use-case';
+import { CreateSessionUseCase } from './authNest/auth.use-cases/createSession.use-case';
+import { RegistrationUserUseCase } from './authNest/auth.use-cases/registrationUser.use-case';
+import { RegistrationConfirmationUserUseCase } from './authNest/auth.use-cases/registrationConfirmationUser.use-case';
+import { ResendingConfirmationCodeUseCase } from './authNest/auth.use-cases/resendingConfirmationCode.use-case';
+import { MakeNewPasswordUseCase } from './authNest/auth.use-cases/makeNewPassword.use-case';
+import { ResendingPasswordCodeUseCase } from './authNest/auth.use-cases/resendingPasswordCode.use-case';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserRepositorySql } from './userNest/repository/user.repositorySql';
 
 const dbName = 'myApi';
 const services = [
@@ -93,13 +95,15 @@ const services = [
   SecurityService,
   TestingService,
 ];
-const adapters = [
+const repositoriesMongo = [
   BlogRepository,
   PostRepository,
   CommentRepository,
   UserRepository,
   SecurityRepository,
 ];
+const repositoriesSql = [UserRepositorySql];
+
 const guardsAndValidations = [
   JwtAccessStrategyStrategy,
   EmailManager,
@@ -155,6 +159,17 @@ const authUseCases = [
 
 @Module({
   imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'i_node_js',
+      password: 'sa',
+      database: 'MyNestProject',
+      autoLoadEntities: false,
+      synchronize: false,
+      logging: true,
+    }),
     CqrsModule,
     ConfigModule.forRoot(),
     ThrottlerModule.forRoot([
@@ -211,7 +226,8 @@ const authUseCases = [
   ],
   providers: [
     ...guardsAndValidations,
-    ...adapters,
+    ...repositoriesMongo,
+    ...repositoriesSql,
     ...services,
     ...blogUseCases,
     ...postUseCases,

@@ -4,7 +4,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostCreateInputModel } from '../../inputmodels-validation/post.inputModel';
 import { Post, PostView } from '../schema/post-schema';
 import { NotFoundException } from '@nestjs/common';
-import { ObjectId } from 'mongodb';
 import { InformationOfLikeAndDislikePost } from '../schema/likeOrDislikeInfoPost-schema';
 
 export class CreatePostCommand {
@@ -34,7 +33,6 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     }
 
     const newPost = new Post(
-      new ObjectId(),
       dateNow,
       command.postDto.title,
       command.postDto.shortDescription,

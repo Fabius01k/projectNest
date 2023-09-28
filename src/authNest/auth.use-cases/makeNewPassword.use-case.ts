@@ -2,9 +2,10 @@ import { RecoveryPasswordInputModel } from '../../inputmodels-validation/auth.in
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserRepository } from '../../userNest/repository/user.repository';
 import { AuthService } from '../service/auth.service';
-import { User } from '../../userNest/schema/user.schema';
+import { User, UserSql } from '../../userNest/schema/user.schema';
 import { BadRequestException } from '@nestjs/common';
 import bcrypt from 'bcrypt';
+import { UserRepositorySql } from '../../userNest/repository/user.repositorySql';
 
 export class MakeNewPasswordCommand {
   constructor(public recoveryPasswordDto: RecoveryPasswordInputModel) {}
@@ -16,35 +17,47 @@ export class MakeNewPasswordUseCase
   constructor(
     protected userRepository: UserRepository,
     private readonly authService: AuthService,
+    protected userRepositorySql: UserRepositorySql,
   ) {}
   async execute(command: MakeNewPasswordCommand): Promise<boolean> {
-    const user: User | null =
-      await this.userRepository.getUserByResetPasswordCode(
+    const users: UserSql[] =
+      await this.userRepositorySql.getUserByResetPasswordCodeSql(
         command.recoveryPasswordDto.recoveryCode,
       );
-    if (!user) {
-      throw new BadRequestException({
-        message: 'User not found',
-        filed: 'code',
-      });
+    if (users.length === 0) {
+      throw new BadRequestException([
+        {
+          message: 'User not found',
+          filed: 'code',
+        },
+      ]);
     }
-    if (
-      user.passwordUpdate &&
-      user.passwordUpdate.expirationDatePasswordCode &&
-      user.passwordUpdate.expirationDatePasswordCode < new Date()
-    ) {
-      throw new BadRequestException({
-        message: 'The code has expired',
-        field: 'code',
-      });
+    let isValidCode = true;
+    users.forEach((item) => {
+      if (
+        item.expirationDatePasswordCode &&
+        item.expirationDatePasswordCode < new Date()
+      ) {
+        isValidCode = false;
+        return;
+      }
+    });
+    if (!isValidCode) {
+      throw new BadRequestException([
+        {
+          message: 'The code has expired',
+          field: 'code',
+        },
+      ]);
     }
+
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this.authService._generateHash(
       command.recoveryPasswordDto.newPassword,
       passwordSalt,
     );
-    const result = await this.userRepository.changePasswordInDb(
-      user.id,
+    const result = await this.userRepositorySql.changePasswordInDbSql(
+      users[0].id,
       passwordSalt,
       passwordHash,
     );

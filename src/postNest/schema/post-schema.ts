@@ -1,12 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ObjectId } from 'mongodb';
 import { HydratedDocument } from 'mongoose';
 
 export type PostDocument = HydratedDocument<Post>;
 @Schema()
 export class Post {
-  @Prop({ type: ObjectId, required: true })
-  _id: ObjectId;
   @Prop({ type: String, required: true })
   id: string;
   @Prop({ type: String, required: true })
@@ -22,7 +19,6 @@ export class Post {
   @Prop({ type: String, required: true })
   createdAt: string;
   constructor(
-    _id: ObjectId,
     id: string,
     title: string,
     shortDescription: string,
@@ -31,7 +27,6 @@ export class Post {
     blogName: string,
     createdAt: string,
   ) {
-    this._id = _id;
     this.id = id;
     this.title = title;
     this.shortDescription = shortDescription;

@@ -1,13 +1,13 @@
 import { UserInputModel } from '../../inputmodels-validation/user.inputModel';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserRepository } from '../repository/user.repository';
-import { User, UserView } from '../schema/user.schema';
+import { User, UserSql, UserView } from '../schema/user.schema';
 import { BadRequestException } from '@nestjs/common';
-import { ObjectId } from 'mongodb';
 import add from 'date-fns/add';
 import { v4 as uuidv4 } from 'uuid';
 import { UserService } from '../service/user.service';
 import bcrypt from 'bcrypt';
+import { UserRepositorySql } from '../repository/user.repositorySql';
 
 export class CreateUserCommand {
   constructor(public userDto: UserInputModel) {}
@@ -16,14 +16,17 @@ export class CreateUserCommand {
 export class CreateUserUserCase implements ICommandHandler<CreateUserCommand> {
   constructor(
     protected userRepository: UserRepository,
+    protected userRepositorySql: UserRepositorySql,
     protected userService: UserService,
   ) {}
 
   async execute(command: CreateUserCommand): Promise<UserView> {
-    const emailAlreadyUse = await this.userRepository.getUserByLoginOrEmail(
-      command.userDto.email,
-    );
-    if (emailAlreadyUse) {
+    const emailAlreadyUse =
+      await this.userRepositorySql.getUserByLoginOrEmailSql(
+        command.userDto.email,
+      );
+    console.log(emailAlreadyUse);
+    if (emailAlreadyUse.length > 0) {
       throw new BadRequestException([
         {
           message: 'This email is already in use',
@@ -31,10 +34,11 @@ export class CreateUserUserCase implements ICommandHandler<CreateUserCommand> {
         },
       ]);
     }
-    const loginAlreadyUse = await this.userRepository.getUserByLoginOrEmail(
-      command.userDto.login,
-    );
-    if (loginAlreadyUse) {
+    const loginAlreadyUse =
+      await this.userRepositorySql.getUserByLoginOrEmailSql(
+        command.userDto.login,
+      );
+    if (loginAlreadyUse.length > 0) {
       throw new BadRequestException([
         {
           message: 'This login is already in use',
@@ -49,31 +53,22 @@ export class CreateUserUserCase implements ICommandHandler<CreateUserCommand> {
     );
 
     const dateNow = new Date().getTime().toString();
-    const newUser = new User(
-      new ObjectId(),
+    const newUser = new UserSql(
       dateNow,
-      {
-        userName: {
-          login: command.userDto.login,
-          email: command.userDto.email,
-        },
-        passwordHash,
-        passwordSalt,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        confirmationCode: uuidv4(),
-        expirationDate: add(new Date(), {
-          hours: 1,
-        }),
-        isConfirmed: true,
-      },
-      {
-        resetPasswordCode: null,
-        expirationDatePasswordCode: new Date(),
-      },
+      command.userDto.login,
+      command.userDto.email,
+      passwordHash,
+      passwordSalt,
+      new Date().toISOString(),
+      uuidv4(),
+      add(new Date(), {
+        hours: 1,
+      }),
+      true,
+      null,
+      new Date(),
     );
 
-    return await this.userRepository.createUserInDb(newUser);
+    return await this.userRepositorySql.createUserInDbSql(newUser);
   }
 }

@@ -4,7 +4,6 @@ import { PostRepository } from '../repository/post.repository';
 import { BlogRepository } from '../../blogNest/repository/blog.repository';
 import { Post, PostView } from '../schema/post-schema';
 import { NotFoundException } from '@nestjs/common';
-import { ObjectId } from 'mongodb';
 import { InformationOfLikeAndDislikePost } from '../schema/likeOrDislikeInfoPost-schema';
 
 export class CreatePostForSpecificBlogCommand {
@@ -37,7 +36,6 @@ export class CreatePostForSpecificBlogUseCase
       ]);
     }
     const newPost = new Post(
-      new ObjectId(),
       dateNow,
       command.postDto.title,
       command.postDto.shortDescription,

@@ -150,30 +150,30 @@ export class PostController {
 
     return true;
   }
-  @UseGuards(AuthGuard)
-  @Put(':postId/like-status')
-  @HttpCode(204)
-  async makeLikeOrDislike(
-    @Param('postId') postId: string,
-    @Body() likeDto: LikeInputModel,
-    @Request() req,
-  ): Promise<boolean> {
-    const post = await this.postService.getPostForLikeOrDislike(postId);
-    const user = await this.userService.getUserById(req.userId);
-    const dateOfLikeDislike = new Date();
-
-    await this.commandBus.execute(
-      new MakeLikeOrDislikePCommand(
-        req.userId,
-        user!.login,
-        postId,
-        likeDto,
-        dateOfLikeDislike,
-      ),
-    );
-
-    return true;
-  }
+  // @UseGuards(AuthGuard)
+  // @Put(':postId/like-status')
+  // @HttpCode(204)
+  // async makeLikeOrDislike(
+  //   @Param('postId') postId: string,
+  //   @Body() likeDto: LikeInputModel,
+  //   @Request() req,
+  // ): Promise<boolean> {
+  //   const post = await this.postService.getPostForLikeOrDislike(postId);
+  //   const user = await this.userService.getUserById(req.userId);
+  //   const dateOfLikeDislike = new Date();
+  //
+  //   await this.commandBus.execute(
+  //     new MakeLikeOrDislikePCommand(
+  //       req.userId,
+  //       user!.login,
+  //       postId,
+  //       likeDto,
+  //       dateOfLikeDislike,
+  //     ),
+  //   );
+  //
+  //   return true;
+  // }
   @UseGuards(BasicAuthGuard)
   @Delete(':id')
   @HttpCode(204)

@@ -1,5 +1,4 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ObjectId } from 'mongodb';
 import { HydratedDocument } from 'mongoose';
 
 export type EmailConfirmationType = {
@@ -27,8 +26,6 @@ export type UserDocument = HydratedDocument<User>;
 
 @Schema()
 export class User {
-  @Prop({ type: ObjectId, required: true })
-  _id: ObjectId;
   @Prop({ type: String, required: true })
   id: string;
   @Prop(
@@ -62,7 +59,6 @@ export class User {
   emailConfirmation: EmailConfirmationType;
 
   constructor(
-    _id: ObjectId,
     id: string,
     accountData: {
       userName: {
@@ -83,7 +79,6 @@ export class User {
       expirationDatePasswordCode?: Date | null;
     },
   ) {
-    this._id = _id;
     this.id = id;
     this.accountData = accountData;
     this.emailConfirmation = emailConfirmation;
@@ -104,6 +99,45 @@ export interface UserResponse {
   pageSize: number;
   totalCount: number;
   items: UserView[];
+}
+export class UserSql {
+  id: string;
+  login: string;
+  email: string;
+  passwordHash: string;
+  passwordSalt: string;
+  createdAt: string;
+  confirmationCode: string;
+  expirationDate: Date;
+  isConfirmed: boolean;
+  resetPasswordCode: string | null;
+  expirationDatePasswordCode: Date | null;
+
+  constructor(
+    id: string,
+    login: string,
+    email: string,
+    passwordHash: string,
+    passwordSalt: string,
+    createdAt: string,
+    confirmationCode: string,
+    expirationDate: Date,
+    isConfirmed: boolean,
+    resetPasswordCode: string | null,
+    expirationDatePasswordCode: Date | null,
+  ) {
+    this.id = id;
+    this.login = login;
+    this.email = email;
+    this.passwordHash = passwordHash;
+    this.passwordSalt = passwordSalt;
+    this.createdAt = createdAt;
+    this.confirmationCode = confirmationCode;
+    this.expirationDate = expirationDate;
+    this.isConfirmed = isConfirmed;
+    this.resetPasswordCode = resetPasswordCode;
+    this.expirationDatePasswordCode = expirationDatePasswordCode;
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

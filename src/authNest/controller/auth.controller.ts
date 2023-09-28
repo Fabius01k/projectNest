@@ -11,7 +11,7 @@ import {
 import { UserService } from '../../userNest/service/user.service';
 import { AuthService } from '../service/auth.service';
 import { randomUUID } from 'crypto';
-import { User, UserView } from '../../userNest/schema/user.schema';
+import { User, UserSql, UserView } from '../../userNest/schema/user.schema';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import {
   ConfirmationCodeModel,
@@ -23,12 +23,12 @@ import {
 import { RefreshTokenGuard } from '../guards/refresh-token.guard';
 import { AuthGuard } from '../guards/bearer.guard';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateSessionCommand } from '../auth-inputModel.ts/createSession.use-case';
-import { RegistrationUserCommand } from '../auth-inputModel.ts/registrationUser.use-case';
-import { RegistrationConfirmationUserCommand } from '../auth-inputModel.ts/registrationConfirmationUser.use-case';
-import { ResendingConfirmationCodeCommand } from '../auth-inputModel.ts/resendingConfirmationCode.use-case';
-import { MakeNewPasswordCommand } from '../auth-inputModel.ts/makeNewPassword.use-case';
-import { ResendingPasswordCodeCommand } from '../auth-inputModel.ts/resendingPasswordCode.use-case';
+import { CreateSessionCommand } from '../auth.use-cases/createSession.use-case';
+import { RegistrationUserCommand } from '../auth.use-cases/registrationUser.use-case';
+import { RegistrationConfirmationUserCommand } from '../auth.use-cases/registrationConfirmationUser.use-case';
+import { ResendingConfirmationCodeCommand } from '../auth.use-cases/resendingConfirmationCode.use-case';
+import { MakeNewPasswordCommand } from '../auth.use-cases/makeNewPassword.use-case';
+import { ResendingPasswordCodeCommand } from '../auth.use-cases/resendingPasswordCode.use-case';
 
 @Controller('auth')
 export class AuthController {
@@ -46,7 +46,7 @@ export class AuthController {
     @Request() req,
     @Response() res,
   ): Promise<boolean> {
-    const user: User | null = await this.authService.validateLoginUser(
+    const user: UserSql | null = await this.authService.validateLoginUser(
       loginOrEmail,
       password,
     );
@@ -111,7 +111,6 @@ export class AuthController {
       maxAge: 20 * 1000,
     });
     console.log(refreshToken);
-    console.log(accessToken);
 
     res.send({ accessToken });
     return true;
@@ -127,8 +126,6 @@ export class AuthController {
     return true;
   }
   @UseGuards(ThrottlerGuard)
-  //@Throttle({ default: { limit: 5, ttl: 10000 } })
-  // @Throttle(5, 10)
   @Post('registration')
   @HttpCode(204)
   async registrationUser(
@@ -192,11 +189,13 @@ export class AuthController {
   async getInformationAboutUser(
     @Request() req,
     @Response() res,
-  ): Promise<UserView | null> {
-    const user = await this.usersService.getUserById(req.userId);
-    if (!user) {
+  ): Promise<UserSql> {
+    const users: UserSql[] = await this.usersService.getUserById(req.userId);
+    if (users.length === 0) {
       return res.sendStatus(401);
     }
+    const user = users[0];
+
     return res.status(200).send({
       email: user.email,
       login: user.login,

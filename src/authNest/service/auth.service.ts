@@ -2,16 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '../../userNest/repository/user.repository';
 import bcrypt from 'bcrypt';
-import { UserSession } from '../../userNest/schema/user-session.schema';
-import { User } from '../../userNest/schema/user.schema';
+import {
+  UserSession,
+  UserSessionSql,
+} from '../../userNest/schema/user-session.schema';
+import { User, UserSql } from '../../userNest/schema/user.schema';
 import { EmailManager } from '../../managers/email-manager';
+import { UserRepositorySql } from '../../userNest/repository/user.repositorySql';
 
 @Injectable()
 export class AuthService {
   constructor(
     protected userRepository: UserRepository,
     protected jwtService: JwtService,
-    protected emailManager: EmailManager,
+    protected userRepositorySql: UserRepositorySql,
   ) {}
   async _generateHash(password: string, salt: string) {
     const hash = await bcrypt.hash(password, salt);
@@ -19,7 +23,7 @@ export class AuthService {
   }
   async createAccessToken(userId: string): Promise<string> {
     const payload = { userId };
-    return this.jwtService.sign(payload, { expiresIn: '1m' });
+    return this.jwtService.sign(payload, { expiresIn: '10m' });
   }
 
   async createRefreshToken(
@@ -27,18 +31,23 @@ export class AuthService {
     refreshTokenPayload: any,
   ): Promise<string> {
     const payload = { userId, ...refreshTokenPayload };
-    return this.jwtService.sign(payload, { expiresIn: '1m' });
+    return this.jwtService.sign(payload, { expiresIn: '10m' });
   }
 
   async validateLoginUser(
     loginOrEmail: string,
     password: string,
-  ): Promise<User | null> {
-    const user = await this.userRepository.getUserByLoginOrEmail(loginOrEmail);
-    if (!user) return null;
-
-    if (user && (await bcrypt.compare(password, user.accountData.passwordHash)))
-      return user;
+  ): Promise<UserSql | null> {
+    const users =
+      await this.userRepositorySql.getUserByLoginOrEmailSql(loginOrEmail);
+    if (users.length === 0) return null;
+    // if (user && (await bcrypt.compare(password, user.passwordHash)))
+    //   return user;
+    for (const user of users) {
+      if (await bcrypt.compare(password, user.passwordHash)) {
+        return user;
+      }
+    }
 
     return null;
   }
@@ -57,17 +66,17 @@ export class AuthService {
     deviceId: string,
     refreshToken: string,
   ): Promise<boolean> {
-    return await this.userRepository.changeDataInSessionInDb(
+    return await this.userRepositorySql.changeDataInSessionInDbSql(
       deviceId,
       refreshToken,
     );
   }
   async deleteSession(deviceId: string): Promise<boolean> {
-    return await this.userRepository.deleteSessionInDb(deviceId);
+    return await this.userRepositorySql.deleteSessionInDbSql(deviceId);
   }
-  async getUserSessionInDb(refreshToken: string): Promise<UserSession | null> {
+  async getUserSessionInDb(refreshToken: string): Promise<UserSessionSql> {
     const session =
-      await this.userRepository.findSessionByRefreshToken(refreshToken);
+      await this.userRepositorySql.findSessionByRefreshTokenSql(refreshToken);
     return session;
   }
 }

@@ -6,8 +6,6 @@ import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 export type BlogDocument = HydratedDocument<Blog>;
 @Schema()
 export class Blog {
-  @Prop({ type: ObjectId, required: true })
-  _id: ObjectId;
   @Prop({ type: String, required: true })
   id: string;
   @Prop({ type: String, required: true })
@@ -21,7 +19,6 @@ export class Blog {
   @Prop({ type: Boolean, required: true })
   isMembership: boolean;
   constructor(
-    _id: ObjectId,
     id: string,
     name: string,
     description: string,
@@ -29,7 +26,6 @@ export class Blog {
     createdAt: string,
     isMembership: boolean,
   ) {
-    this._id = _id;
     this.id = id;
     this.name = name;
     this.description = description;

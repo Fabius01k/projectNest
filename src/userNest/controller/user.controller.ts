@@ -42,13 +42,13 @@ export class UserController {
     }
 
     if (!sortBy) {
-      sortBy = 'accountData.createdAt';
+      sortBy = 'createdAt';
     }
     if (sortBy === 'login') {
-      sortBy = 'accountData.userName.login';
+      sortBy = 'login';
     }
     if (sortBy === 'email') {
-      sortBy = 'accountData.userName.email';
+      sortBy = 'email';
     }
 
     if (!sortDirection || sortDirection.toLowerCase() !== 'asc') {

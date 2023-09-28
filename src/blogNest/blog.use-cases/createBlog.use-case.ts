@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogRepository } from '../repository/blog.repository';
 import { Blog, BlogView } from '../schema/blog-schema';
 import { BlogInputModel } from '../../inputmodels-validation/blog.inputModel';
-import { ObjectId } from 'mongodb';
 
 export class CreateBlogCommand {
   constructor(public blogDto: BlogInputModel) {}
@@ -14,7 +13,6 @@ export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
   async execute(command: CreateBlogCommand): Promise<BlogView> {
     const dateNow = new Date().getTime().toString();
     const newBlog = new Blog(
-      new ObjectId(),
       dateNow,
       command.blogDto.name,
       command.blogDto.description,

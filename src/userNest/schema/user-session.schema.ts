@@ -54,5 +54,35 @@ export type UserSessionView = {
   lastActiveDate: string;
   deviceId: string;
 };
+export class UserSessionSql {
+  sessionId: string;
+  ip: string;
+  title: string;
+  deviceId: string;
+  lastActiveDate: string;
+  refreshToken: string;
+  tokenCreationDate: Date;
+  tokenExpirationDate: Date;
+
+  constructor(
+    sessionId: string,
+    ip: string,
+    title: string,
+    deviceId: string,
+    lastActiveDate: string,
+    refreshToken: string,
+    tokenCreationDate: Date,
+    tokenExpirationDate: Date,
+  ) {
+    this.sessionId = sessionId;
+    this.ip = ip;
+    this.title = title;
+    this.deviceId = deviceId;
+    this.lastActiveDate = lastActiveDate;
+    this.refreshToken = refreshToken;
+    this.tokenCreationDate = tokenCreationDate;
+    this.tokenExpirationDate = tokenExpirationDate;
+  }
+}
 
 export const UserSessionSchema = SchemaFactory.createForClass(UserSession);
