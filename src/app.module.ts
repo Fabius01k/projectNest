@@ -160,7 +160,7 @@ const authUseCases = [
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'postgres',
+      /* type: 'postgres',
       host: 'localhost',
       port: 5432,
       username: 'i_node_js',
@@ -168,7 +168,9 @@ const authUseCases = [
       database: 'MyNestProject',
       autoLoadEntities: false,
       synchronize: false,
-      logging: true,
+      logging: true,*/
+      url: process.env.NEON_URL,
+      ssl: 'require',
     }),
     CqrsModule,
     ConfigModule.forRoot(),
@@ -178,36 +180,36 @@ const authUseCases = [
         limit: 5,
       },
     ]),
-    MongooseModule.forRoot(
-      settings.MONGO_URI || `mongodb://0.0.0.0:27017/${dbName}`,
-    ),
-    MongooseModule.forFeature([
-      {
-        name: Blog.name,
-        schema: BlogSchema,
-      },
-      {
-        name: Post.name,
-        schema: PostSchema,
-      },
-      {
-        name: InformationOfLikeAndDislikePost.name,
-        schema: InformationOfLikeAndDislikePostSchema,
-      },
-      {
-        name: Comment.name,
-        schema: CommentSchema,
-      },
-      {
-        name: InformationOfLikeAndDislikeComment.name,
-        schema: InformationOfLikeAndDislikeCommentSchema,
-      },
-      {
-        name: User.name,
-        schema: UserSchema,
-      },
-      { name: UserSession.name, schema: UserSessionSchema },
-    ]),
+    // MongooseModule.forRoot(
+    //   settings.MONGO_URI || `mongodb://0.0.0.0:27017/${dbName}`,
+    // ),
+    // MongooseModule.forFeature([
+    //   {
+    //     name: Blog.name,
+    //     schema: BlogSchema,
+    //   },
+    //   {
+    //     name: Post.name,
+    //     schema: PostSchema,
+    //   },
+    //   {
+    //     name: InformationOfLikeAndDislikePost.name,
+    //     schema: InformationOfLikeAndDislikePostSchema,
+    //   },
+    //   {
+    //     name: Comment.name,
+    //     schema: CommentSchema,
+    //   },
+    //   {
+    //     name: InformationOfLikeAndDislikeComment.name,
+    //     schema: InformationOfLikeAndDislikeCommentSchema,
+    //   },
+    //   {
+    //     name: User.name,
+    //     schema: UserSchema,
+    //   },
+    //   { name: UserSession.name, schema: UserSessionSchema },
+    // ]),
     PassportModule,
     JwtModule.register({
       global: true,
