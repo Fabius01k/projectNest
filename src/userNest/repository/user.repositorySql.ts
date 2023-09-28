@@ -50,9 +50,9 @@ export class UserRepositorySql {
     SELECT COUNT(*) AS "totalCount"
     FROM public."Users"   
     WHERE
-      "login" LIKE '%${searchLoginTerm ?? ''}%'
+      "login" ILIKE '%${searchLoginTerm ?? ''}%'
       OR 
-      "email" LIKE '%${searchEmailTerm ?? ''}%'
+      "email" ILIKE '%${searchEmailTerm ?? ''}%'
   `);
     const items = users.map((u) => mapUserToView(u));
 
