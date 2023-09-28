@@ -18,13 +18,13 @@ import { GetAllUsersCommand } from '../user.use-cases/getAllUsers.use-case';
 import { CreateUserCommand } from '../user.use-cases/createUser.use-case';
 import { DeleteUserCommand } from '../user.use-cases/deleteUser.use-case';
 @UseGuards(BasicAuthGuard)
-@Controller('users')
+@Controller('sa')
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly commandBus: CommandBus,
   ) {}
-  @Get()
+  @Get('users')
   async getAllUsers(
     @Query('searchLoginTerm') searchLoginTerm: string | null,
     @Query('searchEmailTerm') searchEmailTerm: string | null,
@@ -80,12 +80,12 @@ export class UserController {
       ),
     );
   }
-  @Post()
+  @Post('users')
   async postUser(@Body() userDto: UserInputModel): Promise<UserView> {
     return await this.commandBus.execute(new CreateUserCommand(userDto));
   }
 
-  @Delete(':id')
+  @Delete('users/:id')
   @HttpCode(204)
   async deleteUser(@Param('id') id: string): Promise<void> {
     return await this.commandBus.execute(new DeleteUserCommand(id));
