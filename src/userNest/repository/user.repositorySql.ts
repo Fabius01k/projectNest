@@ -51,7 +51,7 @@ export class UserRepositorySql {
     FROM public."Users"   
     WHERE
       "login" LIKE '%${searchLoginTerm ?? ''}%'
-      OR 
+      AND 
       "email" LIKE '%${searchEmailTerm ?? ''}%'
   `);
     const items = users.map((u) => mapUserToView(u));
