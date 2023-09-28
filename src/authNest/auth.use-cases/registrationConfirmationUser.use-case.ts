@@ -59,6 +59,7 @@ export class RegistrationConfirmationUserUseCase
     const result = await this.userRepositorySql.updateConfirmationSql(
       users[0].id,
     );
+
     return result;
   }
 }

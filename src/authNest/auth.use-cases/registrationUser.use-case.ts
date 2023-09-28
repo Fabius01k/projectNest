@@ -74,7 +74,7 @@ export class RegistrationUserUseCase
       new Date(),
     );
     await this.userRepositorySql.registrationUserSql(newUserToRegistration);
-    console.log(newUserToRegistration.resetPasswordCode);
+
     this.emailManager.sendEmailConfirmationMessage(newUserToRegistration);
     return true;
   }
