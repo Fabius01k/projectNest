@@ -160,8 +160,8 @@ const authUseCases = [
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      /* type: 'postgres',
-      host: 'localhost',
+      type: 'postgres',
+      /*host: 'localhost',
       port: 5432,
       username: 'i_node_js',
       password: 'sa',
@@ -170,7 +170,7 @@ const authUseCases = [
       synchronize: false,
       logging: true,*/
       url: process.env.NEON_URL,
-      ssl: 'require',
+      ssl: true,
     }),
     CqrsModule,
     ConfigModule.forRoot(),
@@ -180,36 +180,36 @@ const authUseCases = [
         limit: 5,
       },
     ]),
-    // MongooseModule.forRoot(
-    //   settings.MONGO_URI || `mongodb://0.0.0.0:27017/${dbName}`,
-    // ),
-    // MongooseModule.forFeature([
-    //   {
-    //     name: Blog.name,
-    //     schema: BlogSchema,
-    //   },
-    //   {
-    //     name: Post.name,
-    //     schema: PostSchema,
-    //   },
-    //   {
-    //     name: InformationOfLikeAndDislikePost.name,
-    //     schema: InformationOfLikeAndDislikePostSchema,
-    //   },
-    //   {
-    //     name: Comment.name,
-    //     schema: CommentSchema,
-    //   },
-    //   {
-    //     name: InformationOfLikeAndDislikeComment.name,
-    //     schema: InformationOfLikeAndDislikeCommentSchema,
-    //   },
-    //   {
-    //     name: User.name,
-    //     schema: UserSchema,
-    //   },
-    //   { name: UserSession.name, schema: UserSessionSchema },
-    // ]),
+    MongooseModule.forRoot(
+      settings.MONGO_URI || `mongodb://0.0.0.0:27017/${dbName}`,
+    ),
+    MongooseModule.forFeature([
+      {
+        name: Blog.name,
+        schema: BlogSchema,
+      },
+      {
+        name: Post.name,
+        schema: PostSchema,
+      },
+      {
+        name: InformationOfLikeAndDislikePost.name,
+        schema: InformationOfLikeAndDislikePostSchema,
+      },
+      {
+        name: Comment.name,
+        schema: CommentSchema,
+      },
+      {
+        name: InformationOfLikeAndDislikeComment.name,
+        schema: InformationOfLikeAndDislikeCommentSchema,
+      },
+      {
+        name: User.name,
+        schema: UserSchema,
+      },
+      { name: UserSession.name, schema: UserSessionSchema },
+    ]),
     PassportModule,
     JwtModule.register({
       global: true,
