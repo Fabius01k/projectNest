@@ -5,7 +5,7 @@ export const emailAdapter = {
     const transport = nodemailer.createTransport({
       host: 'smtp.yandex.ru',
       port: 465,
-      secure: true,
+      secure: false,
       auth: {
         user: 'pav.murashckin@yandex.ru',
         pass: 'nhrdmesfbmhzfktd',
