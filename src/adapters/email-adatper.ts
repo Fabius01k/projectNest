@@ -2,24 +2,28 @@ import nodemailer from 'nodemailer';
 
 export const emailAdapter = {
   async sendEmail(email: string, subject: string, message: string) {
-    const transport = nodemailer.createTransport({
-      host: 'smtp.yandex.ru',
-      port: 465,
-      secure: false,
-      auth: {
-        user: 'pav.murashckin@yandex.ru',
-        pass: 'nhrdmesfbmhzfktd',
-      },
-    });
+    try {
+      const transport = nodemailer.createTransport({
+        host: 'smtp.yandex.ru',
+        port: 465,
+        secure: false,
+        auth: {
+          user: 'pav.murashckin@yandex.ru',
+          pass: 'nhrdmesfbmhzfktd',
+        },
+      });
 
-    const info = await transport.sendMail({
-      from: 'Pavel <pav.murashckin@yandex.ru>',
-      to: email,
-      subject: subject,
-      html: message,
-    });
-
-    return info;
+      const info = await transport.sendMail({
+        from: 'Pavel <pav.murashckin@yandex.ru>',
+        to: email,
+        subject: subject,
+        html: message,
+      });
+      console.log('emailError2', info);
+      return info;
+    } catch (e) {
+      console.log('emailError', e);
+    }
   },
 };
 
