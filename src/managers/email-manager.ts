@@ -17,7 +17,7 @@ export class EmailManager {
 
     const subject = 'Код подтверждения регистрации';
 
-    emailAdapter.sendEmail(email, subject, message);
+    await emailAdapter.sendEmail(email, subject, message);
   }
 
   async resendEmailConfirmationMessage(email: string, code: string) {
@@ -29,7 +29,7 @@ export class EmailManager {
         </p>`;
     const subject = 'Новый код подтверждения регистрации';
 
-    emailAdapter.sendEmail(email, subject, message);
+    await emailAdapter.sendEmail(email, subject, message);
   }
 
   async resendPasswordCodeMessage(email: string, code: string) {
@@ -41,6 +41,6 @@ export class EmailManager {
         </p>`;
     const subject = 'Код восстановления пароля';
 
-    emailAdapter.sendEmail(email, subject, message);
+    await emailAdapter.sendEmail(email, subject, message);
   }
 }
