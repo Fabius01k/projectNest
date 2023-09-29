@@ -83,6 +83,7 @@ import { MakeNewPasswordUseCase } from './authNest/auth.use-cases/makeNewPasswor
 import { ResendingPasswordCodeUseCase } from './authNest/auth.use-cases/resendingPasswordCode.use-case';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRepositorySql } from './userNest/repository/user.repositorySql';
+import { SecurityRepositorySql } from './securityNest/repository/security.repositorySql';
 
 const dbName = 'myApi';
 const services = [
@@ -102,7 +103,7 @@ const repositoriesMongo = [
   UserRepository,
   SecurityRepository,
 ];
-const repositoriesSql = [UserRepositorySql];
+const repositoriesSql = [UserRepositorySql, SecurityRepositorySql];
 
 const guardsAndValidations = [
   JwtAccessStrategyStrategy,

@@ -9,6 +9,7 @@ import {
 import { User, UserSql } from '../../userNest/schema/user.schema';
 import { EmailManager } from '../../managers/email-manager';
 import { UserRepositorySql } from '../../userNest/repository/user.repositorySql';
+import { SecurityRepositorySql } from '../../securityNest/repository/security.repositorySql';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     protected userRepository: UserRepository,
     protected jwtService: JwtService,
     protected userRepositorySql: UserRepositorySql,
+    protected securityRepositorySql: SecurityRepositorySql,
   ) {}
   async _generateHash(password: string, salt: string) {
     const hash = await bcrypt.hash(password, salt);
@@ -23,7 +25,7 @@ export class AuthService {
   }
   async createAccessToken(userId: string): Promise<string> {
     const payload = { userId };
-    return this.jwtService.sign(payload, { expiresIn: '10m' });
+    return this.jwtService.sign(payload, { expiresIn: '10s' });
   }
 
   async createRefreshToken(
@@ -31,7 +33,7 @@ export class AuthService {
     refreshTokenPayload: any,
   ): Promise<string> {
     const payload = { userId, ...refreshTokenPayload };
-    return this.jwtService.sign(payload, { expiresIn: '10m' });
+    return this.jwtService.sign(payload, { expiresIn: '20s' });
   }
 
   async validateLoginUser(
@@ -72,7 +74,7 @@ export class AuthService {
     );
   }
   async deleteSession(deviceId: string): Promise<boolean> {
-    return await this.userRepositorySql.deleteSessionInDbSql(deviceId);
+    return await this.securityRepositorySql.deleteSessionInDbSql(deviceId);
   }
   async getUserSessionInDb(refreshToken: string): Promise<UserSessionSql> {
     const session =

@@ -1,9 +1,8 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { UserResponse, UserSql, UserView } from '../schema/user.schema';
 import { QueryResult } from 'pg';
-import { randomUUID } from 'crypto';
 import { UserSessionSql } from '../schema/user-session.schema';
 
 const mapUserToView = (user: UserSql): UserView => {
@@ -116,6 +115,11 @@ export class UserRepositorySql {
     return user;
     // return user ? mapUserToView(user) : null;
   }
+  // async findUserInformationByIdInDb(id: string) {
+  //   const user = await this.userModel.findOne({ id: id });
+  //
+  //   return user;
+  // }
   async createUserInDbSql(newUser: UserSql): Promise<UserView> {
     const query = `
       INSERT INTO public."Users"(
@@ -195,14 +199,7 @@ export class UserRepositorySql {
     `);
     return deletedUser === 1;
   }
-  async deleteSessionInDbSql(deviceId: string): Promise<boolean> {
-    const [_, deletedSession] = await this.dataSource.query(`
-    DELETE
-    FROM public."UserSession"
-    WHERE "deviceId" = '${deviceId}'    
-    `);
-    return deletedSession === 1;
-  }
+
   async createUserSessionInDbSql(
     newUserSession: UserSessionSql,
   ): Promise<UserSessionSql> {
@@ -322,11 +319,4 @@ export class UserRepositorySql {
     const result = await this.dataSource.query(query, values);
     return result.affectedRows === 1;
   }
-
-  //   async findUserInformationByIdInDb(id: string) {
-  //     const user = await this.userModel.findOne({ id: id });
-  //
-  //     return user;
-  //   }
-  //
 }

@@ -51,7 +51,6 @@ export class SecurityController {
   ): Promise<void> {
     const creationDateOfToken = req.tokenCreationDate;
     const userId = req.userId;
-    console.log(deviceId, 'controller');
 
     await this.commandBus.execute(
       new DeleteSessionByDeviceIdCommand(deviceId, userId, creationDateOfToken),

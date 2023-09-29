@@ -6,6 +6,10 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { SecurityRepositorySql } from '../repository/security.repositorySql';
+import { UserRepositorySql } from '../../userNest/repository/user.repositorySql';
+import { UserSql } from '../../userNest/schema/user.schema';
+import { UserSessionSql } from '../../userNest/schema/user-session.schema';
 
 export class DeleteSessionByDeviceIdCommand {
   constructor(
@@ -22,25 +26,51 @@ export class DeleteSessionByDeviceIdUseCase
   constructor(
     protected securityRepository: SecurityRepository,
     protected userRepository: UserRepository,
+    protected securityRepositorySql: SecurityRepositorySql,
+    protected userRepositorySql: UserRepositorySql,
   ) {}
 
   async execute(command: DeleteSessionByDeviceIdCommand): Promise<boolean> {
-    console.log(command.deviceId, 'service');
-    const ownerOfSendToken =
-      await this.userRepository.findUserInformationByIdInDb(command.userId);
-    const userSessionInDb = await this.securityRepository.findSessionsForDelete(
-      command.deviceId,
+    const ownerOfSendToken = await this.userRepositorySql.findUserByIdInDbSql(
+      command.userId,
     );
+    const userSessionInDb =
+      await this.securityRepositorySql.findSessionsForDeleteSql(
+        command.deviceId,
+      );
 
-    if (!userSessionInDb) {
+    if (userSessionInDb.length === 0) {
       throw new NotFoundException([
         {
           message: 'Session not found',
         },
       ]);
     }
+    // let isAllowedToDelete = false;
+    // ownerOfSendToken.forEach((item) => {
+    //   if (item.id === userSessionInDb?.sessionId) {
+    //     isAllowedToDelete = true;
+    //   }
+    // });
+    let isAllowedToDelete = false;
 
-    if (ownerOfSendToken!.id !== userSessionInDb?.sessionId) {
+    for (let i = 0; i < userSessionInDb.length; i++) {
+      const session = userSessionInDb[i];
+
+      for (let j = 0; j < ownerOfSendToken.length; j++) {
+        const owner = ownerOfSendToken[j];
+
+        if (session.sessionId === owner.id) {
+          isAllowedToDelete = true;
+          break;
+        }
+      }
+
+      if (isAllowedToDelete) {
+        break;
+      }
+    }
+    if (!isAllowedToDelete) {
       throw new ForbiddenException([
         {
           message: 'You are not allowed to delete this session',
@@ -48,9 +78,18 @@ export class DeleteSessionByDeviceIdUseCase
       ]);
     }
 
+    // if (ownerOfSendToken!.id !== userSessionInDb?.sessionId) {
+
+    console.log(command.deviceId);
+    console.log(command.creationDateOfToken);
+    console.log(userSessionInDb);
+
     if (
-      command.deviceId !== userSessionInDb?.deviceId &&
-      command.creationDateOfToken !== userSessionInDb?.tokenCreationDate
+      userSessionInDb.every(
+        (session) =>
+          session.deviceId !== command.deviceId &&
+          session.creationDateOfToken !== command.creationDateOfToken,
+      )
     )
       throw new UnauthorizedException([
         {
@@ -58,9 +97,7 @@ export class DeleteSessionByDeviceIdUseCase
         },
       ]);
     const sessionDeleted =
-      await this.securityRepository.deleteSessionByDeviceIdInDb(
-        command.deviceId,
-      );
+      await this.securityRepositorySql.deleteSessionInDbSql(command.deviceId);
 
     return sessionDeleted;
   }

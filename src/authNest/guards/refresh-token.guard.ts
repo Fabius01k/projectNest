@@ -89,8 +89,6 @@ export class RefreshTokenGuard implements CanActivate {
       const decoded = await this.authService.decodeRefreshToken(refreshToken);
       const userSession =
         await this.authService.getUserSessionInDb(refreshToken);
-      console.log(userSession, '11111');
-      console.log(decoded, '22222');
 
       if (
         decoded.deviceId !== userSession[0].deviceId &&
