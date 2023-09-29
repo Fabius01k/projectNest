@@ -3,7 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserRepository } from '../../userNest/repository/user.repository';
 import { EmailManager } from '../../managers/email-manager';
 import { BadRequestException } from '@nestjs/common';
-import { User, UserSql } from '../../userNest/schema/user.schema';
+import { UserSql } from '../../userNest/schema/user.schema';
 import { randomUUID } from 'crypto';
 import add from 'date-fns/add';
 import { AuthService } from '../service/auth.service';
