@@ -41,10 +41,10 @@ export class SecurityRepositorySql {
     const [_, sessionsDeleted] = await this.dataSource.query(`
      DELETE
     FROM public."UserSession"
-    WHERE "sessionId" <> '${sessionId}'
-      AND "deviceId" = '${deviceId}'
+    WHERE "sessionId" = '${sessionId}'
+      AND "deviceId" <> '${deviceId}'
   `);
-    return sessionsDeleted >= 1;
+    return sessionsDeleted === 1;
   }
   async findSessionsForDeleteSql(deviceId: string) {
     const session: QueryResult<UserSessionSql | null> = await this.dataSource
