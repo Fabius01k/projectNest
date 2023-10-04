@@ -13,20 +13,17 @@ import {
 } from '@nestjs/common';
 import { BlogService } from '../service/blog.service';
 import { BlogResponse, BlogView } from '../schema/blog-schema';
-import { PostResponse, PostView } from '../../postNest/schema/post-schema';
+import { PostResponse } from '../../postNest/schema/post-schema';
 import { PostService } from '../../postNest/service/post.service';
 import { BasicAuthGuard } from '../../authNest/guards/basic-auth.guard';
-import { PostCreateByBlogIdInputModel } from '../../inputmodels-validation/post.inputModel';
 import { BlogInputModel } from '../../inputmodels-validation/blog.inputModel';
 import { GetToken } from '../../authNest/guards/bearer.guard';
 import { GetAllBlogsCommand } from '../blog.use-cases/getAllBlogs.use-case';
 import { CommandBus } from '@nestjs/cqrs';
-import { GetBlogByIdCommand } from '../blog.use-cases/getBlogById.use-case';
 import { CreateBlogCommand } from '../blog.use-cases/createBlog.use-case';
 import { UpdateBlogCommand } from '../blog.use-cases/updateBlog.use-case';
 import { DeleteBlogCommand } from '../blog.use-cases/deleteBlog.use-case';
 import { GetAllPostsForSpecificBlogCommand } from '../../postNest/post.use-cases/getAllPostForSpecificBlog.use-case';
-import { CreatePostForSpecificBlogCommand } from '../../postNest/post.use-cases/createPostForSpecificBlog.use-case';
 
 @Controller('sa')
 export class BlogSAController {
@@ -35,6 +32,7 @@ export class BlogSAController {
     private readonly postService: PostService,
     private readonly commandBus: CommandBus,
   ) {}
+  @UseGuards(BasicAuthGuard)
   @Get('blogs')
   async getAllBlogs(
     @Query('searchNameTerm') searchNameTerm: string | null,
@@ -152,22 +150,22 @@ export class BlogSAController {
       ),
     );
   }
-  @UseGuards(GetToken)
-  @UseGuards(BasicAuthGuard)
-  @Post(':blogId/posts')
-  async postPostForSpecifeldBlog(
-    @Param('blogId') blogId: string,
-    @Body() postDto: PostCreateByBlogIdInputModel,
-    @Request() req,
-  ): Promise<PostView | null> {
-    let userId = null;
-    if (req.userId) {
-      userId = req.userId;
-    }
-    const post = await this.commandBus.execute(
-      new CreatePostForSpecificBlogCommand(postDto, blogId, userId),
-    );
-
-    return post;
-  }
+  // @UseGuards(GetToken)
+  // @UseGuards(BasicAuthGuard)
+  // @Post(':blogId/posts')
+  // async postPostForSpecifeldBlog(
+  //   @Param('blogId') blogId: string,
+  //   @Body() postDto: PostCreateByBlogIdInputModel,
+  //   @Request() req,
+  // ): Promise<PostView | null> {
+  //   let userId = null;
+  //   if (req.userId) {
+  //     userId = req.userId;
+  //   }
+  //   const post = await this.commandBus.execute(
+  //     new CreatePostForSpecificBlogCommand(postDto, blogId, userId),
+  //   );
+  //
+  //   return post;
+  // }
 }

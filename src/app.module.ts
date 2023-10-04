@@ -59,7 +59,7 @@ import { DeleteBlogUseCase } from './blogNest/blog.use-cases/deleteBlog.use-case
 import { GetAllPostsUseCase } from './postNest/post.use-cases/getAllPosts.use-case';
 import { GetPostByIdUseCase } from './postNest/post.use-cases/getPotsById.use-case';
 import { GetAllPostsForSpecificBlogUseCase } from './postNest/post.use-cases/getAllPostForSpecificBlog.use-case';
-import { CreatePostForSpecificBlogUseCase } from './postNest/post.use-cases/createPostForSpecificBlog.use-case';
+// import { CreatePostForSpecificBlogUseCase } from './postNest/post.use-cases/createPostForSpecificBlog.use-case';
 import { CreatePostUseCase } from './postNest/post.use-cases/createPost.use-case';
 import { UpdatePostUseCase } from './postNest/post.use-cases/updatePost.use-case';
 import { DeletePostUseCase } from './postNest/post.use-cases/deletePost.use-case';
@@ -148,7 +148,6 @@ const postUseCases = [
   GetAllPostsUseCase,
   GetAllPostsForSpecificBlogUseCase,
   GetPostByIdUseCase,
-  CreatePostForSpecificBlogUseCase,
   CreatePostUseCase,
   UpdatePostUseCase,
   DeletePostUseCase,

@@ -1,25 +1,42 @@
-import { PostCreateInputModel } from '../../inputmodels-validation/post.inputModel';
+import { PostCreateByBlogIdInputModel } from '../../inputmodels-validation/post.inputModel';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostRepository } from '../repository/post.repository';
 import { NotFoundException } from '@nestjs/common';
+import { BlogRepositorySql } from '../../blogNest/repository/blog.repositorySql';
+import { PostRepositorySql } from '../repository/post.repositorySql';
 
 export class UpdatePostCommand {
   constructor(
-    public id: string,
-    public postDto: PostCreateInputModel,
+    public postId: string,
+    public blogId: string,
+    public postDto: PostCreateByBlogIdInputModel,
   ) {}
 }
 @CommandHandler(UpdatePostCommand)
 export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
-  constructor(protected postRepository: PostRepository) {}
+  constructor(
+    protected postRepository: PostRepository,
+    protected blogRepositorySql: BlogRepositorySql,
+    protected postRepositorySql: PostRepositorySql,
+  ) {}
 
   async execute(command: UpdatePostCommand): Promise<boolean> {
-    const updatedPost = await this.postRepository.updatePostInDb(
-      command.id,
+    const blog = await this.blogRepositorySql.findBlogByIdInDbSql(
+      command.blogId,
+    );
+
+    if (!blog) {
+      throw new NotFoundException([
+        {
+          message: 'Blog not found',
+        },
+      ]);
+    }
+    const updatedPost = await this.postRepositorySql.updatePostInDbSql(
+      command.postId,
       command.postDto.title,
       command.postDto.shortDescription,
       command.postDto.content,
-      command.postDto.blogId,
     );
     if (!updatedPost) {
       throw new NotFoundException([

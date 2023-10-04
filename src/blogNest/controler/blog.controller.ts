@@ -1,32 +1,20 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  HttpCode,
   Param,
-  Post,
-  Put,
   Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { BlogService } from '../service/blog.service';
 import { BlogResponse, BlogView } from '../schema/blog-schema';
-import { PostResponse, PostView } from '../../postNest/schema/post-schema';
+import { PostResponse } from '../../postNest/schema/post-schema';
 import { PostService } from '../../postNest/service/post.service';
-import { BasicAuthGuard } from '../../authNest/guards/basic-auth.guard';
-import { PostCreateByBlogIdInputModel } from '../../inputmodels-validation/post.inputModel';
-import { BlogInputModel } from '../../inputmodels-validation/blog.inputModel';
 import { GetToken } from '../../authNest/guards/bearer.guard';
 import { GetAllBlogsCommand } from '../blog.use-cases/getAllBlogs.use-case';
 import { CommandBus } from '@nestjs/cqrs';
 import { GetBlogByIdCommand } from '../blog.use-cases/getBlogById.use-case';
-import { CreateBlogCommand } from '../blog.use-cases/createBlog.use-case';
-import { UpdateBlogCommand } from '../blog.use-cases/updateBlog.use-case';
-import { DeleteBlogCommand } from '../blog.use-cases/deleteBlog.use-case';
 import { GetAllPostsForSpecificBlogCommand } from '../../postNest/post.use-cases/getAllPostForSpecificBlog.use-case';
-import { CreatePostForSpecificBlogCommand } from '../../postNest/post.use-cases/createPostForSpecificBlog.use-case';
 
 @Controller('blogs')
 export class BlogController {

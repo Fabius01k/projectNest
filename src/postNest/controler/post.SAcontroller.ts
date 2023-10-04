@@ -15,11 +15,10 @@ import { PostResponse, PostView } from '../schema/post-schema';
 import { PostService } from '../service/post.service';
 import { CommentService } from '../../commentNest/service/comment.service';
 import { BasicAuthGuard } from '../../authNest/guards/basic-auth.guard';
-import { PostCreateInputModel } from '../../inputmodels-validation/post.inputModel';
+import { PostCreateByBlogIdInputModel } from '../../inputmodels-validation/post.inputModel';
 import { GetToken } from '../../authNest/guards/bearer.guard';
 import { UserService } from '../../userNest/service/user.service';
 import { CommandBus } from '@nestjs/cqrs';
-import { GetAllPostsCommand } from '../post.use-cases/getAllPosts.use-case';
 import { CreatePostCommand } from '../post.use-cases/createPost.use-case';
 import { UpdatePostCommand } from '../post.use-cases/updatePost.use-case';
 import { DeletePostCommand } from '../post.use-cases/deletePost.use-case';
@@ -33,7 +32,7 @@ export class PostSAController {
     private readonly userService: UserService,
     private readonly commandBus: CommandBus,
   ) {}
-
+  @UseGuards(BasicAuthGuard)
   @UseGuards(GetToken)
   @Get('blogs/:blogId/posts')
   async getAllPostsForSpecifeldBlog(
@@ -87,7 +86,8 @@ export class PostSAController {
   @UseGuards(BasicAuthGuard)
   @Post('blogs/:blogId/posts')
   async postPost(
-    @Body() postDto: PostCreateInputModel,
+    @Param('blogId') blogId: string,
+    @Body() postDto: PostCreateByBlogIdInputModel,
     @Request() req,
   ): Promise<PostView | null> {
     let userId = null;
@@ -95,28 +95,34 @@ export class PostSAController {
       userId = req.userId;
     }
     const post = await this.commandBus.execute(
-      new CreatePostCommand(postDto, userId),
+      new CreatePostCommand(postDto, blogId, userId),
     );
 
     return post;
   }
   @UseGuards(BasicAuthGuard)
-  @Put(':id')
+  @Put('blogs/:blogId/posts/:postId')
   @HttpCode(204)
   async putPost(
-    @Param('id') id: string,
-    @Body() postDto: PostCreateInputModel,
+    @Param('blogId') blogId: string,
+    @Param('postId') postId: string,
+    @Body() postDto: PostCreateByBlogIdInputModel,
   ): Promise<boolean> {
-    await this.commandBus.execute(new UpdatePostCommand(id, postDto));
+    await this.commandBus.execute(
+      new UpdatePostCommand(postId, blogId, postDto),
+    );
 
     return true;
   }
 
   @UseGuards(BasicAuthGuard)
-  @Delete(':id')
+  @Delete('blogs/:blogId/posts/:postId')
   @HttpCode(204)
-  async deletePost(@Param('id') id: string): Promise<void> {
-    await this.commandBus.execute(new DeletePostCommand(id));
+  async deletePost(
+    @Param('blogId') blogId: string,
+    @Param('postId') postId: string,
+  ): Promise<void> {
+    await this.commandBus.execute(new DeletePostCommand(postId, blogId));
 
     return;
   }

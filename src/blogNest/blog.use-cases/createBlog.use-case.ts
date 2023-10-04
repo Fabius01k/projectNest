@@ -22,7 +22,7 @@ export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
       command.blogDto.description,
       command.blogDto.websiteUrl,
       new Date().toISOString(),
-      false,
+      true,
     );
 
     return await this.blogRepositorySql.createBlogInDbSql(newBlog);

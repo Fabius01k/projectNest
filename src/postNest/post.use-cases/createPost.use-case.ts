@@ -1,17 +1,16 @@
 import { PostRepository } from '../repository/post.repository';
 import { BlogRepository } from '../../blogNest/repository/blog.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostCreateInputModel } from '../../inputmodels-validation/post.inputModel';
-import { Post, PostSql, PostView } from '../schema/post-schema';
+import { PostCreateByBlogIdInputModel } from '../../inputmodels-validation/post.inputModel';
+import { PostSql, PostView } from '../schema/post-schema';
 import { NotFoundException } from '@nestjs/common';
-import { PostsLikesAndDislikesSql } from '../schema/likeOrDislikeInfoPost-schema';
 import { BlogRepositorySql } from '../../blogNest/repository/blog.repositorySql';
 import { PostRepositorySql } from '../repository/post.repositorySql';
-import { BlogView } from '../../blogNest/schema/blog-schema';
 
 export class CreatePostCommand {
   constructor(
-    public postDto: PostCreateInputModel,
+    public postDto: PostCreateByBlogIdInputModel,
+    public blogId: string,
     public userId: string | null,
   ) {}
 }
@@ -26,7 +25,7 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
 
   async execute(command: CreatePostCommand): Promise<PostView | null> {
     const blog = await this.blogRepositorySql.findBlogByIdInDbSql(
-      command.postDto.blogId,
+      command.blogId,
     );
 
     if (!blog) {
@@ -42,7 +41,7 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
       command.postDto.title,
       command.postDto.shortDescription,
       command.postDto.content,
-      command.postDto.blogId,
+      command.blogId,
       blog.name,
       new Date().toISOString(),
     );

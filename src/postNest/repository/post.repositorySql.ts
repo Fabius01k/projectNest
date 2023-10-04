@@ -8,12 +8,8 @@ import {
   PostView,
 } from '../schema/post-schema';
 import { Model } from 'mongoose';
-import {
-  InformationOfLikeAndDislikePost,
-  InformationOfLikeAndDislikePostDocument,
-} from '../schema/likeOrDislikeInfoPost-schema';
-import { Blog, BlogDocument } from '../../blogNest/schema/blog-schema';
-import { CommentsLikesInfo } from '../../commentNest/schema/likeOrDislikeInfoComment.schema';
+import { InformationOfLikeAndDislikePost } from '../schema/likeOrDislikeInfoPost-schema';
+
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { QueryResult } from 'pg';
@@ -257,39 +253,38 @@ export class PostRepositorySql {
     return this.mapPostToView(post[0], userId);
   }
 
-  // async updatePostInDb(
-  //   id: string,
-  //   title: string,
-  //   shortDescription: string,
-  //   content: string,
-  //   blogId: string,
-  // ): Promise<boolean> {
-  //   const blog = await this.blogModel.findOne({ id: blogId });
-  //
-  //   if (!blog) {
-  //     return false;
-  //   }
-  //   const updatePost = await this.postModel.updateOne(
-  //     { id: id },
-  //     {
-  //       $set: {
-  //         title: title,
-  //         shortDescription: shortDescription,
-  //         content: content,
-  //         blogId: blogId,
-  //         blogName: blog.name,
-  //       },
-  //     },
-  //   );
-  //
-  //   const post = updatePost.matchedCount === 1;
-  //   return post;
-  // }
-  // async deletePostInDb(id: string): Promise<boolean> {
-  //   const deletedPost = await this.postModel.deleteOne({ id: id });
-  //
-  //   return deletedPost.deletedCount === 1;
-  // }
+  async updatePostInDbSql(
+    postId: string,
+    title: string,
+    shortDescription: string,
+    content: string,
+  ): Promise<boolean> {
+    const query = `
+    UPDATE public."Posts"
+    SET
+    "title" = $1,
+    "shortDescription" = $2,
+    "content" = $3
+    
+    WHERE "id" = $4`;
+
+    const values = [title, shortDescription, content, postId];
+    const [_, postUpdated] = await this.dataSource.query(query, values);
+
+    return postUpdated === 1;
+  }
+  async deletePostInDbSql(postId: string): Promise<boolean> {
+    const query = `    
+    DELETE
+    FROM public."Posts"
+    WHERE "id" = $1`;
+
+    const values = [postId];
+
+    const [_, deletedPost] = await this.dataSource.query(query, values);
+
+    return deletedPost === 1;
+  }
 
   // async findPostForLikeOrDislike(postId: string): Promise<Post | null> {
   //   const post = await this.postModel.findOne({ id: postId });

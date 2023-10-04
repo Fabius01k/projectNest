@@ -113,7 +113,6 @@ export class BlogRepositorySql {
     WHERE "id" = $4`;
 
     const values = [name, description, websiteUrl, id];
-
     const [_, blogUpdated] = await this.dataSource.query(query, values);
 
     return blogUpdated === 1;

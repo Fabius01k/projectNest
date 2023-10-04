@@ -1,12 +1,7 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  HttpCode,
   Param,
-  Post,
-  Put,
   Query,
   Request,
   UseGuards,
@@ -14,26 +9,11 @@ import {
 import { PostResponse, PostView } from '../schema/post-schema';
 import { PostService } from '../service/post.service';
 import { CommentService } from '../../commentNest/service/comment.service';
-import {
-  CommentResponse,
-  CommentView,
-} from '../../commentNest/schema/comment.schema';
-
-import { BasicAuthGuard } from '../../authNest/guards/basic-auth.guard';
-import { PostCreateInputModel } from '../../inputmodels-validation/post.inputModel';
-import { CommentInputModel } from '../../inputmodels-validation/comments.inputModel';
-import { AuthGuard, GetToken } from '../../authNest/guards/bearer.guard';
-import { LikeInputModel } from '../../inputmodels-validation/like.inputModel';
+import { GetToken } from '../../authNest/guards/bearer.guard';
 import { UserService } from '../../userNest/service/user.service';
 import { CommandBus } from '@nestjs/cqrs';
 import { GetAllPostsCommand } from '../post.use-cases/getAllPosts.use-case';
 import { GetPostByIdCommand } from '../post.use-cases/getPotsById.use-case';
-import { CreatePostCommand } from '../post.use-cases/createPost.use-case';
-import { UpdatePostCommand } from '../post.use-cases/updatePost.use-case';
-import { DeletePostCommand } from '../post.use-cases/deletePost.use-case';
-import { MakeLikeOrDislikePCommand } from '../post.use-cases/makeLikeOrDislike.use-case';
-import { GetAllCommentsForSpecificPostCommand } from '../../commentNest/comment.use-cases/getAllCommentsForSpecificPost.use-case';
-import { CreateCommentCommand } from '../../commentNest/comment.use-cases/createComment.use-case';
 
 @Controller('posts')
 export class PostController {
