@@ -226,7 +226,7 @@ export class PostRepositorySql {
     SELECT COUNT(*) AS "totalCount"
     FROM public."Posts"   
     WHERE
-      "id" = '${blogId}'    
+      "blogId" = '${blogId}'    
   `);
     // const items = posts.map((p) => this.mapPostToView(p, userId));
     const items = await Promise.all(
