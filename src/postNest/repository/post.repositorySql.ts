@@ -49,7 +49,8 @@ export class PostRepositorySql {
   WHERE 
   "reactionStatus" = 'Like' and "postId" = '${post.id}'
 `);
-    const likesCount = likesCountQuery[0]?.count ?? 0;
+    // const likesCount = likesCountQuery[0]?.count ?? 0;
+    const likesCount = parseInt(likesCountQuery[0]?.count) || 0;
 
     const dislikesCountQuery = await this.dataSource.query<number>(`
     SELECT COUNT(*)
@@ -57,7 +58,8 @@ export class PostRepositorySql {
   WHERE 
   "reactionStatus" = 'Dislike' and "postId" = '${post.id}'
 `);
-    const dislikesCount = dislikesCountQuery[0]?.count ?? 0;
+    // const dislikesCount = dislikesCountQuery[0]?.count ?? 0;
+    const dislikesCount = parseInt(dislikesCountQuery[0]?.count) || 0;
 
     const userStatusQuery = await this.dataSource.query<string>(`
     SELECT "reactionStatus"
@@ -96,8 +98,8 @@ export class PostRepositorySql {
       blogName: post.blogName,
       createdAt: post.createdAt,
       extendedLikesInfo: {
-        likesCount: likesCount[0],
-        dislikesCount: dislikesCount[0],
+        likesCount: likesCount,
+        dislikesCount: dislikesCount,
         myStatus: userStatus,
         newestLikes: newestLikes,
       },
