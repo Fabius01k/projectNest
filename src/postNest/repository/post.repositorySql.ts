@@ -211,7 +211,7 @@ export class PostRepositorySql {
     SELECT * 
     FROM public."Posts"
     WHERE 
-       "id" = '${blogId}'
+       "blogId" = '${blogId}'
     ORDER BY 
       "${sortBy}" ${sortDirection}
     LIMIT 

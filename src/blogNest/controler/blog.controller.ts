@@ -132,7 +132,7 @@ export class BlogController {
       pageNumber = 1;
     }
 
-    const blog = await this.commandBus.execute(blogId);
+    // const blog = await this.commandBus.execute(blogId);
 
     return await this.commandBus.execute(
       new GetAllPostsForSpecificBlogCommand(
@@ -140,7 +140,7 @@ export class BlogController {
         sortDirection,
         pageSize,
         pageNumber,
-        blog!.id,
+        blogId,
         userId,
       ),
     );
