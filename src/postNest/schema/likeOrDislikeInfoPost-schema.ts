@@ -45,5 +45,32 @@ export class InformationOfLikeAndDislikePost {
     this.likesInfo = likesInfo;
   }
 }
+export class PostsLikesAndDislikesSql {
+  postId: string;
+  numberOfLikes: number;
+  numberOfDislikes: number;
+  likesInfo: {
+    userId: string;
+    login: string;
+    likeStatus: string;
+    dateOfLikeDislike: Date;
+  }[];
+  constructor(
+    postId: string,
+    numberOfLikes: number,
+    numberOfDislikes: number,
+    likesInfo: {
+      userId: string;
+      login: string;
+      likeStatus: string;
+      dateOfLikeDislike: Date;
+    }[],
+  ) {
+    this.postId = postId;
+    this.numberOfLikes = numberOfLikes;
+    this.numberOfDislikes = numberOfDislikes;
+    this.likesInfo = likesInfo;
+  }
+}
 export const InformationOfLikeAndDislikePostSchema =
   SchemaFactory.createForClass(InformationOfLikeAndDislikePost);

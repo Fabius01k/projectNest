@@ -84,8 +84,26 @@ import { ResendingPasswordCodeUseCase } from './authNest/auth.use-cases/resendin
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRepositorySql } from './userNest/repository/user.repositorySql';
 import { SecurityRepositorySql } from './securityNest/repository/security.repositorySql';
+import { BlogRepositorySql } from './blogNest/repository/blog.repositorySql';
+import { BlogSAController } from './blogNest/controler/blog.SAcontroller';
+import { PostSAController } from './postNest/controler/post.SAcontroller';
+import { PostRepositorySql } from './postNest/repository/post.repositorySql';
 
 const dbName = 'myApi';
+const superAdminControllers = [
+  UserController,
+  BlogSAController,
+  PostSAController,
+];
+const publicControllers = [
+  AppController,
+  BlogController,
+  PostController,
+  CommentController,
+  TestingController,
+  AuthController,
+  SecurityController,
+];
 const services = [
   AppService,
   BlogService,
@@ -103,7 +121,12 @@ const repositoriesMongo = [
   UserRepository,
   SecurityRepository,
 ];
-const repositoriesSql = [UserRepositorySql, SecurityRepositorySql];
+const repositoriesSql = [
+  UserRepositorySql,
+  SecurityRepositorySql,
+  BlogRepositorySql,
+  PostRepositorySql,
+];
 
 const guardsAndValidations = [
   JwtAccessStrategyStrategy,
@@ -217,16 +240,7 @@ const authUseCases = [
       secret: jwtConstants.secret,
     }),
   ],
-  controllers: [
-    AppController,
-    BlogController,
-    PostController,
-    CommentController,
-    UserController,
-    TestingController,
-    AuthController,
-    SecurityController,
-  ],
+  controllers: [...publicControllers, ...superAdminControllers],
   providers: [
     ...guardsAndValidations,
     ...repositoriesMongo,

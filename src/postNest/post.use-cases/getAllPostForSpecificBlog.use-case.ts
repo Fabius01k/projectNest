@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostRepository } from '../repository/post.repository';
 import { PostResponse } from '../schema/post-schema';
+import { PostRepositorySql } from '../repository/post.repositorySql';
 
 export class GetAllPostsForSpecificBlogCommand {
   constructor(
@@ -16,12 +17,15 @@ export class GetAllPostsForSpecificBlogCommand {
 export class GetAllPostsForSpecificBlogUseCase
   implements ICommandHandler<GetAllPostsForSpecificBlogCommand>
 {
-  constructor(protected postRepository: PostRepository) {}
+  constructor(
+    protected postRepository: PostRepository,
+    protected postRepositorySql: PostRepositorySql,
+  ) {}
 
   async execute(
     command: GetAllPostsForSpecificBlogCommand,
   ): Promise<PostResponse> {
-    return await this.postRepository.findAllPostsForSpecifeldBlogInDb(
+    return await this.postRepositorySql.findAllPostsForSpecifeldBlogInDbSql(
       command.sortBy,
       command.sortDirection,
       command.pageSize,

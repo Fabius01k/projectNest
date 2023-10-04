@@ -1,7 +1,5 @@
 import { HydratedDocument } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ObjectId } from 'mongodb';
-import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 
 export type BlogDocument = HydratedDocument<Blog>;
 @Schema()
@@ -50,5 +48,28 @@ export interface BlogResponse {
   pageSize: number;
   totalCount: number;
   items: BlogView[];
+}
+export class BlogSql {
+  id: string;
+  name: string;
+  description: string;
+  websiteUrl: string;
+  createdAt: string;
+  isMembership: boolean;
+  constructor(
+    id: string,
+    name: string,
+    description: string,
+    websiteUrl: string,
+    createdAt: string,
+    isMembership: boolean,
+  ) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.websiteUrl = websiteUrl;
+    this.createdAt = createdAt;
+    this.isMembership = isMembership;
+  }
 }
 export const BlogSchema = SchemaFactory.createForClass(Blog);

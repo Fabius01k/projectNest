@@ -2,9 +2,12 @@ import { PostRepository } from '../repository/post.repository';
 import { BlogRepository } from '../../blogNest/repository/blog.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostCreateInputModel } from '../../inputmodels-validation/post.inputModel';
-import { Post, PostView } from '../schema/post-schema';
+import { Post, PostSql, PostView } from '../schema/post-schema';
 import { NotFoundException } from '@nestjs/common';
-import { InformationOfLikeAndDislikePost } from '../schema/likeOrDislikeInfoPost-schema';
+import { PostsLikesAndDislikesSql } from '../schema/likeOrDislikeInfoPost-schema';
+import { BlogRepositorySql } from '../../blogNest/repository/blog.repositorySql';
+import { PostRepositorySql } from '../repository/post.repositorySql';
+import { BlogView } from '../../blogNest/schema/blog-schema';
 
 export class CreatePostCommand {
   constructor(
@@ -17,13 +20,15 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
   constructor(
     protected postRepository: PostRepository,
     protected blogRepository: BlogRepository,
+    protected blogRepositorySql: BlogRepositorySql,
+    protected postRepositorySql: PostRepositorySql,
   ) {}
 
   async execute(command: CreatePostCommand): Promise<PostView | null> {
-    const dateNow = new Date().getTime().toString();
-    const blog = await this.blogRepository.findBlogByIdInDb(
+    const blog = await this.blogRepositorySql.findBlogByIdInDbSql(
       command.postDto.blogId,
     );
+
     if (!blog) {
       throw new NotFoundException([
         {
@@ -31,8 +36,8 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
         },
       ]);
     }
-
-    const newPost = new Post(
+    const dateNow = new Date().getTime().toString();
+    const newPost = new PostSql(
       dateNow,
       command.postDto.title,
       command.postDto.shortDescription,
@@ -42,17 +47,20 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
       new Date().toISOString(),
     );
 
-    const postId = newPost.id;
-    const InfOfLikeAndDislikePost = new InformationOfLikeAndDislikePost(
-      postId,
-      0,
-      0,
-      [],
-    );
-    await this.postRepository.createInfOfLikeAndDislikePost(
-      InfOfLikeAndDislikePost,
-    );
+    // const postId = newPost.id;
+    // const InfOfLikeAndDislikePost = new PostsLikesAndDislikesSql(
+    //   postId,
+    //   0,
+    //   0,
+    //   [],
+    // );
+    // await this.postRepositorySql.createInfOfLikeAndDislikePostSql(
+    //   InfOfLikeAndDislikePost,
+    // );
 
-    return await this.postRepository.createPostInDb(newPost, command.userId);
+    return await this.postRepositorySql.createPostInDbSql(
+      newPost,
+      command.userId,
+    );
   }
 }
