@@ -32,7 +32,7 @@ export class BlogSAController {
     private readonly postService: PostService,
     private readonly commandBus: CommandBus,
   ) {}
-  @UseGuards(BasicAuthGuard)
+
   @Get('blogs')
   async getAllBlogs(
     @Query('searchNameTerm') searchNameTerm: string | null,
