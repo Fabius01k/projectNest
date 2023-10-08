@@ -82,6 +82,7 @@ export class PostRepositorySql {
   )
     `);
     const newestLikes = newestLikesQuery[0]?.array ?? [];
+    console.log(newestLikes);
 
     return {
       id: post.id,

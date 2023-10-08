@@ -31,7 +31,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
 
-    if (status === 404) {
+    if (status === 403) {
       const errorResponse = {
         errorsMessages: [] as { message: string }[],
       };
@@ -42,7 +42,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       response.status(status).json(errorResponse);
       return;
     }
-    if (status === 403) {
+
+    if (status === 404) {
       const errorResponse = {
         errorsMessages: [] as { message: string }[],
       };

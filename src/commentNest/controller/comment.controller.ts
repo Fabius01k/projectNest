@@ -51,9 +51,11 @@ export class CommentController {
     );
     const commentatorId = commentBeforeUpdating.commentatorInfo.userId;
     if (commentatorId !== req.userId) {
-      throw new ForbiddenException(
-        'You are not allowed to update this comment',
-      );
+      throw new ForbiddenException([
+        {
+          message: 'You are not allowed to update this comment',
+        },
+      ]);
     }
     await this.commandBus.execute(
       new UpdateCommentCommand(commentId, commentDto),
@@ -92,10 +94,13 @@ export class CommentController {
       new GetCommentByIdCommand(commentId, req.userId),
     );
     const commentatorId = commentBeforeUpdating.commentatorInfo.userId;
+    console.log(commentatorId);
     if (commentatorId !== req.userId) {
-      throw new ForbiddenException(
-        'You are not allowed to delete this comment',
-      );
+      throw new ForbiddenException([
+        {
+          message: 'You are not allowed to update this comment',
+        },
+      ]);
     }
     await this.commandBus.execute(new DeleteCommentCommand(commentId));
 
