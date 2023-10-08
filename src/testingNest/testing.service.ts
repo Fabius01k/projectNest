@@ -14,5 +14,10 @@ export class TestingService {
     await this.dataSource.query(`DELETE FROM public."UserSession"`);
     await this.dataSource.query(`DELETE FROM public."Blogs"`);
     await this.dataSource.query(`DELETE FROM public."Posts"`);
+    await this.dataSource.query(`DELETE FROM public."Comments"`);
+    await this.dataSource.query(
+      `DELETE FROM public."CommentsLikesAndDislikes"`,
+    );
+    await this.dataSource.query(`DELETE FROM public."PostsLikesAndDislikes"`);
   }
 }
