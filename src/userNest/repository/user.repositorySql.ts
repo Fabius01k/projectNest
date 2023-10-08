@@ -191,14 +191,6 @@ export class UserRepositorySql {
     console.log(newUserToRegistration);
     return true;
   }
-  // async deleteUserInDbSql(id: string): Promise<boolean> {
-  //   const [_, deletedUser] = await this.dataSource.query(`
-  //   DELETE
-  //   FROM public."Users"
-  //   WHERE "id" = '${id}'
-  //   `);
-  //   return deletedUser === 1;
-  // }
   async deleteUserInDbSql(id: string): Promise<boolean> {
     const query = `    
     DELETE

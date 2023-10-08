@@ -63,9 +63,9 @@ import { GetAllPostsForSpecificBlogUseCase } from './postNest/post.use-cases/get
 import { CreatePostUseCase } from './postNest/post.use-cases/createPost.use-case';
 import { UpdatePostUseCase } from './postNest/post.use-cases/updatePost.use-case';
 import { DeletePostUseCase } from './postNest/post.use-cases/deletePost.use-case';
-import { MakeLikeOrDislikeUseCase } from './postNest/post.use-cases/makeLikeOrDislike.use-case';
+
 import { GetCommentByIdUseCase } from './commentNest/comment.use-cases/getCommentById.use-case';
-import { GetAllCommentsForSpecificPostCommand } from './commentNest/comment.use-cases/getAllCommentsForSpecificPost.use-case';
+import { GetAllCommentsForSpecificPostUseCase } from './commentNest/comment.use-cases/getAllCommentsForSpecificPost.use-case';
 import { CreateCommentUseCase } from './commentNest/comment.use-cases/createComment.use-case';
 import { UpdateCommentUseCase } from './commentNest/comment.use-cases/updateComment.use-case';
 import { DeleteCommentUseCase } from './commentNest/comment.use-cases/deleteComment.use-case';
@@ -88,6 +88,9 @@ import { BlogRepositorySql } from './blogNest/repository/blog.repositorySql';
 import { BlogSAController } from './blogNest/controler/blog.SAcontroller';
 import { PostSAController } from './postNest/controler/post.SAcontroller';
 import { PostRepositorySql } from './postNest/repository/post.repositorySql';
+import { CommentRepositorySql } from './commentNest/repository/comment.repositorySql';
+import { MakeLikeOrDislikeCommentUseCase } from './commentNest/comment.use-cases/makeLikeOrDislike.use-case';
+import { MakeLikeOrDislikePostUseCase } from './postNest/post.use-cases/makeLikeOrDislike.use-case';
 
 const dbName = 'myApi';
 const superAdminControllers = [
@@ -126,6 +129,7 @@ const repositoriesSql = [
   SecurityRepositorySql,
   BlogRepositorySql,
   PostRepositorySql,
+  CommentRepositorySql,
 ];
 
 const guardsAndValidations = [
@@ -151,15 +155,15 @@ const postUseCases = [
   CreatePostUseCase,
   UpdatePostUseCase,
   DeletePostUseCase,
-  MakeLikeOrDislikeUseCase,
+  MakeLikeOrDislikePostUseCase,
 ];
 const commentUseCases = [
   GetCommentByIdUseCase,
-  GetAllCommentsForSpecificPostCommand,
+  GetAllCommentsForSpecificPostUseCase,
   CreateCommentUseCase,
   UpdateCommentUseCase,
   DeleteCommentUseCase,
-  MakeLikeOrDislikeUseCase,
+  MakeLikeOrDislikeCommentUseCase,
 ];
 const userUseCases = [
   GetAllUsersUseCase,

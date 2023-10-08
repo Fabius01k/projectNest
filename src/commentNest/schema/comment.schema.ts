@@ -75,4 +75,27 @@ export interface CommentResponse {
   totalCount: number;
   items: CommentView[];
 }
+export class CommentSql {
+  id: string;
+  content: string;
+  userId: string;
+  userLogin: string;
+  createdAt: string;
+  postId: string;
+  constructor(
+    id: string,
+    content: string,
+    userId: string,
+    userLogin: string,
+    createdAt: string,
+    postId: string,
+  ) {
+    this.id = id;
+    this.content = content;
+    this.userId = userId;
+    this.userLogin = userLogin;
+    this.createdAt = createdAt;
+    this.postId = postId;
+  }
+}
 export const CommentSchema = SchemaFactory.createForClass(Comment);

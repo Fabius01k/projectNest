@@ -50,5 +50,16 @@ export interface CommentsLikesInfo {
   likeStatus: string;
   dateOfLikeDislike: Date;
 }
+export class CommentsLikesAndDislikesSql {
+  commentId: string;
+  reactionStatus: string;
+  userId: string;
+
+  constructor(commentId: string, reactionStatus: string, userId: string) {
+    this.commentId = commentId;
+    this.reactionStatus = reactionStatus;
+    this.userId = userId;
+  }
+}
 export const InformationOfLikeAndDislikeCommentSchema =
   SchemaFactory.createForClass(InformationOfLikeAndDislikeComment);

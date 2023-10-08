@@ -1,6 +1,7 @@
 import { LikeInputModel } from '../../inputmodels-validation/like.inputModel';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostRepository } from '../repository/post.repository';
+import { PostRepositorySql } from '../repository/post.repositorySql';
 
 export class MakeLikeOrDislikePCommand {
   constructor(
@@ -12,46 +13,36 @@ export class MakeLikeOrDislikePCommand {
   ) {}
 }
 @CommandHandler(MakeLikeOrDislikePCommand)
-export class MakeLikeOrDislikeUseCase
+export class MakeLikeOrDislikePostUseCase
   implements ICommandHandler<MakeLikeOrDislikePCommand>
 {
-  constructor(protected postRepository: PostRepository) {}
+  constructor(
+    protected postRepository: PostRepository,
+    protected postRepositorySql: PostRepositorySql,
+  ) {}
 
   async execute(command: MakeLikeOrDislikePCommand): Promise<boolean> {
     const oldLikeOrDislikeOfUser =
-      await this.postRepository.findOldLikeOrDislike(
+      await this.postRepositorySql.findOldLikeOrDislikeSql(
         command.postId,
         command.userId,
       );
 
     if (oldLikeOrDislikeOfUser) {
-      if (oldLikeOrDislikeOfUser.likeStatus === 'Like') {
-        await this.postRepository.deleteNumberOfLikes(command.postId);
-      } else if (oldLikeOrDislikeOfUser.likeStatus === 'Dislike') {
-        await this.postRepository.deleteNumberOfDislikes(command.postId);
-      }
-      await this.postRepository.deleteOldLikeDislike(
+      await this.postRepositorySql.deleteOldLikeDislikeSql(
         command.postId,
         command.userId,
       );
     }
-    const newLikeInfo = {
+    const newUsersReaction = {
+      postId: command.postId,
+      userLogin: command.login,
+      reactionStatus: command.likeDto.likeStatus,
+      addedAt: command.dateOfLikeDislike,
       userId: command.userId,
-      login: command.login,
-      likeStatus: command.likeDto.likeStatus,
-      dateOfLikeDislike: command.dateOfLikeDislike,
     };
-    if (command.likeDto.likeStatus === 'Like')
-      return this.postRepository.updateNumberOfLikes(
-        command.postId,
-        newLikeInfo,
-      );
+    await this.postRepositorySql.createNewReactionPostSql(newUsersReaction);
 
-    if (command.likeDto.likeStatus === 'Dislike')
-      return this.postRepository.updateNumberOfDislikes(
-        command.postId,
-        newLikeInfo,
-      );
     return true;
   }
 }

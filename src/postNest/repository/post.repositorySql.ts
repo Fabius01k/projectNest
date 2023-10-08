@@ -1,15 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import {
-  Post,
-  PostDocument,
-  PostResponse,
-  PostSql,
-  PostView,
-} from '../schema/post-schema';
-import { Model } from 'mongoose';
-import { InformationOfLikeAndDislikePost } from '../schema/likeOrDislikeInfoPost-schema';
-
+import { Post, PostResponse, PostSql, PostView } from '../schema/post-schema';
+import { PostsLikesAndDislikesSql } from '../schema/likeOrDislikeInfoPost-schema';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { QueryResult } from 'pg';
@@ -61,14 +52,17 @@ export class PostRepositorySql {
     // const dislikesCount = dislikesCountQuery[0]?.count ?? 0;
     const dislikesCount = parseInt(dislikesCountQuery[0]?.count) || 0;
 
-    const userStatusQuery = await this.dataSource.query<string>(`
+    const userStatusQuery = await this.dataSource.query<
+      { reactionStatus: string }[]
+    >(`
     SELECT "reactionStatus"
     FROM public."PostsLikesAndDislikes"
     WHERE 
-      "userId" = '${userId}'   
+      "userId" = '${userId}' and "postId" = '${post.id}'
     `);
+    console.log(userStatusQuery[0]);
     const userStatus =
-      userStatusQuery.length === 0 ? 'None' : userStatusQuery[0];
+      userStatusQuery.length === 0 ? 'None' : userStatusQuery[0].reactionStatus;
 
     const newestLikesQuery = await this.dataSource.query(`
     SELECT array(
@@ -177,23 +171,26 @@ export class PostRepositorySql {
     await this.dataSource.query(query, values);
     return this.mapPostToView(newPost, userId);
   }
-  async createInfOfLikeAndDislikePostSql(
-    InfOfLikeAndDislikePost: InformationOfLikeAndDislikePost,
-  ): Promise<InformationOfLikeAndDislikePost> {
+
+  async createNewReactionPostSql(
+    newUsersReaction: PostsLikesAndDislikesSql,
+  ): Promise<PostsLikesAndDislikesSql> {
     const query = `
-   INSERT INTO public."PostsLikesAndDIslikes"(
+   INSERT INTO public."PostsLikesAndDislikes"(
    "postId",
-   "numberOfLikes",
-   "numberOfDislikes",
-   "likesInfo")
-    VALUES ($1, $2, $3, $4)
+   "userLogin",
+   "reactionStatus",
+   "addedAt",
+   "userId")
+    VALUES ($1, $2, $3, $4, $5)
     RETURNING *`;
 
     const values = [
-      InfOfLikeAndDislikePost.postId,
-      InfOfLikeAndDislikePost.numberOfLikes,
-      InfOfLikeAndDislikePost.numberOfDislikes,
-      InfOfLikeAndDislikePost.likesInfo,
+      newUsersReaction.postId,
+      newUsersReaction.userLogin,
+      newUsersReaction.reactionStatus,
+      newUsersReaction.addedAt,
+      newUsersReaction.userId,
     ];
 
     return await this.dataSource.query(query, values);
@@ -241,6 +238,7 @@ export class PostRepositorySql {
       items: items,
     };
   }
+
   async findPostByIdInDbSql(
     id: string,
     userId: string | null,
@@ -253,6 +251,25 @@ export class PostRepositorySql {
     `);
     if (post.length === 0) return null;
     return this.mapPostToView(post[0], userId);
+  }
+  async findOldLikeOrDislikeSql(
+    postId: string,
+    userId: string,
+  ): Promise<boolean> {
+    const query = `
+    SELECT *
+    FROM public."PostsLikesAndDislikes"
+    WHERE 
+    "postId" = $1 and "userId" = $2`;
+
+    const values = [postId, userId];
+    const oldUsersReaction = await this.dataSource.query(query, values);
+
+    if (oldUsersReaction) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   async updatePostInDbSql(
@@ -287,58 +304,15 @@ export class PostRepositorySql {
 
     return deletedPost === 1;
   }
+  async deleteOldLikeDislikeSql(postId: string, userId: string): Promise<void> {
+    const query = `
+    DELETE 
+    FROM public."PostsLikesAndDislikes"
+    WHERE
+    "postId" = $1 and "userId" = $2`;
 
-  // async findPostForLikeOrDislike(postId: string): Promise<Post | null> {
-  //   const post = await this.postModel.findOne({ id: postId });
-  //   return post;
-  // }
-  // async findOldLikeOrDislike(postId: string, userId: string) {
-  //   const result = await this.infoModel.findOne({
-  //     postId,
-  //     'likesInfo.userId': userId,
-  //   });
-  //   if (result?.likesInfo) {
-  //     const likeInfo = result.likesInfo.find((info) => info.userId === userId);
-  //     return likeInfo;
-  //   }
-  //   return null;
-  // }
-  // async deleteNumberOfLikes(postId: string): Promise<void> {
-  //   await this.infoModel.updateOne({ postId }, { $inc: { numberOfLikes: -1 } });
-  //   return;
-  // }
-  // async deleteNumberOfDislikes(postId: string): Promise<void> {
-  //   await this.infoModel.updateOne(
-  //     { postId },
-  //     { $inc: { numberOfDislikes: -1 } },
-  //   );
-  //   return;
-  // }
-  // async deleteOldLikeDislike(postId: string, userId: string): Promise<void> {
-  //   await this.infoModel.updateOne(
-  //     { postId, 'likesInfo.userId': userId },
-  //     { $pull: { likesInfo: { userId: userId } } },
-  //   );
-  //   return;
-  // }
-  // async updateNumberOfLikes(
-  //   postId: string,
-  //   newLikeInfo: CommentsLikesInfo,
-  // ): Promise<boolean> {
-  //   const result = await this.infoModel.updateOne(
-  //     { postId },
-  //     { $inc: { numberOfLikes: 1 }, $push: { likesInfo: newLikeInfo } },
-  //   );
-  //   return result.modifiedCount === 1;
-  // }
-  // async updateNumberOfDislikes(
-  //   postId: string,
-  //   newLikeInfo: CommentsLikesInfo,
-  // ): Promise<boolean> {
-  //   const result = await this.infoModel.updateOne(
-  //     { postId },
-  //     { $inc: { numberOfDislikes: 1 }, $push: { likesInfo: newLikeInfo } },
-  //   );
-  //   return result.modifiedCount === 1;
-  // }
+    const values = [postId, userId];
+    await this.dataSource.query(query, values);
+    return;
+  }
 }

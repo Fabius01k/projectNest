@@ -49,7 +49,7 @@ export class CommentController {
     const commentBeforeUpdating = await this.commandBus.execute(
       new GetCommentByIdCommand(commentId, req.userId),
     );
-    const commentatorId = commentBeforeUpdating!.commentatorInfo.userId;
+    const commentatorId = commentBeforeUpdating.commentatorInfo.userId;
     if (commentatorId !== req.userId) {
       throw new ForbiddenException(
         'You are not allowed to update this comment',
@@ -69,17 +69,14 @@ export class CommentController {
     @Body() likeDto: LikeInputModel,
     @Request() req,
   ): Promise<boolean> {
-    const comment =
-      await this.commentService.getCommentForLikeOrDislike(commentId);
-    const dateOfLikeDislike = new Date();
+    // const comment =
+    //   await this.commentService.getCommentForLikeOrDislike(commentId);
+    const comment = await this.commandBus.execute(
+      new GetCommentByIdCommand(commentId, req.userId),
+    );
 
     await this.commandBus.execute(
-      new MakeLikeOrDislikeCCommand(
-        req.userId,
-        commentId,
-        likeDto,
-        dateOfLikeDislike,
-      ),
+      new MakeLikeOrDislikeCCommand(req.userId, commentId, likeDto),
     );
 
     return true;
@@ -94,7 +91,7 @@ export class CommentController {
     const commentBeforeUpdating = await this.commandBus.execute(
       new GetCommentByIdCommand(commentId, req.userId),
     );
-    const commentatorId = commentBeforeUpdating!.commentatorInfo.userId;
+    const commentatorId = commentBeforeUpdating.commentatorInfo.userId;
     if (commentatorId !== req.userId) {
       throw new ForbiddenException(
         'You are not allowed to delete this comment',

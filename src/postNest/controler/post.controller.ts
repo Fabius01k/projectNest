@@ -1,7 +1,11 @@
 import {
+  Body,
   Controller,
   Get,
+  HttpCode,
   Param,
+  Post,
+  Put,
   Query,
   Request,
   UseGuards,
@@ -9,11 +13,20 @@ import {
 import { PostResponse, PostView } from '../schema/post-schema';
 import { PostService } from '../service/post.service';
 import { CommentService } from '../../commentNest/service/comment.service';
-import { GetToken } from '../../authNest/guards/bearer.guard';
+import { AuthGuard, GetToken } from '../../authNest/guards/bearer.guard';
 import { UserService } from '../../userNest/service/user.service';
 import { CommandBus } from '@nestjs/cqrs';
 import { GetAllPostsCommand } from '../post.use-cases/getAllPosts.use-case';
 import { GetPostByIdCommand } from '../post.use-cases/getPotsById.use-case';
+import { CommentInputModel } from '../../inputmodels-validation/comments.inputModel';
+import { CreateCommentCommand } from '../../commentNest/comment.use-cases/createComment.use-case';
+import {
+  CommentResponse,
+  CommentView,
+} from '../../commentNest/schema/comment.schema';
+import { GetAllCommentsForSpecificPostCommand } from '../../commentNest/comment.use-cases/getAllCommentsForSpecificPost.use-case';
+import { MakeLikeOrDislikePCommand } from '../post.use-cases/makeLikeOrDislike.use-case';
+import { LikeInputModel } from '../../inputmodels-validation/like.inputModel';
 
 @Controller('posts')
 export class PostController {
@@ -89,128 +102,94 @@ export class PostController {
     );
     return post;
   }
-  // @UseGuards(GetToken)
-  // @UseGuards(BasicAuthGuard)
-  // @Post()
-  // async postPost(
-  //   @Body() postDto: PostCreateInputModel,
-  //   @Request() req,
-  // ): Promise<PostView | null> {
-  //   let userId = null;
-  //   if (req.userId) {
-  //     userId = req.userId;
-  //   }
-  //   const post = await this.commandBus.execute(
-  //     new CreatePostCommand(postDto, userId),
-  //   );
-  //
-  //   return post;
-  // }
-  // @UseGuards(AuthGuard)
-  // @Post(':postId/comments')
-  // async postComment(
-  //   @Param('postId') postId: string,
-  //   @Body() commentDto: CommentInputModel,
-  //   @Request() req,
-  // ): Promise<CommentView | null> {
-  //   const comment = await this.commandBus.execute(
-  //     new CreateCommentCommand(commentDto, postId, req.userId),
-  //   );
-  //
-  //   return comment;
-  // }
-  // @UseGuards(BasicAuthGuard)
-  // @Put(':id')
-  // @HttpCode(204)
-  // async putPost(
-  //   @Param('id') id: string,
-  //   @Body() postDto: PostCreateInputModel,
-  // ): Promise<boolean> {
-  //   await this.commandBus.execute(new UpdatePostCommand(id, postDto));
-  //
-  //   return true;
-  // }
-  // @UseGuards(AuthGuard)
-  // @Put(':postId/like-status')
-  // @HttpCode(204)
-  // async makeLikeOrDislike(
-  //   @Param('postId') postId: string,
-  //   @Body() likeDto: LikeInputModel,
-  //   @Request() req,
-  // ): Promise<boolean> {
-  //   const post = await this.postService.getPostForLikeOrDislike(postId);
-  //   const user = await this.userService.getUserById(req.userId);
-  //   const dateOfLikeDislike = new Date();
-  //
-  //   await this.commandBus.execute(
-  //     new MakeLikeOrDislikePCommand(
-  //       req.userId,
-  //       user!.login,
-  //       postId,
-  //       likeDto,
-  //       dateOfLikeDislike,
-  //     ),
-  //   );
-  //
-  //   return true;
-  // }
-  // @UseGuards(BasicAuthGuard)
-  // @Delete(':id')
-  // @HttpCode(204)
-  // async deletePost(@Param('id') id: string): Promise<void> {
-  //   await this.commandBus.execute(new DeletePostCommand(id));
-  //
-  //   return;
-  // }
-  // @UseGuards(GetToken)
-  // @Get(':postId/comments')
-  // async getAllCommentForSpecifeldPost(
-  //   @Param('postId') postId: string,
-  //   @Query('sortBy') sortBy: string,
-  //   @Query('sortDirection') sortDirection: 'asc' | 'desc',
-  //   @Query('pageSize') pageSize: number,
-  //   @Query('pageNumber') pageNumber: number,
-  //   @Request() req,
-  // ): Promise<CommentResponse | null> {
-  //   let userId = null;
-  //   if (req.userId) {
-  //     userId = req.userId;
-  //   }
-  //   if (!sortBy) {
-  //     sortBy = 'createdAt';
-  //   }
-  //
-  //   if (!sortDirection || sortDirection.toLowerCase() !== 'asc') {
-  //     sortDirection = 'desc';
-  //   }
-  //
-  //   const checkPageSize = +pageSize;
-  //   if (!pageSize || !Number.isInteger(checkPageSize) || checkPageSize <= 0) {
-  //     pageSize = 10;
-  //   }
-  //
-  //   const checkPageNumber = +pageNumber;
-  //   if (
-  //     !pageNumber ||
-  //     !Number.isInteger(checkPageNumber) ||
-  //     checkPageNumber <= 0
-  //   ) {
-  //     pageNumber = 1;
-  //   }
-  //
-  //   const post = await this.commandBus.execute(
-  //     new GetPostByIdCommand(postId, userId),
-  //   );
-  //
-  //   return await this.commandBus.execute(
-  //     new GetAllCommentsForSpecificPostCommand(
-  //       sortBy,
-  //       sortDirection,
-  //       pageSize,
-  //       pageNumber,
-  //       post!.id,
-  //       userId,
-  //     ),
-  //   );
-  // }
+  @UseGuards(AuthGuard)
+  @Post(':postId/comments')
+  async postComment(
+    @Param('postId') postId: string,
+    @Body() commentDto: CommentInputModel,
+    @Request() req,
+  ): Promise<CommentView | null> {
+    const comment = await this.commandBus.execute(
+      new CreateCommentCommand(commentDto, postId, req.userId),
+    );
+
+    return comment;
+  }
+  @UseGuards(AuthGuard)
+  @Put(':postId/like-status')
+  @HttpCode(204)
+  async makeLikeOrDislike(
+    @Param('postId') postId: string,
+    @Body() likeDto: LikeInputModel,
+    @Request() req,
+  ): Promise<boolean> {
+    const post = await this.commandBus.execute(
+      new GetPostByIdCommand(postId, req.userId),
+    );
+    const user = await this.userService.getUserById(req.userId);
+    const dateOfLikeDislike = new Date();
+
+    await this.commandBus.execute(
+      new MakeLikeOrDislikePCommand(
+        req.userId,
+        user[0].login,
+        postId,
+        likeDto,
+        dateOfLikeDislike,
+      ),
+    );
+
+    return true;
+  }
+  @UseGuards(GetToken)
+  @Get(':postId/comments')
+  async getAllCommentForSpecifeldPost(
+    @Param('postId') postId: string,
+    @Query('sortBy') sortBy: string,
+    @Query('sortDirection') sortDirection: 'asc' | 'desc',
+    @Query('pageSize') pageSize: number,
+    @Query('pageNumber') pageNumber: number,
+    @Request() req,
+  ): Promise<CommentResponse | null> {
+    let userId = null;
+    if (req.userId) {
+      userId = req.userId;
+    }
+    if (!sortBy) {
+      sortBy = 'createdAt';
+    }
+
+    if (!sortDirection || sortDirection.toLowerCase() !== 'asc') {
+      sortDirection = 'desc';
+    }
+
+    const checkPageSize = +pageSize;
+    if (!pageSize || !Number.isInteger(checkPageSize) || checkPageSize <= 0) {
+      pageSize = 10;
+    }
+
+    const checkPageNumber = +pageNumber;
+    if (
+      !pageNumber ||
+      !Number.isInteger(checkPageNumber) ||
+      checkPageNumber <= 0
+    ) {
+      pageNumber = 1;
+    }
+
+    const post = await this.commandBus.execute(
+      new GetPostByIdCommand(postId, userId),
+    );
+
+    return await this.commandBus.execute(
+      new GetAllCommentsForSpecificPostCommand(
+        sortBy,
+        sortDirection,
+        pageSize,
+        pageNumber,
+        post.id,
+        userId,
+      ),
+    );
+  }
 }

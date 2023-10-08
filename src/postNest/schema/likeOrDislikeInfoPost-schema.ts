@@ -47,29 +47,23 @@ export class InformationOfLikeAndDislikePost {
 }
 export class PostsLikesAndDislikesSql {
   postId: string;
-  numberOfLikes: number;
-  numberOfDislikes: number;
-  likesInfo: {
-    userId: string;
-    login: string;
-    likeStatus: string;
-    dateOfLikeDislike: Date;
-  }[];
+  userLogin: string;
+  reactionStatus: string;
+  addedAt: Date;
+  userId: string;
+
   constructor(
     postId: string,
-    numberOfLikes: number,
-    numberOfDislikes: number,
-    likesInfo: {
-      userId: string;
-      login: string;
-      likeStatus: string;
-      dateOfLikeDislike: Date;
-    }[],
+    userLogin: string,
+    reactionStatus: string,
+    addedAt: Date,
+    userId: string,
   ) {
     this.postId = postId;
-    this.numberOfLikes = numberOfLikes;
-    this.numberOfDislikes = numberOfDislikes;
-    this.likesInfo = likesInfo;
+    this.userLogin = userLogin;
+    this.reactionStatus = reactionStatus;
+    this.addedAt = addedAt;
+    this.userId = userId;
   }
 }
 export const InformationOfLikeAndDislikePostSchema =

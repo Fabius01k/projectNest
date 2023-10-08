@@ -2,6 +2,7 @@ import { CommentInputModel } from '../../inputmodels-validation/comments.inputMo
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentRepository } from '../repository/comment.repository';
 import { NotFoundException } from '@nestjs/common';
+import { CommentRepositorySql } from '../repository/comment.repositorySql';
 
 export class UpdateCommentCommand {
   constructor(
@@ -13,10 +14,13 @@ export class UpdateCommentCommand {
 export class UpdateCommentUseCase
   implements ICommandHandler<UpdateCommentCommand>
 {
-  constructor(protected commentRepository: CommentRepository) {}
+  constructor(
+    protected commentRepository: CommentRepository,
+    protected commentRepositorySql: CommentRepositorySql,
+  ) {}
 
   async execute(command: UpdateCommentCommand): Promise<boolean> {
-    const updateComment = await this.commentRepository.updateCommentInDb(
+    const updateComment = await this.commentRepositorySql.updateCommentInDbSql(
       command.commentId,
       command.commentDto.content,
     );
