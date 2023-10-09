@@ -74,7 +74,7 @@ export class PostRepositorySql {
         WHERE u."id" = p."userId"
       ) as "login", p."addedAt"
       FROM public."PostsLikesAndDislikes" p
-      WHERE p."reactionStatus" = 'Like'
+      WHERE p."reactionStatus" = 'Like' and p."postId" = '${post.id}'
       ORDER BY p."addedAt" DESC
       LIMIT 3
       OFFSET 0
