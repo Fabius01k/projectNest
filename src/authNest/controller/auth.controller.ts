@@ -38,7 +38,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly commandBus: CommandBus,
   ) {}
-  // @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard)
   @Post('login')
   @HttpCode(200)
   async LoginUser(
@@ -126,7 +126,7 @@ export class AuthController {
     res.sendStatus(204);
     return true;
   }
-  // @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard)
   @Post('registration')
   @HttpCode(204)
   async registrationUser(
@@ -136,7 +136,7 @@ export class AuthController {
 
     return true;
   }
-  // @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard)
   @Post('registration-confirmation')
   @HttpCode(204)
   async registrationConfirmationUser(
@@ -148,7 +148,7 @@ export class AuthController {
 
     return true;
   }
-  // @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard)
   @Post('registration-email-resending')
   @HttpCode(204)
   async resendingRegistrationCode(
@@ -160,7 +160,7 @@ export class AuthController {
 
     return true;
   }
-  // @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard)
   @Post('new-password')
   @HttpCode(204)
   async recoveryPasswordForUser(
@@ -172,7 +172,7 @@ export class AuthController {
 
     return true;
   }
-  // @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard)
   @Post('password-recovery')
   @HttpCode(204)
   async sendRecoveryPasswordCode(

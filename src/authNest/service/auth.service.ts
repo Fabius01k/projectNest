@@ -25,7 +25,7 @@ export class AuthService {
   }
   async createAccessToken(userId: string): Promise<string> {
     const payload = { userId };
-    return this.jwtService.sign(payload, { expiresIn: '6m' });
+    return this.jwtService.sign(payload, { expiresIn: '10s' });
   }
 
   async createRefreshToken(
@@ -33,7 +33,7 @@ export class AuthService {
     refreshTokenPayload: any,
   ): Promise<string> {
     const payload = { userId, ...refreshTokenPayload };
-    return this.jwtService.sign(payload, { expiresIn: '6m' });
+    return this.jwtService.sign(payload, { expiresIn: '20s' });
   }
 
   async validateLoginUser(

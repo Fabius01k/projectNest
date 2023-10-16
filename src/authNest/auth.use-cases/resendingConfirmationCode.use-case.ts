@@ -30,7 +30,7 @@ export class ResendingConfirmationCodeUseCase
       );
     if (!user) {
       throw new BadRequestException([
-        { message: 'User not found', field: 'code' },
+        { message: 'User not found', field: 'email' },
       ]);
     }
     if (user.isConfirmed) {
