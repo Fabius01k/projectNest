@@ -1,5 +1,4 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogRepository } from '../repository/blog.repository';
 import { Blog, BlogView } from '../schema/blog-schema';
 import { BlogInputModel } from '../../inputmodels-validation/blog.inputModel';
 import { BlogRepositorySql } from '../repository/blog.repositorySql';
@@ -9,10 +8,7 @@ export class CreateBlogCommand {
 }
 @CommandHandler(CreateBlogCommand)
 export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
-  constructor(
-    protected blogRepository: BlogRepository,
-    protected blogRepositorySql: BlogRepositorySql,
-  ) {}
+  constructor(protected blogRepositorySql: BlogRepositorySql) {}
 
   async execute(command: CreateBlogCommand): Promise<BlogView> {
     const dateNow = new Date().getTime().toString();

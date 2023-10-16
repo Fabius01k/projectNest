@@ -1,13 +1,13 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-local';
-import { AuthService } from '../service/auth.service';
-import { User } from '../../userNest/schema/user.schema';
+// import {
+//   CanActivate,
+//   ExecutionContext,
+//   Injectable,
+//   UnauthorizedException,
+// } from '@nestjs/common';
+// import { PassportStrategy } from '@nestjs/passport';
+// import { Strategy } from 'passport-local';
+// import { AuthService } from '../service/auth.service';
+// import { User } from '../../userNest/schema/user.schema';
 
 // @Injectable()
 // export class LocalLoginStrategy extends PassportStrategy(Strategy) {

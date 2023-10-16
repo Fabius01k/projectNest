@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { RefreshTokenGuard } from '../../authNest/guards/refresh-token.guard';
 import { UserSessionView } from '../../userNest/schema/user-session.schema';
-import { SecurityService } from '../service/security.service';
 import { CommandBus } from '@nestjs/cqrs';
 import { GetAllActiveSessionsCommand } from '../security.use.cases/getAllActiveSessions.use-case';
 import { DeleteAllOtherSessionsCommand } from '../security.use.cases/deleteAllOtherSessions.use-case';
@@ -17,16 +16,13 @@ import { DeleteSessionByDeviceIdCommand } from '../security.use.cases/deleteSess
 
 @Controller('security')
 export class SecurityController {
-  constructor(
-    private readonly securityService: SecurityService,
-    private readonly commandBus: CommandBus,
-  ) {}
+  constructor(private readonly commandBus: CommandBus) {}
   @UseGuards(RefreshTokenGuard)
   @Get('devices')
   async getAllActiveUsersSession(@Request() req): Promise<UserSessionView[]> {
-    const sessionId = req.userId;
+    const userId = req.userId;
     const sessionOfUser: UserSessionView[] = await this.commandBus.execute(
-      new GetAllActiveSessionsCommand(sessionId),
+      new GetAllActiveSessionsCommand(userId),
     );
 
     return sessionOfUser;
@@ -35,10 +31,10 @@ export class SecurityController {
   @Delete('devices')
   @HttpCode(204)
   async deleteAllOthersSessions(@Request() req): Promise<void> {
-    const sessionId = req.userId;
+    const userId = req.userId;
     const deviceId = req.deviceId;
     await this.commandBus.execute(
-      new DeleteAllOtherSessionsCommand(sessionId, deviceId),
+      new DeleteAllOtherSessionsCommand(userId, deviceId),
     );
     return;
   }

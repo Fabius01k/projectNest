@@ -1,6 +1,5 @@
 import { PostCreateByBlogIdInputModel } from '../../inputmodels-validation/post.inputModel';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostRepository } from '../repository/post.repository';
 import { NotFoundException } from '@nestjs/common';
 import { BlogRepositorySql } from '../../blogNest/repository/blog.repositorySql';
 import { PostRepositorySql } from '../repository/post.repositorySql';
@@ -15,7 +14,6 @@ export class UpdatePostCommand {
 @CommandHandler(UpdatePostCommand)
 export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
   constructor(
-    protected postRepository: PostRepository,
     protected blogRepositorySql: BlogRepositorySql,
     protected postRepositorySql: PostRepositorySql,
   ) {}

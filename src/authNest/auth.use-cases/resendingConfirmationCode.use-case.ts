@@ -1,11 +1,12 @@
 import { ConfirmationResendingCodeModel } from '../../inputmodels-validation/auth.inputModel';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserRepository } from '../../userNest/repository/user.repository';
 import { EmailManager } from '../../managers/email-manager';
-import { User, UserSql } from '../../userNest/schema/user.schema';
+import { UserSql } from '../../userNest/schema/user.schema';
 import { BadRequestException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { UserRepositorySql } from '../../userNest/repository/user.repositorySql';
+import { UserRepositoryTypeOrm } from '../../userNest/repository/user.repository.TypeOrm';
+import { UserTrm } from '../../entities/user.entity';
 
 export class ResendingConfirmationCodeCommand {
   constructor(
@@ -17,35 +18,34 @@ export class ResendingConfirmationCodeUseCase
   implements ICommandHandler<ResendingConfirmationCodeCommand>
 {
   constructor(
-    protected userRepository: UserRepository,
     protected emailManager: EmailManager,
     protected userRepositorySql: UserRepositorySql,
+    protected userRepositoryTypeOrm: UserRepositoryTypeOrm,
   ) {}
 
   async execute(command: ResendingConfirmationCodeCommand): Promise<boolean> {
-    const users: UserSql[] =
-      await this.userRepositorySql.getUserByLoginOrEmailSql(
+    const user: UserTrm | null =
+      await this.userRepositoryTypeOrm.getUserByLoginOrEmailTrm(
         command.resendCodeConfirmationDto.email,
       );
-    if (users.length === 0) {
+    if (!user) {
       throw new BadRequestException([
-        { message: 'User not found', field: 'email' },
+        { message: 'User not found', field: 'code' },
       ]);
     }
-    for (const user of users)
-      if (user && user.isConfirmed) {
-        throw new BadRequestException([
-          {
-            message: 'User already confirmed',
-            field: 'email',
-          },
-        ]);
-      }
+    if (user.isConfirmed) {
+      throw new BadRequestException([
+        {
+          message: 'User already confirmed',
+          field: 'email',
+        },
+      ]);
+    }
 
     const confirmationCode = randomUUID();
 
-    await this.userRepositorySql.changeConfirmationCodeSql(
-      users[0].id,
+    await this.userRepositoryTypeOrm.changeConfirmationCodeTrm(
+      user.id,
       confirmationCode,
     );
 

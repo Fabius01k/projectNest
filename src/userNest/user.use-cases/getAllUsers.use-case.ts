@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserRepository } from '../repository/user.repository';
 import { UserResponse } from '../schema/user.schema';
 import { UserRepositorySql } from '../repository/user.repositorySql';
+import { UserRepositoryTypeOrm } from '../repository/user.repository.TypeOrm';
 
 export class GetAllUsersCommand {
   constructor(
@@ -16,12 +16,12 @@ export class GetAllUsersCommand {
 @CommandHandler(GetAllUsersCommand)
 export class GetAllUsersUseCase implements ICommandHandler<GetAllUsersCommand> {
   constructor(
-    protected userRepository: UserRepository,
     protected userRepositorySql: UserRepositorySql,
+    protected userRepositoryTypeOrm: UserRepositoryTypeOrm,
   ) {}
 
   async execute(command: GetAllUsersCommand): Promise<UserResponse> {
-    return await this.userRepositorySql.findAllUsersInDbSql(
+    return await this.userRepositoryTypeOrm.findAllUsersInDbTrm(
       command.searchLoginTerm,
       command.searchEmailTerm,
       command.sortBy,

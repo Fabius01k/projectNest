@@ -11,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommentView } from '../schema/comment.schema';
-import { CommentService } from '../service/comment.service';
 import { CommentInputModel } from '../../inputmodels-validation/comments.inputModel';
 import { AuthGuard, GetToken } from '../../authNest/guards/bearer.guard';
 import { LikeInputModel } from '../../inputmodels-validation/like.inputModel';
@@ -23,10 +22,7 @@ import { MakeLikeOrDislikeCCommand } from '../comment.use-cases/makeLikeOrDislik
 
 @Controller('comments')
 export class CommentController {
-  constructor(
-    private readonly commentService: CommentService,
-    private readonly commandBus: CommandBus,
-  ) {}
+  constructor(private readonly commandBus: CommandBus) {}
   @UseGuards(GetToken)
   @Get(':id')
   async getCommentById(

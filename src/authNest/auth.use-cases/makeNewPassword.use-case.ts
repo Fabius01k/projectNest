@@ -1,11 +1,12 @@
 import { RecoveryPasswordInputModel } from '../../inputmodels-validation/auth.inputModel';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserRepository } from '../../userNest/repository/user.repository';
 import { AuthService } from '../service/auth.service';
-import { User, UserSql } from '../../userNest/schema/user.schema';
+import { UserSql } from '../../userNest/schema/user.schema';
 import { BadRequestException } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 import { UserRepositorySql } from '../../userNest/repository/user.repositorySql';
+import { UserRepositoryTypeOrm } from '../../userNest/repository/user.repository.TypeOrm';
+import { UserTrm } from '../../entities/user.entity';
 
 export class MakeNewPasswordCommand {
   constructor(public recoveryPasswordDto: RecoveryPasswordInputModel) {}
@@ -15,40 +16,28 @@ export class MakeNewPasswordUseCase
   implements ICommandHandler<MakeNewPasswordCommand>
 {
   constructor(
-    protected userRepository: UserRepository,
     private readonly authService: AuthService,
     protected userRepositorySql: UserRepositorySql,
+    protected userRepositoryTypeOrm: UserRepositoryTypeOrm,
   ) {}
   async execute(command: MakeNewPasswordCommand): Promise<boolean> {
-    const users: UserSql[] =
-      await this.userRepositorySql.getUserByResetPasswordCodeSql(
+    const user: UserTrm | null =
+      await this.userRepositoryTypeOrm.findUserByResetPasswordCodeTrm(
         command.recoveryPasswordDto.recoveryCode,
       );
-    if (users.length === 0) {
+    if (!user) {
       throw new BadRequestException([
-        {
-          message: 'User not found',
-          filed: 'code',
-        },
+        { message: 'User not found', field: 'code' },
       ]);
     }
-    let isValidCode = true;
-    users.forEach((item) => {
-      if (
-        item.expirationDatePasswordCode &&
-        item.expirationDatePasswordCode < new Date()
-      ) {
-        isValidCode = false;
-        return;
-      }
-    });
-    if (!isValidCode) {
-      throw new BadRequestException([
-        {
-          message: 'The code has expired',
-          field: 'code',
-        },
-      ]);
+    if (
+      user.expirationDatePasswordCode &&
+      user.expirationDatePasswordCode < new Date()
+    ) {
+      throw new BadRequestException({
+        message: 'The code has expired',
+        field: 'code',
+      });
     }
 
     const passwordSalt = await bcrypt.genSalt(10);
@@ -56,8 +45,8 @@ export class MakeNewPasswordUseCase
       command.recoveryPasswordDto.newPassword,
       passwordSalt,
     );
-    const result = await this.userRepositorySql.changePasswordInDbSql(
-      users[0].id,
+    const result = await this.userRepositoryTypeOrm.changePasswordInDbTrm(
+      user.id,
       passwordSalt,
       passwordHash,
     );

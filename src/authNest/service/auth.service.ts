@@ -1,23 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserRepository } from '../../userNest/repository/user.repository';
 import bcrypt from 'bcrypt';
-import {
-  UserSession,
-  UserSessionSql,
-} from '../../userNest/schema/user-session.schema';
-import { User, UserSql } from '../../userNest/schema/user.schema';
-import { EmailManager } from '../../managers/email-manager';
+import { UserSessionSql } from '../../userNest/schema/user-session.schema';
+import { UserSql } from '../../userNest/schema/user.schema';
 import { UserRepositorySql } from '../../userNest/repository/user.repositorySql';
 import { SecurityRepositorySql } from '../../securityNest/repository/security.repositorySql';
+import { UserRepositoryTypeOrm } from '../../userNest/repository/user.repository.TypeOrm';
+import { UserTrm } from '../../entities/user.entity';
+import { UsersSessionTrm } from '../../entities/usersSession.entity';
+import { SecurityRepositoryTypeOrm } from '../../securityNest/repository/security.repository.TypeOrm';
 
 @Injectable()
 export class AuthService {
   constructor(
-    protected userRepository: UserRepository,
     protected jwtService: JwtService,
     protected userRepositorySql: UserRepositorySql,
+    protected userRepositoryTypeOrm: UserRepositoryTypeOrm,
     protected securityRepositorySql: SecurityRepositorySql,
+    protected securityRepositoryTypeOrm: SecurityRepositoryTypeOrm,
   ) {}
   async _generateHash(password: string, salt: string) {
     const hash = await bcrypt.hash(password, salt);
@@ -39,20 +39,17 @@ export class AuthService {
   async validateLoginUser(
     loginOrEmail: string,
     password: string,
-  ): Promise<UserSql | null> {
-    const users =
-      await this.userRepositorySql.getUserByLoginOrEmailSql(loginOrEmail);
-    if (users.length === 0) return null;
-    // if (user && (await bcrypt.compare(password, user.passwordHash)))
-    //   return user;
-    for (const user of users) {
-      if (await bcrypt.compare(password, user.passwordHash)) {
-        return user;
-      }
-    }
+  ): Promise<UserTrm | null> {
+    const user =
+      await this.userRepositoryTypeOrm.getUserByLoginOrEmailTrm(loginOrEmail);
+    if (!user) return null;
+
+    if (user && (await bcrypt.compare(password, user.passwordHash)))
+      return user;
 
     return null;
   }
+
   async decodeRefreshToken(
     refreshToken: string,
   ): Promise<{ deviceId: string; userId: string; tokenCreationDate: Date }> {
@@ -68,17 +65,19 @@ export class AuthService {
     deviceId: string,
     refreshToken: string,
   ): Promise<boolean> {
-    return await this.userRepositorySql.changeDataInSessionInDbSql(
+    return await this.userRepositoryTypeOrm.changeDataInSessionInDbTrm(
       deviceId,
       refreshToken,
     );
   }
   async deleteSession(deviceId: string): Promise<boolean> {
-    return await this.securityRepositorySql.deleteSessionInDbSql(deviceId);
+    return await this.securityRepositoryTypeOrm.deleteSessionInDbTrm(deviceId);
   }
-  async getUserSessionInDb(refreshToken: string): Promise<UserSessionSql> {
+  async getUserSessionInDb(refreshToken: string): Promise<UsersSessionTrm> {
     const session =
-      await this.userRepositorySql.findSessionByRefreshTokenSql(refreshToken);
+      await this.userRepositoryTypeOrm.findSessionByRefreshTokenTrm(
+        refreshToken,
+      );
     return session;
   }
 }

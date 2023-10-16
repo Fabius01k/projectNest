@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { SecurityRepository } from '../repository/security.repository';
 import { SecurityRepositorySql } from '../repository/security.repositorySql';
+import { SecurityRepositoryTypeOrm } from '../repository/security.repository.TypeOrm';
 
 export class DeleteAllOtherSessionsCommand {
   constructor(
-    public sessionId: string,
+    public userId: string,
     public deviceId: string,
   ) {}
 }
@@ -13,14 +13,14 @@ export class DeleteAllOtherSessionsUseCase
   implements ICommandHandler<DeleteAllOtherSessionsCommand>
 {
   constructor(
-    protected securityRepository: SecurityRepository,
     protected securityRepositorySql: SecurityRepositorySql,
+    protected securityRepositoryTypeOrm: SecurityRepositoryTypeOrm,
   ) {}
 
   async execute(command: DeleteAllOtherSessionsCommand): Promise<boolean> {
     const sessionsDeleted =
-      await this.securityRepositorySql.deleteOtherSessionsInDbSql(
-        command.sessionId,
+      await this.securityRepositoryTypeOrm.deleteOtherSessionsInDbTrm(
+        command.userId,
         command.deviceId,
       );
     return sessionsDeleted;

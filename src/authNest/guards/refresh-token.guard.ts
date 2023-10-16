@@ -89,18 +89,27 @@ export class RefreshTokenGuard implements CanActivate {
       const decoded = await this.authService.decodeRefreshToken(refreshToken);
       const userSession =
         await this.authService.getUserSessionInDb(refreshToken);
-
       if (
-        decoded.deviceId !== userSession[0].deviceId &&
-        decoded.tokenCreationDate !== userSession[0].tokenCreationDate
+        decoded.deviceId !== userSession?.deviceId &&
+        decoded.tokenCreationDate !== userSession?.tokenCreationDate
       ) {
-        console.log(1234);
         throw new UnauthorizedException([
           {
             message: 'Unauthorized3',
           },
         ]);
       }
+
+      // if (
+      //   decoded.deviceId !== userSession[0].deviceId &&
+      //   decoded.tokenCreationDate !== userSession[0].tokenCreationDate
+      // ) {
+      //   throw new UnauthorizedException([
+      //     {
+      //       message: 'Unauthorized3',
+      //     },
+      //   ]);
+      // }
 
       request['userId'] = decoded.userId;
       request['deviceId'] = decoded.deviceId;

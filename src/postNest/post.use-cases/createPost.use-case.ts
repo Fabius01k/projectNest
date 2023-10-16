@@ -1,5 +1,3 @@
-import { PostRepository } from '../repository/post.repository';
-import { BlogRepository } from '../../blogNest/repository/blog.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostCreateByBlogIdInputModel } from '../../inputmodels-validation/post.inputModel';
 import { PostSql, PostView } from '../schema/post-schema';
@@ -17,8 +15,6 @@ export class CreatePostCommand {
 @CommandHandler(CreatePostCommand)
 export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
   constructor(
-    protected postRepository: PostRepository,
-    protected blogRepository: BlogRepository,
     protected blogRepositorySql: BlogRepositorySql,
     protected postRepositorySql: PostRepositorySql,
   ) {}

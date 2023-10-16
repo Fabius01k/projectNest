@@ -1,14 +1,14 @@
 import { UserRegistrationInputModel } from '../../inputmodels-validation/auth.inputModel';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserRepository } from '../../userNest/repository/user.repository';
 import { EmailManager } from '../../managers/email-manager';
 import { BadRequestException } from '@nestjs/common';
-import { UserSql } from '../../userNest/schema/user.schema';
-import { randomUUID } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
 import { AuthService } from '../service/auth.service';
 import bcrypt from 'bcrypt';
 import { UserRepositorySql } from '../../userNest/repository/user.repositorySql';
+import { UserRepositoryTypeOrm } from '../../userNest/repository/user.repository.TypeOrm';
+import { UserTrm } from '../../entities/user.entity';
 
 export class RegistrationUserCommand {
   constructor(public registrationDto: UserRegistrationInputModel) {}
@@ -19,19 +19,19 @@ export class RegistrationUserUseCase
   implements ICommandHandler<RegistrationUserCommand>
 {
   constructor(
-    protected userRepository: UserRepository,
     protected emailManager: EmailManager,
     private readonly authService: AuthService,
     protected userRepositorySql: UserRepositorySql,
+    protected userRepositoryTypeOrm: UserRepositoryTypeOrm,
   ) {}
 
   async execute(command: RegistrationUserCommand): Promise<boolean> {
     const emailAlreadyUse =
-      await this.userRepositorySql.getUserByLoginOrEmailSql(
+      await this.userRepositoryTypeOrm.getUserByLoginOrEmailTrm(
         command.registrationDto.email,
       );
     console.log(emailAlreadyUse);
-    if (emailAlreadyUse.length > 0) {
+    if (emailAlreadyUse) {
       throw new BadRequestException([
         {
           message: 'This email is already in use',
@@ -40,10 +40,10 @@ export class RegistrationUserUseCase
       ]);
     }
     const loginAlreadyUse =
-      await this.userRepositorySql.getUserByLoginOrEmailSql(
+      await this.userRepositoryTypeOrm.getUserByLoginOrEmailTrm(
         command.registrationDto.login,
       );
-    if (loginAlreadyUse.length > 0) {
+    if (loginAlreadyUse) {
       throw new BadRequestException([
         {
           message: 'This login is already in use',
@@ -58,22 +58,20 @@ export class RegistrationUserUseCase
       command.registrationDto.password,
       passwordSalt,
     );
-    const newUserToRegistration = new UserSql(
-      dateNow,
-      command.registrationDto.login,
-      command.registrationDto.email,
-      passwordHash,
-      passwordSalt,
-      new Date().toISOString(),
-      randomUUID(),
-      add(new Date(), {
-        hours: 1,
-      }),
-      false,
-      null,
-      new Date(),
-    );
-    await this.userRepositorySql.registrationUserSql(newUserToRegistration);
+    const newUserToRegistration = new UserTrm();
+    newUserToRegistration.id = dateNow;
+    newUserToRegistration.login = command.registrationDto.login;
+    newUserToRegistration.email = command.registrationDto.email;
+    newUserToRegistration.passwordHash = passwordHash;
+    newUserToRegistration.passwordSalt = passwordSalt;
+    newUserToRegistration.createdAt = new Date().toISOString();
+    newUserToRegistration.confirmationCode = uuidv4();
+    newUserToRegistration.expirationDate = add(new Date(), {
+      hours: 1,
+    });
+    newUserToRegistration.isConfirmed = false;
+    newUserToRegistration.usersSessions = [];
+    await this.userRepositoryTypeOrm.registrationUserTrm(newUserToRegistration);
 
     this.emailManager.sendEmailConfirmationMessage(newUserToRegistration);
     return true;

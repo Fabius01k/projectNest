@@ -11,8 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PostResponse, PostView } from '../schema/post-schema';
-import { PostService } from '../service/post.service';
-import { CommentService } from '../../commentNest/service/comment.service';
 import { AuthGuard, GetToken } from '../../authNest/guards/bearer.guard';
 import { UserService } from '../../userNest/service/user.service';
 import { CommandBus } from '@nestjs/cqrs';
@@ -31,8 +29,6 @@ import { LikeInputModel } from '../../inputmodels-validation/like.inputModel';
 @Controller('posts')
 export class PostController {
   constructor(
-    private readonly postService: PostService,
-    private readonly commentService: CommentService,
     private readonly userService: UserService,
     private readonly commandBus: CommandBus,
   ) {}
@@ -115,32 +111,32 @@ export class PostController {
 
     return comment;
   }
-  @UseGuards(AuthGuard)
-  @Put(':postId/like-status')
-  @HttpCode(204)
-  async makeLikeOrDislike(
-    @Param('postId') postId: string,
-    @Body() likeDto: LikeInputModel,
-    @Request() req,
-  ): Promise<boolean> {
-    const post = await this.commandBus.execute(
-      new GetPostByIdCommand(postId, req.userId),
-    );
-    const user = await this.userService.getUserById(req.userId);
-    const dateOfLikeDislike = new Date();
-
-    await this.commandBus.execute(
-      new MakeLikeOrDislikePCommand(
-        req.userId,
-        user[0].login,
-        postId,
-        likeDto,
-        dateOfLikeDislike,
-      ),
-    );
-
-    return true;
-  }
+  // @UseGuards(AuthGuard)
+  // @Put(':postId/like-status')
+  // @HttpCode(204)
+  // async makeLikeOrDislike(
+  //   @Param('postId') postId: string,
+  //   @Body() likeDto: LikeInputModel,
+  //   @Request() req,
+  // ): Promise<boolean> {
+  //   const post = await this.commandBus.execute(
+  //     new GetPostByIdCommand(postId, req.userId),
+  //   );
+  //   const user = await this.userService.getUserById(req.userId);
+  //   const dateOfLikeDislike = new Date();
+  //
+  //   await this.commandBus.execute(
+  //     new MakeLikeOrDislikePCommand(
+  //       req.userId,
+  //       user[0].login,
+  //       postId,
+  //       likeDto,
+  //       dateOfLikeDislike,
+  //     ),
+  //   );
+  //
+  //   return true;
+  // }
   @UseGuards(GetToken)
   @Get(':postId/comments')
   async getAllCommentForSpecifeldPost(

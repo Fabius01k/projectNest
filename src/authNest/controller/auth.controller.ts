@@ -11,7 +11,7 @@ import {
 import { UserService } from '../../userNest/service/user.service';
 import { AuthService } from '../service/auth.service';
 import { randomUUID } from 'crypto';
-import { User, UserSql, UserView } from '../../userNest/schema/user.schema';
+import { UserSql, UserView } from '../../userNest/schema/user.schema';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import {
   ConfirmationCodeModel,
@@ -29,6 +29,7 @@ import { RegistrationConfirmationUserCommand } from '../auth.use-cases/registrat
 import { ResendingConfirmationCodeCommand } from '../auth.use-cases/resendingConfirmationCode.use-case';
 import { MakeNewPasswordCommand } from '../auth.use-cases/makeNewPassword.use-case';
 import { ResendingPasswordCodeCommand } from '../auth.use-cases/resendingPasswordCode.use-case';
+import { UserTrm } from '../../entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -189,13 +190,11 @@ export class AuthController {
   async getInformationAboutUser(
     @Request() req,
     @Response() res,
-  ): Promise<UserSql> {
-    const users: UserSql[] = await this.usersService.getUserById(req.userId);
-    if (users.length === 0) {
+  ): Promise<UserTrm> {
+    const user = await this.usersService.getUserById(req.userId);
+    if (!user) {
       return res.sendStatus(401);
     }
-    const user = users[0];
-
     return res.status(200).send({
       email: user.email,
       login: user.login,

@@ -1,5 +1,4 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CommentRepository } from '../repository/comment.repository';
 import { CommentResponse } from '../schema/comment.schema';
 import { CommentRepositorySql } from '../repository/comment.repositorySql';
 
@@ -17,10 +16,7 @@ export class GetAllCommentsForSpecificPostCommand {
 export class GetAllCommentsForSpecificPostUseCase
   implements ICommandHandler<GetAllCommentsForSpecificPostCommand>
 {
-  constructor(
-    protected commentRepository: CommentRepository,
-    protected commentRepositorySql: CommentRepositorySql,
-  ) {}
+  constructor(protected commentRepositorySql: CommentRepositorySql) {}
 
   async execute(
     command: GetAllCommentsForSpecificPostCommand,

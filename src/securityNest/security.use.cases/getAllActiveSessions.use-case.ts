@@ -1,25 +1,25 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { SecurityRepository } from '../repository/security.repository';
 import { UserSessionView } from '../../userNest/schema/user-session.schema';
 import { SecurityRepositorySql } from '../repository/security.repositorySql';
+import { SecurityRepositoryTypeOrm } from '../repository/security.repository.TypeOrm';
 
 export class GetAllActiveSessionsCommand {
-  constructor(public sessionId: string) {}
+  constructor(public userId: string) {}
 }
 @CommandHandler(GetAllActiveSessionsCommand)
 export class GetAllActiveSessionsUseCase
   implements ICommandHandler<GetAllActiveSessionsCommand>
 {
   constructor(
-    protected securityRepository: SecurityRepository,
     protected securityRepositorySql: SecurityRepositorySql,
+    protected securityRepositoryTypeOrm: SecurityRepositoryTypeOrm,
   ) {}
 
   async execute(
     command: GetAllActiveSessionsCommand,
   ): Promise<UserSessionView[]> {
-    return this.securityRepositorySql.findUserSessionsInDbSql(
-      command.sessionId,
+    return this.securityRepositoryTypeOrm.findUserSessionsInDbTrm(
+      command.userId,
     );
   }
 }

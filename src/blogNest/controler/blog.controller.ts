@@ -6,10 +6,8 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { BlogService } from '../service/blog.service';
 import { BlogResponse, BlogView } from '../schema/blog-schema';
 import { PostResponse } from '../../postNest/schema/post-schema';
-import { PostService } from '../../postNest/service/post.service';
 import { GetToken } from '../../authNest/guards/bearer.guard';
 import { GetAllBlogsCommand } from '../blog.use-cases/getAllBlogs.use-case';
 import { CommandBus } from '@nestjs/cqrs';
@@ -18,11 +16,7 @@ import { GetAllPostsForSpecificBlogCommand } from '../../postNest/post.use-cases
 
 @Controller('blogs')
 export class BlogController {
-  constructor(
-    private readonly blogService: BlogService,
-    private readonly postService: PostService,
-    private readonly commandBus: CommandBus,
-  ) {}
+  constructor(private readonly commandBus: CommandBus) {}
   @Get()
   async getAllBlogs(
     @Query('searchNameTerm') searchNameTerm: string | null,

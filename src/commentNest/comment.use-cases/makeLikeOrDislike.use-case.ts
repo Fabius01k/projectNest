@@ -1,6 +1,5 @@
 import { LikeInputModel } from '../../inputmodels-validation/like.inputModel';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CommentRepository } from '../repository/comment.repository';
 import { CommentRepositorySql } from '../repository/comment.repositorySql';
 
 export class MakeLikeOrDislikeCCommand {
@@ -14,10 +13,7 @@ export class MakeLikeOrDislikeCCommand {
 export class MakeLikeOrDislikeCommentUseCase
   implements ICommandHandler<MakeLikeOrDislikeCCommand>
 {
-  constructor(
-    protected commentRepository: CommentRepository,
-    protected commentRepositorySql: CommentRepositorySql,
-  ) {}
+  constructor(protected commentRepositorySql: CommentRepositorySql) {}
 
   async execute(command: MakeLikeOrDislikeCCommand): Promise<boolean> {
     const oldLikeOrDislikeOfUser =

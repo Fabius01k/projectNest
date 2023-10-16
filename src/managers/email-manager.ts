@@ -1,9 +1,8 @@
 import { emailAdapter } from '../adapters/email-adatper';
-import { UserRepository } from '../userNest/repository/user.repository';
 import { UserSql } from '../userNest/schema/user.schema';
 
 export class EmailManager {
-  constructor(protected userRepository: UserRepository) {}
+  constructor() {}
 
   async sendEmailConfirmationMessage(newUserToRegistration: UserSql) {
     const userConfirmationCode = newUserToRegistration.confirmationCode;

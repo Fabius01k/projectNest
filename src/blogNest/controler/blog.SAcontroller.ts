@@ -11,10 +11,8 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { BlogService } from '../service/blog.service';
 import { BlogResponse, BlogView } from '../schema/blog-schema';
 import { PostResponse } from '../../postNest/schema/post-schema';
-import { PostService } from '../../postNest/service/post.service';
 import { BasicAuthGuard } from '../../authNest/guards/basic-auth.guard';
 import { BlogInputModel } from '../../inputmodels-validation/blog.inputModel';
 import { GetToken } from '../../authNest/guards/bearer.guard';
@@ -27,11 +25,7 @@ import { GetAllPostsForSpecificBlogCommand } from '../../postNest/post.use-cases
 
 @Controller('sa')
 export class BlogSAController {
-  constructor(
-    private readonly blogService: BlogService,
-    private readonly postService: PostService,
-    private readonly commandBus: CommandBus,
-  ) {}
+  constructor(private readonly commandBus: CommandBus) {}
   @UseGuards(BasicAuthGuard)
   @Get('blogs')
   async getAllBlogs(
