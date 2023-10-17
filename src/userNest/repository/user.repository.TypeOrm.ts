@@ -39,8 +39,7 @@ export class UserRepositoryTypeOrm {
           searchLoginTerm
             ? 'UserTrm.login ilike :searchLoginTerm'
             : 'UserTrm.login is not null'
-        }
-     `,
+        }`,
         { searchLoginTerm: `%${searchLoginTerm}%` },
       )
       .orWhere(
@@ -51,14 +50,6 @@ export class UserRepositoryTypeOrm {
         }`,
         { searchEmailTerm: `%${searchEmailTerm}%` },
       )
-      // .andWhere(
-      //   '(:searchLoginTerm IS NULL OR UserTrm.login = :searchLoginTerm)',
-      //   { searchLoginTerm },
-      // )
-      // .andWhere(
-      //   '(:searchEmailTerm IS NULL OR UserTrm.email = :searchEmailTerm)',
-      //   { searchEmailTerm },
-      // )
       .orderBy(
         'UserTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
@@ -262,6 +253,7 @@ export class UserRepositoryTypeOrm {
   // }
   async createUserInDbTrm(newUser: UserTrm): Promise<UserView> {
     const createdUser = await this.userRepository.save(newUser);
+
     return mapUserToView(createdUser);
   }
   async registrationUserTrm(newUserToRegistration: UserTrm): Promise<boolean> {

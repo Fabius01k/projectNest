@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostResponse } from '../schema/post-schema';
 import { PostRepositorySql } from '../repository/post.repositorySql';
+import { PostRepositoryTypeOrm } from '../repository/post.repository.TypeOrm';
 
 export class GetAllPostsCommand {
   constructor(
@@ -14,10 +15,13 @@ export class GetAllPostsCommand {
 }
 @CommandHandler(GetAllPostsCommand)
 export class GetAllPostsUseCase implements ICommandHandler<GetAllPostsCommand> {
-  constructor(protected postRepositorySql: PostRepositorySql) {}
+  constructor(
+    protected postRepositorySql: PostRepositorySql,
+    protected postRepositoryTypeOrm: PostRepositoryTypeOrm,
+  ) {}
 
   async execute(command: GetAllPostsCommand): Promise<PostResponse> {
-    return await this.postRepositorySql.findAllPostsInDbSql(
+    return await this.postRepositoryTypeOrm.findAllPostsInDbTrm(
       command.searchNameTerm,
       command.sortBy,
       command.sortDirection,

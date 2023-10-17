@@ -4,26 +4,7 @@ import { PostsLikesAndDislikesSql } from '../schema/likeOrDislikeInfoPost-schema
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { QueryResult } from 'pg';
-// SELECT p.*,
-//   (SELECT count(*)
-// FROM "PostsLikesAndDislikes" l
-// WHERE l."reactionStatus" = 'Like' and l."postId" = p."id" ) as "likesCount",
-//   (SELECT count(*)
-// FROM "PostsLikesAndDislikes" l
-// WHERE l."reactionStatus" = 'Dislike' and l."postId" = p."id" ) as "dislikesCount",
-//   (SELECT l."reactionStatus"
-// FROM "PostsLikesAndDislikes" l
-// WHERE l."postId" = p."id" ) as "myStatus",
-//   (SELECT array
-// (SELECT row_to_json(row)
-// FROM (select l."userId", l."userLogin" as "login", l."addedAt"
-// FROM "PostsLikesAndDislikes" l
-// WHERE l."status" = 'Like'
-// ORDER BY "addedAt" desc
-// LIMIT 3
-// OFFSET 0) as row) as "newestLikes"
-//
-// FROM public."Posts" p
+
 @Injectable()
 export class PostRepositorySql {
   constructor(
@@ -40,7 +21,6 @@ export class PostRepositorySql {
   WHERE 
   "reactionStatus" = 'Like' and "postId" = '${post.id}'
 `);
-    // const likesCount = likesCountQuery[0]?.count ?? 0;
     const likesCount = parseInt(likesCountQuery[0]?.count) || 0;
 
     const dislikesCountQuery = await this.dataSource.query<number>(`
@@ -49,7 +29,6 @@ export class PostRepositorySql {
   WHERE 
   "reactionStatus" = 'Dislike' and "postId" = '${post.id}'
 `);
-    // const dislikesCount = dislikesCountQuery[0]?.count ?? 0;
     const dislikesCount = parseInt(dislikesCountQuery[0]?.count) || 0;
 
     const userStatusQuery = await this.dataSource.query<

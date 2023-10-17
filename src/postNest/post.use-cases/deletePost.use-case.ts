@@ -2,6 +2,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
 import { PostRepositorySql } from '../repository/post.repositorySql';
 import { BlogRepositorySql } from '../../blogNest/repository/blog.repositorySql';
+import { PostRepositoryTypeOrm } from '../repository/post.repository.TypeOrm';
+import { BlogRepositoryTypeOrm } from '../../blogNest/repository/blog.repository.TypeOrm';
 
 export class DeletePostCommand {
   constructor(
@@ -14,10 +16,12 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
   constructor(
     protected postRepositorySql: PostRepositorySql,
     protected blogRepositorySql: BlogRepositorySql,
+    protected postRepositoryTypeOrm: PostRepositoryTypeOrm,
+    protected blogRepositoryTypeOrm: BlogRepositoryTypeOrm,
   ) {}
 
   async execute(command: DeletePostCommand): Promise<boolean> {
-    const blog = await this.blogRepositorySql.findBlogByIdInDbSql(
+    const blog = await this.blogRepositoryTypeOrm.findBlogByIdInDbTrm(
       command.blogId,
     );
 
@@ -28,7 +32,7 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
         },
       ]);
     }
-    const postDeleted = await this.postRepositorySql.deletePostInDbSql(
+    const postDeleted = await this.postRepositoryTypeOrm.deletePostInDbTrm(
       command.postId,
     );
     if (!postDeleted) {

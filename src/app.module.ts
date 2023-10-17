@@ -69,6 +69,11 @@ import { UserTrm } from './entities/user.entity';
 import { UsersSessionTrm } from './entities/usersSession.entity';
 import { UserRepositoryTypeOrm } from './userNest/repository/user.repository.TypeOrm';
 import { SecurityRepositoryTypeOrm } from './securityNest/repository/security.repository.TypeOrm';
+import { BlogRepositoryTypeOrm } from './blogNest/repository/blog.repository.TypeOrm';
+import { BlogTrm } from './entities/blog.entity';
+import { PostTrm } from './entities/post.entity';
+import { PostRepositoryTypeOrm } from './postNest/repository/post.repository.TypeOrm';
+import { PostsLikesAndDislikesTrm } from './entities/post-likes.entity';
 
 const superAdminControllers = [
   UserController,
@@ -101,7 +106,12 @@ const repositoriesSql = [
   PostRepositorySql,
   CommentRepositorySql,
 ];
-const repositoriesTypeOrm = [UserRepositoryTypeOrm, SecurityRepositoryTypeOrm];
+const repositoriesTypeOrm = [
+  UserRepositoryTypeOrm,
+  SecurityRepositoryTypeOrm,
+  BlogRepositoryTypeOrm,
+  PostRepositoryTypeOrm,
+];
 
 const guardsAndValidations = [
   JwtAccessStrategyStrategy,
@@ -171,7 +181,13 @@ const authUseCases = [
       url: process.env.NEON_URL,
       ssl: true,
     }),
-    TypeOrmModule.forFeature([UserTrm, UsersSessionTrm]),
+    TypeOrmModule.forFeature([
+      UserTrm,
+      UsersSessionTrm,
+      BlogTrm,
+      PostTrm,
+      PostsLikesAndDislikesTrm,
+    ]),
     CqrsModule,
     ConfigModule.forRoot(),
     ThrottlerModule.forRoot([

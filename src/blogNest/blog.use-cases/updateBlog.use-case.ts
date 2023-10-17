@@ -2,6 +2,7 @@ import { BlogInputModel } from '../../inputmodels-validation/blog.inputModel';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
 import { BlogRepositorySql } from '../repository/blog.repositorySql';
+import { BlogRepositoryTypeOrm } from '../repository/blog.repository.TypeOrm';
 
 export class UpdateBlogCommand {
   constructor(
@@ -11,10 +12,13 @@ export class UpdateBlogCommand {
 }
 @CommandHandler(UpdateBlogCommand)
 export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
-  constructor(protected blogRepositorySql: BlogRepositorySql) {}
+  constructor(
+    protected blogRepositorySql: BlogRepositorySql,
+    protected blogRepositoryTypeOrm: BlogRepositoryTypeOrm,
+  ) {}
 
   async execute(command: UpdateBlogCommand): Promise<boolean> {
-    const updatedBlog = await this.blogRepositorySql.updateBlogInDbSql(
+    const updatedBlog = await this.blogRepositoryTypeOrm.updateBlogInDbTrm(
       command.id,
       command.blogDto.name,
       command.blogDto.description,

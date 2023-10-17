@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostView } from '../schema/post-schema';
 import { NotFoundException } from '@nestjs/common';
 import { PostRepositorySql } from '../repository/post.repositorySql';
+import { PostRepositoryTypeOrm } from '../repository/post.repository.TypeOrm';
 
 export class GetPostByIdCommand {
   constructor(
@@ -11,10 +12,13 @@ export class GetPostByIdCommand {
 }
 @CommandHandler(GetPostByIdCommand)
 export class GetPostByIdUseCase implements ICommandHandler<GetPostByIdCommand> {
-  constructor(protected postRepositorySql: PostRepositorySql) {}
+  constructor(
+    protected postRepositorySql: PostRepositorySql,
+    protected postRepositoryTypeOrm: PostRepositoryTypeOrm,
+  ) {}
 
   async execute(command: GetPostByIdCommand): Promise<PostView | null> {
-    const post = await this.postRepositorySql.findPostByIdInDbSql(
+    const post = await this.postRepositoryTypeOrm.findPostByIdInDbTrm(
       command.id,
       command.userId,
     );

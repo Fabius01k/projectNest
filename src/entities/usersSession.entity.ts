@@ -11,9 +11,6 @@ import { UserTrm } from './user.entity';
 export class UsersSessionTrm {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @ManyToOne(() => UserTrm, (u) => u.usersSessions)
-  @JoinColumn({ name: 'userId' })
-  user: UserTrm;
   @Column()
   userId: string;
   @Column()
@@ -30,4 +27,7 @@ export class UsersSessionTrm {
   tokenCreationDate: Date;
   @Column()
   tokenExpirationDate: Date;
+  @ManyToOne(() => UserTrm, (u) => u.usersSessions)
+  @JoinColumn({ name: 'userId' })
+  user: UserTrm;
 }

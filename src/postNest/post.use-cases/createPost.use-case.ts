@@ -4,6 +4,9 @@ import { PostSql, PostView } from '../schema/post-schema';
 import { NotFoundException } from '@nestjs/common';
 import { BlogRepositorySql } from '../../blogNest/repository/blog.repositorySql';
 import { PostRepositorySql } from '../repository/post.repositorySql';
+import { BlogRepositoryTypeOrm } from '../../blogNest/repository/blog.repository.TypeOrm';
+import { PostTrm } from '../../entities/post.entity';
+import { PostRepositoryTypeOrm } from '../repository/post.repository.TypeOrm';
 
 export class CreatePostCommand {
   constructor(
@@ -17,10 +20,12 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
   constructor(
     protected blogRepositorySql: BlogRepositorySql,
     protected postRepositorySql: PostRepositorySql,
+    protected blogRepositoryTypeOrm: BlogRepositoryTypeOrm,
+    protected postRepositoryTypeOrm: PostRepositoryTypeOrm,
   ) {}
 
   async execute(command: CreatePostCommand): Promise<PostView | null> {
-    const blog = await this.blogRepositorySql.findBlogByIdInDbSql(
+    const blog = await this.blogRepositoryTypeOrm.findBlogByIdInDbTrm(
       command.blogId,
     );
 
@@ -32,28 +37,17 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
       ]);
     }
     const dateNow = new Date().getTime().toString();
-    const newPost = new PostSql(
-      dateNow,
-      command.postDto.title,
-      command.postDto.shortDescription,
-      command.postDto.content,
-      command.blogId,
-      blog.name,
-      new Date().toISOString(),
-    );
+    const newPost = new PostTrm();
+    newPost.id = dateNow;
+    newPost.title = command.postDto.title;
+    newPost.shortDescription = command.postDto.shortDescription;
+    newPost.content = command.postDto.content;
+    newPost.blogId = command.blogId;
+    newPost.blogName = blog.name;
+    newPost.createdAt = new Date().toISOString();
+    newPost.postLikedAndDislikes = [];
 
-    // const postId = newPost.id;
-    // const InfOfLikeAndDislikePost = new PostsLikesAndDislikesSql(
-    //   postId,
-    //   0,
-    //   0,
-    //   [],
-    // );
-    // await this.postRepositorySql.createInfOfLikeAndDislikePostSql(
-    //   InfOfLikeAndDislikePost,
-    // );
-
-    return await this.postRepositorySql.createPostInDbSql(
+    return await this.postRepositoryTypeOrm.createPostInDbTrm(
       newPost,
       command.userId,
     );

@@ -3,6 +3,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
 import { BlogRepositorySql } from '../../blogNest/repository/blog.repositorySql';
 import { PostRepositorySql } from '../repository/post.repositorySql';
+import { PostRepositoryTypeOrm } from '../repository/post.repository.TypeOrm';
+import { BlogRepositoryTypeOrm } from '../../blogNest/repository/blog.repository.TypeOrm';
 
 export class UpdatePostCommand {
   constructor(
@@ -16,10 +18,12 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
   constructor(
     protected blogRepositorySql: BlogRepositorySql,
     protected postRepositorySql: PostRepositorySql,
+    protected postRepositoryTypeOrm: PostRepositoryTypeOrm,
+    protected blogRepositoryTypeOrm: BlogRepositoryTypeOrm,
   ) {}
 
   async execute(command: UpdatePostCommand): Promise<boolean> {
-    const blog = await this.blogRepositorySql.findBlogByIdInDbSql(
+    const blog = await this.blogRepositoryTypeOrm.findBlogByIdInDbTrm(
       command.blogId,
     );
 
@@ -30,7 +34,7 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
         },
       ]);
     }
-    const updatedPost = await this.postRepositorySql.updatePostInDbSql(
+    const updatedPost = await this.postRepositoryTypeOrm.updatePostInDbTrm(
       command.postId,
       command.postDto.title,
       command.postDto.shortDescription,
