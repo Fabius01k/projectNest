@@ -12,9 +12,9 @@ export class TestingService {
   async deleteAllData() {
     await this.dataSource.query(`DELETE FROM public."users_session_trm"`);
     await this.dataSource.query(`DELETE FROM public."user_trm"`);
+    await this.dataSource.query(`DELETE FROM public."post_trm"`);
+    await this.dataSource.query(`DELETE FROM public."blog_trm"`);
 
-    // await this.dataSource.query(`DELETE FROM public."Blogs"`);
-    // await this.dataSource.query(`DELETE FROM public."Posts"`);
     // await this.dataSource.query(`DELETE FROM public."Comments"`);
     // await this.dataSource.query(
     //   `DELETE FROM public."CommentsLikesAndDislikes"`,
