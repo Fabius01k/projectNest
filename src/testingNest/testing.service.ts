@@ -10,15 +10,16 @@ export class TestingService {
   ) {}
 
   async deleteAllData() {
+    await this.dataSource.query(
+      `DELETE FROM public."comments_likes_and_dislikes_trm"`,
+    );
+    await this.dataSource.query(
+      `DELETE FROM public."posts_likes_and_dislikes_trm"`,
+    );
+    await this.dataSource.query(`DELETE FROM public."comment_trm"`);
     await this.dataSource.query(`DELETE FROM public."users_session_trm"`);
     await this.dataSource.query(`DELETE FROM public."user_trm"`);
     await this.dataSource.query(`DELETE FROM public."post_trm"`);
     await this.dataSource.query(`DELETE FROM public."blog_trm"`);
-
-    // await this.dataSource.query(`DELETE FROM public."Comments"`);
-    // await this.dataSource.query(
-    //   `DELETE FROM public."CommentsLikesAndDislikes"`,
-    // );
-    // await this.dataSource.query(`DELETE FROM public."PostsLikesAndDislikes"`);
   }
 }
