@@ -111,32 +111,32 @@ export class PostController {
 
     return comment;
   }
-  // @UseGuards(AuthGuard)
-  // @Put(':postId/like-status')
-  // @HttpCode(204)
-  // async makeLikeOrDislike(
-  //   @Param('postId') postId: string,
-  //   @Body() likeDto: LikeInputModel,
-  //   @Request() req,
-  // ): Promise<boolean> {
-  //   const post = await this.commandBus.execute(
-  //     new GetPostByIdCommand(postId, req.userId),
-  //   );
-  //   const user = await this.userService.getUserById(req.userId);
-  //   const dateOfLikeDislike = new Date();
-  //
-  //   await this.commandBus.execute(
-  //     new MakeLikeOrDislikePCommand(
-  //       req.userId,
-  //       user[0].login,
-  //       postId,
-  //       likeDto,
-  //       dateOfLikeDislike,
-  //     ),
-  //   );
-  //
-  //   return true;
-  // }
+  @UseGuards(AuthGuard)
+  @Put(':postId/like-status')
+  @HttpCode(204)
+  async makeLikeOrDislike(
+    @Param('postId') postId: string,
+    @Body() likeDto: LikeInputModel,
+    @Request() req,
+  ): Promise<boolean> {
+    const post = await this.commandBus.execute(
+      new GetPostByIdCommand(postId, req.userId),
+    );
+    const user = await this.userService.getUserById(req.userId);
+    const dateOfLikeDislike = new Date();
+
+    await this.commandBus.execute(
+      new MakeLikeOrDislikePCommand(
+        req.userId,
+        user!.login,
+        postId,
+        likeDto,
+        dateOfLikeDislike,
+      ),
+    );
+
+    return true;
+  }
   @UseGuards(GetToken)
   @Get(':postId/comments')
   async getAllCommentForSpecifeldPost(

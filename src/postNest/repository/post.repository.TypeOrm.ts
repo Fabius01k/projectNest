@@ -33,7 +33,7 @@ export class PostRepositoryTypeOrm {
     const dislikesBuilder = await this.postLikesRepository
       .createQueryBuilder('PostsLikesAndDislikesTrm')
       .where('PostsLikesAndDislikesTrm.reactionStatus = :status', {
-        status: 'Dislikes',
+        status: 'Dislike',
       })
       .andWhere('PostsLikesAndDislikesTrm.postId = :postId', {
         postId: post.id,
@@ -73,8 +73,13 @@ export class PostRepositoryTypeOrm {
       })
       .orderBy('PostsLikesAndDislikesTrm.addedAt', 'DESC')
       .limit(3)
-      .getRawMany();
-    const newestLikes = newestLikesBuilder[0]?.array ?? [];
+      .getMany();
+
+    const newestLikes = newestLikesBuilder.map((item) => ({
+      addedAt: new Date(item.addedAt),
+      userId: item.userId,
+      login: item.userLogin,
+    }));
 
     return {
       id: post.id,
@@ -134,38 +139,14 @@ export class PostRepositoryTypeOrm {
     };
   }
   async createPostInDbTrm(
-    newPost: Post,
+    newPost: PostTrm,
     userId: string | null,
   ): Promise<PostView> {
-    const createdpost = await this.postRepository.save(newPost);
+    const createdPost = await this.postRepository.save(newPost);
 
-    return this.mapPostToView(createdpost, userId);
+    return this.mapPostToView(createdPost, userId);
   }
 
-  // async createNewReactionPostSql(
-  //   newUsersReaction: PostsLikesAndDislikesSql,
-  // ): Promise<PostsLikesAndDislikesSql> {
-  //   const query = `
-  //  INSERT INTO public."PostsLikesAndDislikes"(
-  //  "postId",
-  //  "userLogin",
-  //  "reactionStatus",
-  //  "addedAt",
-  //  "userId")
-  //   VALUES ($1, $2, $3, $4, $5)
-  //   RETURNING *`;
-  //
-  //   const values = [
-  //     newUsersReaction.postId,
-  //     newUsersReaction.userLogin,
-  //     newUsersReaction.reactionStatus,
-  //     newUsersReaction.addedAt,
-  //     newUsersReaction.userId,
-  //   ];
-  //
-  //   return await this.dataSource.query(query, values);
-  // }
-  //
   async findAllPostsForSpecifeldBlogInDbTrm(
     sortBy: string,
     sortDirection: 'asc' | 'desc',
@@ -214,26 +195,7 @@ export class PostRepositoryTypeOrm {
       return null;
     }
   }
-  // async findOldLikeOrDislikeSql(
-  //   postId: string,
-  //   userId: string,
-  // ): Promise<boolean> {
-  //   const query = `
-  //   SELECT *
-  //   FROM public."PostsLikesAndDislikes"
-  //   WHERE
-  //   "postId" = $1 and "userId" = $2`;
-  //
-  //   const values = [postId, userId];
-  //   const oldUsersReaction = await this.dataSource.query(query, values);
-  //
-  //   if (oldUsersReaction) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
-  //
+
   async updatePostInDbTrm(
     postId: string,
     title: string,
@@ -263,15 +225,40 @@ export class PostRepositoryTypeOrm {
       deletedPost.affected > 0
     );
   }
-  // async deleteOldLikeDislikeSql(postId: string, userId: string): Promise<void> {
-  //   const query = `
-  //   DELETE
-  //   FROM public."PostsLikesAndDislikes"
-  //   WHERE
-  //   "postId" = $1 and "userId" = $2`;
-  //
-  //   const values = [postId, userId];
-  //   await this.dataSource.query(query, values);
-  //   return;
-  // }
+  async findOldLikeOrDislikeTrm(
+    postId: string,
+    userId: string,
+  ): Promise<boolean> {
+    const oldUsersReaction = await this.postLikesRepository
+      .createQueryBuilder('PostsLikesAndDislikesTrm')
+      .where('PostsLikesAndDislikesTrm.postId =:postId', { postId })
+      .andWhere('PostsLikesAndDislikesTrm.userId =:userId', { userId })
+      .getOne();
+
+    if (oldUsersReaction) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  async deleteOldLikeDislikeTrm(postId: string, userId: string): Promise<void> {
+    await this.postLikesRepository
+      .createQueryBuilder('PostsLikesAndDislikesTrm')
+      .delete()
+      .from('PostsLikesAndDislikesTrm')
+      .where('postId =:postId', { postId })
+      .andWhere('userId =:userId', { userId })
+      .delete()
+      .execute();
+
+    return;
+  }
+
+  async createNewReactionPostTrm(
+    newUsersReaction: PostsLikesAndDislikesSql,
+  ): Promise<void> {
+    await this.postLikesRepository.save(newUsersReaction);
+
+    return;
+  }
 }

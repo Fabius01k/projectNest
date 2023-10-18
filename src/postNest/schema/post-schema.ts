@@ -49,7 +49,6 @@ export type PostView = {
     likesCount: number;
     dislikesCount: number;
     myStatus: string;
-
     newestLikes: {
       addedAt: Date;
       userId: string;

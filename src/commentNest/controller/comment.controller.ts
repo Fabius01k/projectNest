@@ -90,7 +90,6 @@ export class CommentController {
       new GetCommentByIdCommand(commentId, req.userId),
     );
     const commentatorId = commentBeforeUpdating.commentatorInfo.userId;
-    console.log(commentatorId);
     if (commentatorId !== req.userId) {
       throw new ForbiddenException([
         {

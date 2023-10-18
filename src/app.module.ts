@@ -74,6 +74,9 @@ import { BlogTrm } from './entities/blog.entity';
 import { PostTrm } from './entities/post.entity';
 import { PostRepositoryTypeOrm } from './postNest/repository/post.repository.TypeOrm';
 import { PostsLikesAndDislikesTrm } from './entities/post-likes.entity';
+import { CommentRepositoryTypeOrm } from './commentNest/repository/comment.repositoryTypeOrm';
+import { CommentsLikesAndDislikesTrm } from './entities/comment-likes.entity';
+import { CommentTrm } from './entities/comment.entity';
 
 const superAdminControllers = [
   UserController,
@@ -111,6 +114,7 @@ const repositoriesTypeOrm = [
   SecurityRepositoryTypeOrm,
   BlogRepositoryTypeOrm,
   PostRepositoryTypeOrm,
+  CommentRepositoryTypeOrm,
 ];
 
 const guardsAndValidations = [
@@ -187,6 +191,8 @@ const authUseCases = [
       BlogTrm,
       PostTrm,
       PostsLikesAndDislikesTrm,
+      CommentsLikesAndDislikesTrm,
+      CommentTrm,
     ]),
     CqrsModule,
     ConfigModule.forRoot(),

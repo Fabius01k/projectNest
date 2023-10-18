@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentResponse } from '../schema/comment.schema';
 import { CommentRepositorySql } from '../repository/comment.repositorySql';
+import { CommentRepositoryTypeOrm } from '../repository/comment.repositoryTypeOrm';
 
 export class GetAllCommentsForSpecificPostCommand {
   constructor(
@@ -16,12 +17,15 @@ export class GetAllCommentsForSpecificPostCommand {
 export class GetAllCommentsForSpecificPostUseCase
   implements ICommandHandler<GetAllCommentsForSpecificPostCommand>
 {
-  constructor(protected commentRepositorySql: CommentRepositorySql) {}
+  constructor(
+    protected commentRepositorySql: CommentRepositorySql,
+    protected commentRepositoryTypeOrm: CommentRepositoryTypeOrm,
+  ) {}
 
   async execute(
     command: GetAllCommentsForSpecificPostCommand,
   ): Promise<CommentResponse> {
-    return await this.commentRepositorySql.findAllCommentsForSpecifeldPostInDbSql(
+    return await this.commentRepositoryTypeOrm.findAllCommentsForSpecifeldPostInDbTrm(
       command.sortBy,
       command.sortDirection,
       command.pageSize,

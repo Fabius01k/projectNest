@@ -1,6 +1,7 @@
 import { LikeInputModel } from '../../inputmodels-validation/like.inputModel';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentRepositorySql } from '../repository/comment.repositorySql';
+import { CommentRepositoryTypeOrm } from '../repository/comment.repositoryTypeOrm';
 
 export class MakeLikeOrDislikeCCommand {
   constructor(
@@ -13,17 +14,20 @@ export class MakeLikeOrDislikeCCommand {
 export class MakeLikeOrDislikeCommentUseCase
   implements ICommandHandler<MakeLikeOrDislikeCCommand>
 {
-  constructor(protected commentRepositorySql: CommentRepositorySql) {}
+  constructor(
+    protected commentRepositorySql: CommentRepositorySql,
+    protected commentRepositoryTypeOrm: CommentRepositoryTypeOrm,
+  ) {}
 
   async execute(command: MakeLikeOrDislikeCCommand): Promise<boolean> {
     const oldLikeOrDislikeOfUser =
-      await this.commentRepositorySql.findOldLikeOrDislikeSql(
+      await this.commentRepositoryTypeOrm.findOldLikeOrDislikeTrm(
         command.commentId,
         command.userId,
       );
 
     if (oldLikeOrDislikeOfUser) {
-      await this.commentRepositorySql.deleteOldLikeDislikeSql(
+      await this.commentRepositoryTypeOrm.deleteOldLikeDislikeTrm(
         command.commentId,
         command.userId,
       );
@@ -33,7 +37,7 @@ export class MakeLikeOrDislikeCommentUseCase
       reactionStatus: command.likeDto.likeStatus,
       userId: command.userId,
     };
-    await this.commentRepositorySql.createNewReactionCommentSql(
+    await this.commentRepositoryTypeOrm.createNewReactionCommentTrm(
       newUsersReaction,
     );
 

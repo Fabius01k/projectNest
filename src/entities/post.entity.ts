@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { BlogTrm } from './blog.entity';
 import { PostsLikesAndDislikesTrm } from './post-likes.entity';
+import { CommentTrm } from './comment.entity';
 
 @Entity()
 export class PostTrm {
@@ -31,4 +32,6 @@ export class PostTrm {
   blog: BlogTrm;
   @OneToMany(() => PostsLikesAndDislikesTrm, (p) => p.postId)
   postLikedAndDislikes: PostsLikesAndDislikesTrm[];
+  @OneToMany(() => CommentTrm, (c) => c.postId)
+  postComments: CommentTrm[];
 }

@@ -5,6 +5,10 @@ import { NotFoundException } from '@nestjs/common';
 import { UserRepositorySql } from '../../userNest/repository/user.repositorySql';
 import { PostRepositorySql } from '../../postNest/repository/post.repositorySql';
 import { CommentRepositorySql } from '../repository/comment.repositorySql';
+import { UserRepositoryTypeOrm } from '../../userNest/repository/user.repository.TypeOrm';
+import { PostRepositoryTypeOrm } from '../../postNest/repository/post.repository.TypeOrm';
+import { CommentTrm } from '../../entities/comment.entity';
+import { CommentRepositoryTypeOrm } from '../repository/comment.repositoryTypeOrm';
 
 export class CreateCommentCommand {
   constructor(
@@ -19,13 +23,16 @@ export class CreateCommentUseCase
 {
   constructor(
     protected userRepositorySql: UserRepositorySql,
+    protected userRepositoryTypeOrm: UserRepositoryTypeOrm,
     protected postRepositorySql: PostRepositorySql,
+    protected postRepositoryTypeOrm: PostRepositoryTypeOrm,
     protected commentRepositorySql: CommentRepositorySql,
+    protected commentRepositoryTypeOrm: CommentRepositoryTypeOrm,
   ) {}
 
   async execute(command: CreateCommentCommand): Promise<CommentView | null> {
     const dateNow = new Date().getTime().toString();
-    const post = await this.postRepositorySql.findPostByIdInDbSql(
+    const post = await this.postRepositoryTypeOrm.findPostByIdInDbTrm(
       command.postId,
       command.userId,
     );
@@ -37,26 +44,18 @@ export class CreateCommentUseCase
         },
       ]);
     }
-    const user = await this.userRepositorySql.findUserByIdInDbSql(
+    const user = await this.userRepositoryTypeOrm.findUserByIdInDbTrm(
       command.userId,
     );
 
-    const newComment = new CommentSql(
-      dateNow,
-      command.commentDto.content,
-      user[0].id,
-      user[0].login,
-      new Date().toISOString(),
-      command.postId,
-    );
+    const newComment = new CommentTrm();
+    newComment.id = dateNow;
+    newComment.content = command.commentDto.content;
+    newComment.userId = user!.id;
+    newComment.userLogin = user!.login;
+    newComment.createdAt = new Date().toISOString();
+    newComment.postId = command.postId;
 
-    // const newInformationOfLikeAndDislikeComment =
-    //   new InformationOfLikeAndDislikeComment(newComment.id, 0, 0, []);
-    //
-    // await this.commentRepository.createInformationOfLikeAndDislikeComment(
-    //   newInformationOfLikeAndDislikeComment,
-    // );
-
-    return await this.commentRepositorySql.createCommentInDbSql(newComment);
+    return await this.commentRepositoryTypeOrm.createCommentInDbTrm(newComment);
   }
 }

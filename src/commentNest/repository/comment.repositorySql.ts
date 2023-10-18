@@ -142,15 +142,7 @@ export class CommentRepositorySql {
       items: items,
     };
   }
-  // async createInformationOfLikeAndDislikeComment(
-  //   newInformationOfLikeAndDislikeComment: InformationOfLikeAndDislikeComment,
-  // ): Promise<InformationOfLikeAndDislikeComment> {
-  //   const createdInformation = new this.infoModelC(
-  //     newInformationOfLikeAndDislikeComment,
-  //   );
-  //   await createdInformation.save();
-  //   return newInformationOfLikeAndDislikeComment;
-  // }
+
   async createCommentInDbSql(newComment: CommentSql): Promise<CommentView> {
     const query = `
      INSERT INTO public."Comments"(
