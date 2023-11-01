@@ -3,6 +3,9 @@ import { BlogResponse, BlogSql, BlogView } from '../schema/blog-schema';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BlogTrm } from '../../entities/blog.entity';
+import { QuizGameTrm } from '../../onlineQuiz-game/entities/quiz-game.entity';
+import { PlayerTrm } from '../../onlineQuiz-game/entities/player.entity';
+import { QuizGameView } from '../../onlineQuiz-game/viewModels/quiz-game.wiew-model';
 
 const mapBlogToView = (blog: BlogTrm): BlogView => {
   return {
@@ -97,7 +100,6 @@ export class BlogRepositoryTypeOrm {
     );
   }
   async deleteBlogInDbTrm(id: string): Promise<boolean> {
-    // await this.blogRepository.delete({ id: id });
     const deletedBlog = await this.blogRepository.delete(id);
     return (
       deletedBlog.affected !== null &&

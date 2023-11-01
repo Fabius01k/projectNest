@@ -77,11 +77,31 @@ import { PostsLikesAndDislikesTrm } from './entities/post-likes.entity';
 import { CommentRepositoryTypeOrm } from './commentNest/repository/comment.repositoryTypeOrm';
 import { CommentsLikesAndDislikesTrm } from './entities/comment-likes.entity';
 import { CommentTrm } from './entities/comment.entity';
+import { QuestionTrm } from './onlineQuiz-game/entities/question.entity';
+import { QuizGameSaController } from './onlineQuiz-game/controller/quiz.SAcontroller';
+import { CreateQuestionUseCase } from './onlineQuiz-game/quiz.use-cases/createQuestion.use-case';
+import { QuizRepositoryTypeOrm } from './onlineQuiz-game/repository/quiz.repository.TypeOrm';
+import { DeleteQuestionUseCase } from './onlineQuiz-game/quiz.use-cases/deleteQuestion.use-case';
+import { UpdateQuestionUseCase } from './onlineQuiz-game/quiz.use-cases/updateQuestion.use-case';
+import { PublishQuestionUseCase } from './onlineQuiz-game/quiz.use-cases/publishQuestion.use-case';
+import { GetPublishQuestionsUseCase } from './onlineQuiz-game/quiz.use-cases/getPublishQuestions.use-case';
+import { GetAllQuestionsUseCase } from './onlineQuiz-game/quiz.use-cases/getAllQustions.use-case';
+import { UserAnswersTrm } from './onlineQuiz-game/entities/user-answers.entity';
+import { QuizGameTrm } from './onlineQuiz-game/entities/quiz-game.entity';
+import { PlayerTrm } from './onlineQuiz-game/entities/player.entity';
+import { CreateNewGameUseCase } from './onlineQuiz-game/quiz.use-cases/createNewGame.use-case';
+import { QuizGameController } from './onlineQuiz-game/controller/quiz.controller';
+import { QuizGameService } from './onlineQuiz-game/service/quiz-game.service';
+import { JoinToActiveGameUseCase } from './onlineQuiz-game/quiz.use-cases/joinToActiveGame.use-case';
+import { GetUnfinishedGameUseCase } from './onlineQuiz-game/quiz.use-cases/getUnfinishedGame.use-case';
+import { GetGameByIdUseCase } from './onlineQuiz-game/quiz.use-cases/getGameById.use-case';
+import { PostAnswerUseCase } from './onlineQuiz-game/quiz.use-cases/postAnswer.use-case';
 
 const superAdminControllers = [
   UserController,
   BlogSAController,
   PostSAController,
+  QuizGameSaController,
 ];
 const publicControllers = [
   AppController,
@@ -91,8 +111,15 @@ const publicControllers = [
   TestingController,
   AuthController,
   SecurityController,
+  QuizGameController,
 ];
-const services = [AppService, UserService, AuthService, TestingService];
+const services = [
+  AppService,
+  UserService,
+  AuthService,
+  TestingService,
+  QuizGameService,
+];
 // const repositoriesMongo = [
 //   BlogRepository,
 //   BlogRepository,
@@ -115,6 +142,7 @@ const repositoriesTypeOrm = [
   BlogRepositoryTypeOrm,
   PostRepositoryTypeOrm,
   CommentRepositoryTypeOrm,
+  QuizRepositoryTypeOrm,
 ];
 
 const guardsAndValidations = [
@@ -125,6 +153,19 @@ const guardsAndValidations = [
   AuthGuard,
   GetToken,
   BlogNotFoundValidation,
+];
+const quizUseCases = [
+  CreateQuestionUseCase,
+  DeleteQuestionUseCase,
+  UpdateQuestionUseCase,
+  PublishQuestionUseCase,
+  GetPublishQuestionsUseCase,
+  GetAllQuestionsUseCase,
+  CreateNewGameUseCase,
+  JoinToActiveGameUseCase,
+  GetUnfinishedGameUseCase,
+  GetGameByIdUseCase,
+  PostAnswerUseCase,
 ];
 const blogUseCases = [
   GetAllBlogsUseCase,
@@ -181,7 +222,7 @@ const authUseCases = [
       // database: 'MyNestProject',
       autoLoadEntities: true,
       synchronize: true,
-      logging: false,
+      logging: true,
       url: process.env.NEON_URL,
       ssl: true,
     }),
@@ -193,6 +234,10 @@ const authUseCases = [
       PostsLikesAndDislikesTrm,
       CommentsLikesAndDislikesTrm,
       CommentTrm,
+      QuestionTrm,
+      UserAnswersTrm,
+      QuizGameTrm,
+      PlayerTrm,
     ]),
     CqrsModule,
     ConfigModule.forRoot(),
@@ -224,6 +269,7 @@ const authUseCases = [
     ...userUseCases,
     ...securityUseCases,
     ...authUseCases,
+    ...quizUseCases,
   ],
 })
 export class AppModule {}
