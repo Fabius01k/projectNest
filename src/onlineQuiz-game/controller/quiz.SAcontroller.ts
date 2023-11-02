@@ -25,7 +25,7 @@ import { GetPublishQuestionsCommand } from '../quiz.use-cases/getPublishQuestion
 export class QuizGameSaController {
   constructor(private readonly commandBus: CommandBus) {}
 
-  // @UseGuards(BasicAuthGuard)
+  @UseGuards(BasicAuthGuard)
   @Get('quiz/questions')
   async getAllQuestions(
     @Query('bodySearchTerm') bodySearchTerm: string,
@@ -91,7 +91,7 @@ export class QuizGameSaController {
     }
   }
 
-  // @UseGuards(BasicAuthGuard)
+  @UseGuards(BasicAuthGuard)
   @Post('quiz/questions')
   async postQuestion(
     @Body() questionDto: QuestionInputModel,
@@ -100,13 +100,13 @@ export class QuizGameSaController {
       new CreateQuestionCommand(questionDto),
     );
   }
-  // @UseGuards(BasicAuthGuard)
+  @UseGuards(BasicAuthGuard)
   @Delete('quiz/questions/:id')
   @HttpCode(204)
   async deleteQuestion(@Param('id') id: string): Promise<void> {
     await this.commandBus.execute(new DeleteQuestionCommand(id));
   }
-  // @UseGuards(BasicAuthGuard)
+  @UseGuards(BasicAuthGuard)
   @Put('quiz/questions/:id')
   @HttpCode(204)
   async putQuestion(
@@ -117,7 +117,7 @@ export class QuizGameSaController {
 
     return true;
   }
-  // @UseGuards(BasicAuthGuard)
+  @UseGuards(BasicAuthGuard)
   @Put('quiz/questions/:id/publish')
   @HttpCode(204)
   async publishQueston(
