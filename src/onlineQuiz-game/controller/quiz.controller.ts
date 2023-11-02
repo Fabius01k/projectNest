@@ -16,7 +16,7 @@ import { JoinToActiveGameCommand } from '../quiz.use-cases/joinToActiveGame.use-
 import { GetUnfinishedGameCommand } from '../quiz.use-cases/getUnfinishedGame.use-case';
 import { GetGameByIdCommand } from '../quiz.use-cases/getGameById.use-case';
 import { PostAnswerCommand } from '../quiz.use-cases/postAnswer.use-case';
-
+console.log(1);
 @Controller('pair-game-quiz')
 export class QuizGameController {
   constructor(
