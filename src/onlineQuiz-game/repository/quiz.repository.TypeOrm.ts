@@ -6,6 +6,7 @@ import { PlayerTrm } from '../entities/player.entity';
 import { QuizGameTrm } from '../entities/quiz-game.entity';
 import { AnswerView, QuizGameView } from '../viewModels/quiz-game.wiew-model';
 import { UserAnswersTrm } from '../entities/user-answers.entity';
+import { QuestionUpdatedInputModel } from '../../inputmodels-validation/question.updatedInputModel';
 
 @Injectable()
 export class QuizRepositoryTypeOrm {
@@ -624,11 +625,11 @@ export class QuizRepositoryTypeOrm {
   }
   async publishQuestionInDbTrm(
     id: string,
-    published: boolean,
+    publishDto: QuestionUpdatedInputModel,
   ): Promise<boolean> {
     const publishedQuestion = await this.questionRepository.update(
       { id: id },
-      { published: published },
+      { published: publishDto.published },
     );
 
     return (

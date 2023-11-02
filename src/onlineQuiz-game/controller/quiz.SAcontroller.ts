@@ -20,6 +20,7 @@ import { UpdateQuestionCommand } from '../quiz.use-cases/updateQuestion.use-case
 import { PublishQuestionCommand } from '../quiz.use-cases/publishQuestion.use-case';
 import { GetAllQuestionsCommand } from '../quiz.use-cases/getAllQustions.use-case';
 import { GetPublishQuestionsCommand } from '../quiz.use-cases/getPublishQuestions.use-case';
+import { QuestionUpdatedInputModel } from '../../inputmodels-validation/question.updatedInputModel';
 
 @Controller('sa')
 export class QuizGameSaController {
@@ -105,6 +106,8 @@ export class QuizGameSaController {
   @HttpCode(204)
   async deleteQuestion(@Param('id') id: string): Promise<void> {
     await this.commandBus.execute(new DeleteQuestionCommand(id));
+
+    return;
   }
   @UseGuards(BasicAuthGuard)
   @Put('quiz/questions/:id')
@@ -122,9 +125,9 @@ export class QuizGameSaController {
   @HttpCode(204)
   async publishQueston(
     @Param('id') id: string,
-    @Body('published') published: boolean,
+    @Body() publishDto: QuestionUpdatedInputModel,
   ): Promise<boolean> {
-    await this.commandBus.execute(new PublishQuestionCommand(id, published));
+    await this.commandBus.execute(new PublishQuestionCommand(id, publishDto));
 
     return true;
   }

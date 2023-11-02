@@ -2,11 +2,12 @@ import { QuestionInputModel } from '../../inputmodels-validation/question.inputM
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { QuizRepositoryTypeOrm } from '../repository/quiz.repository.TypeOrm';
 import { NotFoundException } from '@nestjs/common';
+import { QuestionUpdatedInputModel } from '../../inputmodels-validation/question.updatedInputModel';
 
 export class PublishQuestionCommand {
   constructor(
     public id: string,
-    public published: boolean,
+    public publishDto: QuestionUpdatedInputModel,
   ) {}
 }
 @CommandHandler(PublishQuestionCommand)
@@ -18,7 +19,7 @@ export class PublishQuestionUseCase
   async execute(command: PublishQuestionCommand): Promise<boolean> {
     await this.quizRepositoryTypeOrm.publishQuestionInDbTrm(
       command.id,
-      command.published,
+      command.publishDto,
     );
 
     return true;
