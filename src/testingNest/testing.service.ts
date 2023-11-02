@@ -21,6 +21,7 @@ export class TestingService {
     await this.dataSource.query(`DELETE FROM public."user_trm"`);
     await this.dataSource.query(`DELETE FROM public."post_trm"`);
     await this.dataSource.query(`DELETE FROM public."blog_trm"`);
+    await this.dataSource.query(`DELETE FROM public."user_answers_trm"`);
     await this.dataSource.query(`DELETE FROM public."question_trm"`);
     await this.dataSource.query(`DELETE FROM public."player_trm"`);
     await this.dataSource.query(`DELETE FROM public."quiz_game_trm"`);

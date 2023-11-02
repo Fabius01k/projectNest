@@ -11,6 +11,8 @@ export class QuizGameTrm {
   @Index()
   status: string;
   @Column({ default: null })
+  firstPlayerFinishId: string;
+  @Column({ default: null })
   pairCreatedDate: string;
   @Column({ default: null })
   startGameDate: string;

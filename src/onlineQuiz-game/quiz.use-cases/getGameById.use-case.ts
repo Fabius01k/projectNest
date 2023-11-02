@@ -17,7 +17,9 @@ export class GetGameByIdUseCase implements ICommandHandler<GetGameByIdCommand> {
     const player = await this.quizRepositoryTypeOrm.findActivePlayersInDbTrm(
       command.userId,
     );
-    if (player?.gameId !== command.gameId) {
+    console.log(player!.gameId);
+    console.log(command.gameId);
+    if (player!.gameId !== command.gameId) {
       throw new ForbiddenException([
         {
           message: 'You are not a member of this game',
@@ -25,7 +27,7 @@ export class GetGameByIdUseCase implements ICommandHandler<GetGameByIdCommand> {
       ]);
     }
     return await this.quizRepositoryTypeOrm.findGameByIdInDbTrm(
-      player,
+      player!,
       command.gameId,
     );
   }

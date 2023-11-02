@@ -13,10 +13,10 @@ export class GetUnfinishedGameUseCase
   constructor(protected quizRepositoryTypeOrm: QuizRepositoryTypeOrm) {}
 
   async execute(command: GetUnfinishedGameCommand): Promise<QuizGameView> {
-    const game = await this.quizRepositoryTypeOrm.findActivePlayersInDbTrm(
+    const player = await this.quizRepositoryTypeOrm.findActivePlayersInDbTrm(
       command.userId,
     );
-    if (!game) {
+    if (!player) {
       throw new NotFoundException([
         {
           message: "You don't have any active games",
@@ -24,6 +24,6 @@ export class GetUnfinishedGameUseCase
       ]);
     }
 
-    return await this.quizRepositoryTypeOrm.findUnfinishedGamesInDbTrm(game);
+    return await this.quizRepositoryTypeOrm.findUnfinishedGamesInDbTrm(player);
   }
 }

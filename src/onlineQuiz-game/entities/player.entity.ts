@@ -23,8 +23,8 @@ export class PlayerTrm {
   @Column()
   @Index()
   userStatus: string;
-  @Column()
-  gameStatus: string;
+  // @Column()
+  // gameStatus: string;
   @Column({ default: 0 })
   scoresNumberInGame: number;
   @ManyToOne(() => QuizGameTrm, (q) => q.gamePlayers)

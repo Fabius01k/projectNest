@@ -86,6 +86,7 @@ export class QuizRepositoryTypeOrm {
 
     const randomQuestions = await this.questionRepository
       .createQueryBuilder('QuestionTrm')
+      .where('QuestionTrm.published = :published', { published: true })
       .orderBy('RANDOM()')
       .limit(5)
       .getMany();
@@ -640,7 +641,9 @@ export class QuizRepositoryTypeOrm {
     const player = await this.playerRepository
       .createQueryBuilder('PlayerTrm')
       .where('PlayerTrm.userId = :userId', { userId: userId })
-      .andWhere('PlayerTrm.userStatus = :status', { status: 'Active' })
+      .andWhere('PlayerTrm.userStatus IN (:...statuses)', {
+        statuses: ['Active', 'Winner', 'Loser', 'Draw'],
+      })
       .getOne();
 
     if (player) {
@@ -649,6 +652,7 @@ export class QuizRepositoryTypeOrm {
       return null;
     }
   }
+
   // async findActivePlayersInDbTrm(userId: string): Promise<QuizGameTrm | null> {
   //   const player = await this.playerRepository.findOne({
   //     where: { userId: userId },
@@ -780,6 +784,7 @@ export class QuizRepositoryTypeOrm {
       .getCount();
     return firstNumber;
   }
+
   async countSecondPlayerAnswers(player: PlayerTrm): Promise<number> {
     const secondPlayerPromise = await this.playerRepository
       .createQueryBuilder('PlayerTrm')
@@ -831,6 +836,13 @@ export class QuizRepositoryTypeOrm {
       { status: 'Finished ', finishGameDate: new Date().toISOString() },
     );
   }
+  async checkScoresFirstPlayer(userId: string): Promise<number> {
+    const firstPlayerScoresBuilder = await this.playerRepository
+      .createQueryBuilder('PlayerTrm')
+      .where('PlayerTrm.userId = :userId', { userId: userId })
+      .getOne();
+    return firstPlayerScoresBuilder!.scoresNumberInGame;
+  }
   async checkRightAnswersFirstPlayer(userId: string): Promise<number> {
     const firstPlayerScoresBuilder = await this.answerRepository
       .createQueryBuilder('UserAnswersTrm')
@@ -841,61 +853,28 @@ export class QuizRepositoryTypeOrm {
     return await firstPlayerScoresBuilder.getCount();
   }
 
-  async checkRightAnswersSecondPlayer(player: PlayerTrm): Promise<number> {
+  async checkScoresSecondPlayer(player: PlayerTrm): Promise<number> {
     const secondPlayerPromise = await this.playerRepository
       .createQueryBuilder('PlayerTrm')
       .where('PlayerTrm.gameId = :gameId', { gameId: player.gameId })
       .andWhere('PlayerTrm.userId != :userId', { userId: player.userId })
       .getOne();
 
-    const secondPlayerScoresBuilder = await this.answerRepository
-      .createQueryBuilder('UserAnswersTrm')
-      .where('UserAnswersTrm.playerId = :playerId', {
-        playerId: secondPlayerPromise!.userId,
-      })
-      .andWhere('UserAnswersTrm.answerStatus = :status', { status: 'Correct' });
-    return await secondPlayerScoresBuilder.getCount();
+    return secondPlayerPromise!.scoresNumberInGame;
   }
-  async takeExtraScoreForSecondPlayer(player: PlayerTrm): Promise<void> {
-    const secondPlayerPromise = await this.playerRepository
-      .createQueryBuilder('PlayerTrm')
-      .where('PlayerTrm.gameId = :gameId', { gameId: player.gameId })
-      .andWhere('PlayerTrm.userId != :userId', { userId: player.userId })
-      .getOne();
-
-    // await this.playerRepository.update(
-    //   {
-    //     gameId: player.gameId,
-    //     userId: secondPlayerPromise!.userId,
-    //   },
-    //   {
-    //     scoresNumberInGame: +1,
-    //   },
-    // );
+  async takeExtraScore(firstPlayerFinishId: string): Promise<void> {
     await this.playerRepository
       .createQueryBuilder()
       .update(PlayerTrm)
       .set({ scoresNumberInGame: () => 'scoresNumberInGame + 1' })
-      .where('userId = :userId', { userId: secondPlayerPromise!.userId })
+      .where('userId = :userId', { userId: firstPlayerFinishId })
       .execute();
   }
-
-  async takeExtraScoreForFirstPlayer(player: PlayerTrm): Promise<void> {
-    // await this.playerRepository.update(
-    //   {
-    //     gameId: player.gameId,
-    //     userId: player.userId,
-    //   },
-    //   {
-    //     scoresNumberInGame: +1,
-    //   },
-    // );
-    await this.playerRepository
-      .createQueryBuilder()
-      .update(PlayerTrm)
-      .set({ scoresNumberInGame: () => 'scoresNumberInGame + 1' })
-      .where('userId = :userId', { userId: player.userId })
-      .execute();
+  async makeMarkAboutTheFirstPlayer(player: PlayerTrm): Promise<void> {
+    await this.gameRepository.update(
+      { id: player.gameId },
+      { firstPlayerFinishId: player.userId },
+    );
   }
   // async makeFirstPlayerWin(player: PlayerTrm): Promise<void> {
   //   await this.playerRepository.update(
@@ -961,5 +940,23 @@ export class QuizRepositoryTypeOrm {
       { userId: secondPlayer!.userId },
       { userStatus: 'Draw' },
     );
+  }
+  async findFinishedPlayer(gameId: string): Promise<boolean> {
+    const firstFinishedPlayer = await this.gameRepository
+      .createQueryBuilder('QuizGameTrm')
+      .where('QuizGameTrm.id = :id', { id: gameId })
+      .getOne();
+    if (firstFinishedPlayer!.firstPlayerFinishId) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  async findGameBeforeFinish(gameId: string): Promise<QuizGameTrm> {
+    const game = await this.gameRepository
+      .createQueryBuilder('QuizGameTrm')
+      .where('QuizGameTrm.id = :id', { id: gameId })
+      .getOne();
+    return game!;
   }
 }

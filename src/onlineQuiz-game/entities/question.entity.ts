@@ -21,7 +21,7 @@ export class QuestionTrm {
   published: boolean;
   @Column()
   createdAt: string;
-  @Column()
+  @Column({ default: null })
   updatedAt: string;
   @ManyToOne(() => QuizGameTrm, (q) => q.gameQuestions)
   @JoinColumn({ name: 'gameId' })
