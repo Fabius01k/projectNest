@@ -245,7 +245,7 @@ export class QuizRepositoryTypeOrm {
     const secondPlayerAnswersPromise = this.answerRepository
       .createQueryBuilder('UserAnswersTrm')
       .where('UserAnswersTrm.playerId = :playerId', {
-        playerId: (await secondPlayerPromise)!.userId,
+        playerId: (await secondPlayerPromise)?.userId,
       })
       .getMany();
 
@@ -298,6 +298,29 @@ export class QuizRepositoryTypeOrm {
       id: question.id,
       body: question.body,
     }));
+    if (!secondPlayer) {
+      return {
+        id: unfinishedGame!.id,
+        firstPlayerProgress: {
+          answers: firstPlayerAnswers.map((item) => ({
+            questionId: item.questionId,
+            answerStatus: item.answerStatus,
+            addedAt: item.addedAt,
+          })),
+          player: {
+            id: firstPlayerPromise!.userId,
+            login: firstPlayerPromise!.userLogin,
+          },
+          score: firstPlayerPromise!.scoresNumberInGame,
+        },
+        secondPlayerProgress: null,
+        questions: formattedQuestions,
+        status: unfinishedGame!.status,
+        pairCreatedDate: unfinishedGame!.pairCreatedDate,
+        startGameDate: unfinishedGame!.startGameDate,
+        finishGameDate: unfinishedGame!.finishGameDate,
+      };
+    }
 
     return {
       id: unfinishedGame.id,
@@ -450,7 +473,7 @@ export class QuizRepositoryTypeOrm {
         this.answerRepository
           .createQueryBuilder('UserAnswersTrm')
           .where('UserAnswersTrm.playerId = :playerId', {
-            playerId: secondPlayer!.userId,
+            playerId: secondPlayer?.userId,
           })
           .getMany(),
     );
@@ -497,6 +520,30 @@ export class QuizRepositoryTypeOrm {
       id: question.id,
       body: question.body,
     }));
+
+    if (!secondPlayer) {
+      return {
+        id: game!.id,
+        firstPlayerProgress: {
+          answers: firstPlayerAnswers.map((item) => ({
+            questionId: item.questionId,
+            answerStatus: item.answerStatus,
+            addedAt: item.addedAt,
+          })),
+          player: {
+            id: firstPlayerPromise!.userId,
+            login: firstPlayerPromise!.userLogin,
+          },
+          score: firstPlayerPromise!.scoresNumberInGame,
+        },
+        secondPlayerProgress: null,
+        questions: formattedQuestions,
+        status: game!.status,
+        pairCreatedDate: game!.pairCreatedDate,
+        startGameDate: game!.startGameDate,
+        finishGameDate: game!.finishGameDate,
+      };
+    }
 
     return {
       id: game!.id,
