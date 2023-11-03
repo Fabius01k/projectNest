@@ -653,6 +653,23 @@ export class QuizRepositoryTypeOrm {
       return null;
     }
   }
+  async isUnfinishedGame(userId: string): Promise<boolean> {
+    const player = await this.playerRepository
+      .createQueryBuilder('PlayerTrm')
+      .where('PlayerTrm.userId = :userId', { userId: userId })
+      .getOne();
+    console.log(player?.gameId);
+    // const game = await this.gameRepository
+    //   .createQueryBuilder('QuizGameTrm')
+    //   .where('QuizGameTrm.id = :gameId', { gameId: player!.gameId })
+    //   .andWhere('QuizGameTrm.status = :status', { status: 'Active' })
+    //   .getOne();
+    if (player) {
+      return true;
+    } else {
+      return false;
+    }
+  }
   async isActiveGame(player: PlayerTrm): Promise<boolean> {
     const game = await this.gameRepository
       .createQueryBuilder('QuizGameTrm')

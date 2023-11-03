@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { QuizRepositoryTypeOrm } from '../repository/quiz.repository.TypeOrm';
 import { QuizGameView } from '../viewModels/quiz-game.wiew-model';
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
 export class GetUnfinishedGameCommand {
   constructor(public userId: string) {}
@@ -13,6 +13,16 @@ export class GetUnfinishedGameUseCase
   constructor(protected quizRepositoryTypeOrm: QuizRepositoryTypeOrm) {}
 
   async execute(command: GetUnfinishedGameCommand): Promise<QuizGameView> {
+    const isUnfinishedGame = await this.quizRepositoryTypeOrm.isUnfinishedGame(
+      command.userId,
+    );
+    if (!isUnfinishedGame) {
+      throw new NotFoundException([
+        {
+          message: 'Game not found',
+        },
+      ]);
+    }
     const player = await this.quizRepositoryTypeOrm.findActivePlayersInDbTrm(
       command.userId,
     );

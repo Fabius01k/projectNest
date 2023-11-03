@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Param,
   Post,
   Request,
@@ -25,6 +26,7 @@ export class QuizGameController {
   ) {}
   @UseGuards(AuthGuard)
   @Post('pairs/connection')
+  @HttpCode(201)
   async connectToTheGame(@Request() req): Promise<any> {
     await this.quizGameService.getActivePlayers(req.userId);
 
