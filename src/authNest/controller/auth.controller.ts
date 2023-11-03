@@ -38,7 +38,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly commandBus: CommandBus,
   ) {}
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   @Post('login')
   @HttpCode(200)
   async LoginUser(

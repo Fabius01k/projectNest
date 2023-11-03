@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { QuizRepositoryTypeOrm } from '../repository/quiz.repository.TypeOrm';
 import { AnswerView, QuizGameView } from '../viewModels/quiz-game.wiew-model';
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { UserAnswersTrm } from '../entities/user-answers.entity';
 
 export class PostAnswerCommand {
@@ -19,7 +19,15 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       command.userId,
     );
     if (!player) {
-      throw new NotFoundException([
+      throw new ForbiddenException([
+        {
+          message: "You don't have any active games",
+        },
+      ]);
+    }
+    const isActiveGame = await this.quizRepositoryTypeOrm.isActiveGame(player);
+    if (!isActiveGame) {
+      throw new ForbiddenException([
         {
           message: "You don't have any active games",
         },
@@ -233,7 +241,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return lastAnswer;
     }
     if (firstPlayerAnswers === 5) {
-      throw new NotFoundException([
+      throw new ForbiddenException([
         {
           message:
             'You have answered all the questions, wait for the end of the game',

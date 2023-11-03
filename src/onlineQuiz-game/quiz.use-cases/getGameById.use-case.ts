@@ -18,7 +18,14 @@ export class GetGameByIdUseCase implements ICommandHandler<GetGameByIdCommand> {
       command.userId,
       command.gameId,
     );
-    if (player!.gameId !== command.gameId) {
+    // if (player!.gameId !== command.gameId) {
+    //   throw new ForbiddenException([
+    //     {
+    //       message: 'You are not a member of this game',
+    //     },
+    //   ]);
+    // }
+    if (!player) {
       throw new ForbiddenException([
         {
           message: 'You are not a member of this game',

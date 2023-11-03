@@ -653,6 +653,18 @@ export class QuizRepositoryTypeOrm {
       return null;
     }
   }
+  async isActiveGame(player: PlayerTrm): Promise<boolean> {
+    const game = await this.gameRepository
+      .createQueryBuilder('QuizGameTrm')
+      .where('QuizGameTrm.id = :gameId', { gameId: player.gameId })
+      .andWhere('QuizGameTrm.status = :status', { status: 'Active' })
+      .getOne();
+    if (game) {
+      return true;
+    } else {
+      return false;
+    }
+  }
   async findNeedPlayersInDbTrm(
     userId: string,
     gameId: string,
