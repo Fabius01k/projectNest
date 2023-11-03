@@ -26,7 +26,7 @@ export class QuizGameController {
   ) {}
   @UseGuards(AuthGuard)
   @Post('pairs/connection')
-  @HttpCode(201)
+  @HttpCode(200)
   async connectToTheGame(@Request() req): Promise<any> {
     await this.quizGameService.getActivePlayers(req.userId);
 
