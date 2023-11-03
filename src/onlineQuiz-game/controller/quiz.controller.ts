@@ -45,6 +45,7 @@ export class QuizGameController {
   }
   @UseGuards(AuthGuard)
   @Get('pairs/my-current')
+  @HttpCode(200)
   async getUnfinishedGame(@Request() req): Promise<QuizGameView> {
     const game = await this.commandBus.execute(
       new GetUnfinishedGameCommand(req.userId),
@@ -53,6 +54,7 @@ export class QuizGameController {
   }
   @UseGuards(AuthGuard)
   @Get('pairs/:id')
+  @HttpCode(200)
   async getGameById(
     @Request() req,
     @Param('id') id: string,
@@ -64,6 +66,7 @@ export class QuizGameController {
   }
   @UseGuards(AuthGuard)
   @Post('pairs/my-current/answers')
+  @HttpCode(200)
   async postAnswer(
     @Body('answer') answer: string,
     @Request() req,
