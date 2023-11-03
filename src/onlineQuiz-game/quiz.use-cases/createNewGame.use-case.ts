@@ -44,6 +44,7 @@ export class CreateNewGameUseCase
 
     newGame.id = newGameId;
     newGame.status = 'PendingSecondPlayer';
+    newGame.pairCreatedDate = new Date().toISOString();
     newGame.gameQuestions = [];
     newGame.gamePlayers = [];
 
