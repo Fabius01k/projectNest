@@ -28,7 +28,7 @@ export class QuizGameController {
   @Post('pairs/connection')
   @HttpCode(200)
   async connectToTheGame(@Request() req): Promise<any> {
-    await this.quizGameService.getActivePlayers(req.userId);
+    // await this.quizGameService.getActivePlayers(req.userId);
 
     const activeGame = await this.quizGameService.findActiveGameToConnect();
     if (!activeGame) {
