@@ -34,7 +34,7 @@ export class CreateNewGameUseCase
     newPlayer.userLogin = user!.login;
     newPlayer.gameId = newGameId;
     newPlayer.IsFirstInGame = true;
-    newPlayer.userStatus = 'Active';
+    newPlayer.userStatus = 'WaitSecondPlayer';
     newPlayer.scoresNumberInGame = 0;
 
     // const NwPlayer =
