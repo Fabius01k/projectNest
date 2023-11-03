@@ -20,6 +20,8 @@ export class PlayerTrm {
   @Index()
   @Column()
   gameId: string;
+  @Column({ default: false })
+  IsFirstInGame: boolean;
   @Column()
   @Index()
   userStatus: string;

@@ -53,7 +53,7 @@ export class QuizRepositoryTypeOrm {
       secondPlayerProgress: null,
       questions: null,
       status: game.status,
-      pairCreatedDate: game.pairCreatedDate,
+      pairCreatedDate: new Date().toISOString(),
       startGameDate: game.startGameDate,
       finishGameDate: game.finishGameDate,
     };
@@ -219,20 +219,28 @@ export class QuizRepositoryTypeOrm {
   // }
   private async mapUnfinishedGame(
     unfinishedGame: QuizGameTrm,
-    firstPlayer: PlayerTrm,
+    player: PlayerTrm,
   ): Promise<QuizGameView> {
-    const secondPlayerPromise = this.playerRepository
+    const firstPlayerPromise = await this.playerRepository
       .createQueryBuilder('PlayerTrm')
       .where('PlayerTrm.gameId = :gameId', { gameId: unfinishedGame.id })
-      .andWhere('PlayerTrm.userId != :userId', { userId: firstPlayer.userId })
+      .andWhere('PlayerTrm.IsFirstInGame = :status', { status: true })
       .getOne();
 
     const firstPlayerAnswersPromise = this.answerRepository
       .createQueryBuilder('UserAnswersTrm')
       .where('UserAnswersTrm.playerId = :playerId', {
-        playerId: firstPlayer.userId,
+        playerId: firstPlayerPromise!.userId,
       })
       .getMany();
+
+    const secondPlayerPromise = this.playerRepository
+      .createQueryBuilder('PlayerTrm')
+      .where('PlayerTrm.gameId = :gameId', { gameId: unfinishedGame.id })
+      .andWhere('PlayerTrm.userId != :userId', {
+        userId: firstPlayerPromise!.userId,
+      })
+      .getOne();
 
     const secondPlayerAnswersPromise = this.answerRepository
       .createQueryBuilder('UserAnswersTrm')
@@ -300,10 +308,10 @@ export class QuizRepositoryTypeOrm {
           addedAt: item.addedAt,
         })),
         player: {
-          id: firstPlayer.userId,
-          login: firstPlayer.userLogin,
+          id: firstPlayerPromise!.userId,
+          login: firstPlayerPromise!.userLogin,
         },
-        score: firstPlayer.scoresNumberInGame,
+        score: firstPlayerPromise!.scoresNumberInGame,
       },
       secondPlayerProgress: {
         answers: secondPlayerAnswers.map((item) => ({
@@ -416,16 +424,24 @@ export class QuizRepositoryTypeOrm {
     game: QuizGameTrm,
     firstPlayer: PlayerTrm,
   ): Promise<QuizGameView> {
+    const firstPlayerPromise = await this.playerRepository
+      .createQueryBuilder('PlayerTrm')
+      .where('PlayerTrm.gameId = :gameId', { gameId: game.id })
+      .andWhere('PlayerTrm.IsFirstInGame = :status', { status: true })
+      .getOne();
+
     const secondPlayerPromise = this.playerRepository
       .createQueryBuilder('PlayerTrm')
       .where('PlayerTrm.gameId = :gameId', { gameId: game!.id })
-      .andWhere('PlayerTrm.userId != :userId', { userId: firstPlayer.userId })
+      .andWhere('PlayerTrm.userId != :userId', {
+        userId: firstPlayerPromise!.userId,
+      })
       .getOne();
 
     const firstPlayerAnswersPromise = this.answerRepository
       .createQueryBuilder('UserAnswersTrm')
       .where('UserAnswersTrm.playerId = :playerId', {
-        playerId: firstPlayer.userId,
+        playerId: firstPlayerPromise!.userId,
       })
       .getMany();
 
@@ -491,10 +507,10 @@ export class QuizRepositoryTypeOrm {
           addedAt: item.addedAt,
         })),
         player: {
-          id: firstPlayer.userId,
-          login: firstPlayer.userLogin,
+          id: firstPlayerPromise!.userId,
+          login: firstPlayerPromise!.userLogin,
         },
-        score: firstPlayer.scoresNumberInGame,
+        score: firstPlayerPromise!.scoresNumberInGame,
       },
       secondPlayerProgress: {
         answers: secondPlayerAnswers.map((item) => ({

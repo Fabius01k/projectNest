@@ -33,6 +33,7 @@ export class CreateNewGameUseCase
     newPlayer.userId = command.userId;
     newPlayer.userLogin = user!.login;
     newPlayer.gameId = newGameId;
+    newPlayer.IsFirstInGame = true;
     newPlayer.userStatus = 'Active';
     newPlayer.scoresNumberInGame = 0;
 
