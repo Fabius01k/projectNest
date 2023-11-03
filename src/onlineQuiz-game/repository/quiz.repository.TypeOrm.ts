@@ -42,14 +42,15 @@ export class QuizRepositoryTypeOrm {
         },
         score: player.scoresNumberInGame,
       },
-      secondPlayerProgress: {
-        answers: null,
-        player: {
-          id: null,
-          login: null,
-        },
-        score: null,
-      },
+      // secondPlayerProgress: {
+      //   answers: null,
+      //   player: {
+      //     id: null,
+      //     login: null,
+      //   },
+      //   score: null,
+      // },
+      secondPlayerProgress: null,
       questions: null,
       status: game.status,
       pairCreatedDate: game.pairCreatedDate,

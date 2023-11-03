@@ -28,7 +28,7 @@ export type QuizGameView = {
       login: string | null;
     };
     score: number | null;
-  };
+  } | null;
   questions: { id: string; body: string }[] | null;
   status: string;
   pairCreatedDate: string | null;
