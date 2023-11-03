@@ -1,8 +1,12 @@
-import { IsBoolean, IsIn, IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 
 export class QuestionUpdatedInputModel {
-  @IsBoolean()
   @IsNotEmpty()
-  // @IsIn([true, false])
+  @IsOptional()
+  @IsBoolean()
+  // @Transform(({ value }) => value === 'true')
+  // @IsBoolean()
+  // @Type(() => Boolean)
   published: boolean;
 }

@@ -653,6 +653,22 @@ export class QuizRepositoryTypeOrm {
       return null;
     }
   }
+  async findNeedPlayersInDbTrm(
+    userId: string,
+    gameId: string,
+  ): Promise<PlayerTrm | null> {
+    const player = await this.playerRepository
+      .createQueryBuilder('PlayerTrm')
+      .where('PlayerTrm.gameId = :gameId', { gameId: gameId })
+      .andWhere('PlayerTrm.userId = :userId', { userId: userId })
+      .getOne();
+
+    if (player) {
+      return player;
+    } else {
+      return null;
+    }
+  }
 
   // async findActivePlayersInDbTrm(userId: string): Promise<QuizGameTrm | null> {
   //   const player = await this.playerRepository.findOne({

@@ -14,11 +14,10 @@ export class GetGameByIdUseCase implements ICommandHandler<GetGameByIdCommand> {
   constructor(protected quizRepositoryTypeOrm: QuizRepositoryTypeOrm) {}
 
   async execute(command: GetGameByIdCommand): Promise<QuizGameView> {
-    const player = await this.quizRepositoryTypeOrm.findActivePlayersInDbTrm(
+    const player = await this.quizRepositoryTypeOrm.findNeedPlayersInDbTrm(
       command.userId,
+      command.gameId,
     );
-    console.log(player!.gameId);
-    console.log(command.gameId);
     if (player!.gameId !== command.gameId) {
       throw new ForbiddenException([
         {

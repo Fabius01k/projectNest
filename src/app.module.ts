@@ -222,7 +222,7 @@ const authUseCases = [
       // database: 'MyNestProject',
       autoLoadEntities: true,
       synchronize: true,
-      logging: true,
+      logging: false,
       url: process.env.NEON_URL,
       ssl: true,
     }),
