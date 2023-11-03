@@ -566,7 +566,7 @@ export class QuizRepositoryTypeOrm {
           addedAt: item.addedAt,
         })),
         player: {
-          id: secondPlayer!.id,
+          id: secondPlayer!.userId,
           login: secondPlayer!.userLogin,
         },
         score: secondPlayer!.scoresNumberInGame,
