@@ -943,7 +943,7 @@ export class QuizRepositoryTypeOrm {
   async finishTheGameInDbTrm(gameId: string): Promise<void> {
     await this.gameRepository.update(
       { id: gameId },
-      { status: 'Finished ', finishGameDate: new Date().toISOString() },
+      { status: 'Finished', finishGameDate: new Date().toISOString() },
     );
   }
   async checkScoresFirstPlayer(userId: string): Promise<number> {
