@@ -7,7 +7,8 @@ export class QuizGameService {
   constructor(protected quizRepositoryTypeOrm: QuizRepositoryTypeOrm) {}
 
   async getActivePlayers(userId: string): Promise<void> {
-    const user = await this.quizRepositoryTypeOrm.PlayersInGameInDbTrm(userId);
+    const user =
+      await this.quizRepositoryTypeOrm.findActivePlayersInDbTrm(userId);
 
     if (user) {
       throw new ForbiddenException([

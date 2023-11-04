@@ -69,10 +69,6 @@ export class QuizRepositoryTypeOrm {
       .createQueryBuilder('PlayerTrm')
       .where('PlayerTrm.gameId = :gameId', { gameId: newGame.id })
       .getOne();
-    await this.playerRepository.update(
-      { id: firstPlayer!.id },
-      { userStatus: 'Active' },
-    );
 
     // const firstPlayerScoresBuilder = await this.answerRepository
     //   .createQueryBuilder('UserAnswersTrm')
@@ -711,22 +707,7 @@ export class QuizRepositoryTypeOrm {
       .createQueryBuilder('PlayerTrm')
       .where('PlayerTrm.userId = :userId', { userId: userId })
       .andWhere('PlayerTrm.userStatus IN (:...statuses)', {
-        statuses: ['Active', 'Winner', 'Loser', 'Draw', 'WaitSecondPlayer'],
-      })
-      .getOne();
-
-    if (player) {
-      return player;
-    } else {
-      return null;
-    }
-  }
-  async PlayersInGameInDbTrm(userId: string): Promise<PlayerTrm | null> {
-    const player = await this.playerRepository
-      .createQueryBuilder('PlayerTrm')
-      .where('PlayerTrm.userId = :userId', { userId: userId })
-      .andWhere('PlayerTrm.userStatus IN (:...statuses)', {
-        statuses: ['Active'],
+        statuses: ['Active', 'Winner', 'Loser', 'Draw'],
       })
       .getOne();
 
