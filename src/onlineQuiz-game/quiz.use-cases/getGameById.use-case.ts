@@ -21,7 +21,7 @@ export class GetGameByIdUseCase implements ICommandHandler<GetGameByIdCommand> {
     const game = await this.quizRepositoryTypeOrm.findGame(command.gameId);
 
     if (!game) {
-      throw new BadRequestException([
+      throw new NotFoundException([
         {
           message: 'Incorrect id format',
         },
@@ -39,7 +39,7 @@ export class GetGameByIdUseCase implements ICommandHandler<GetGameByIdCommand> {
     //   ]);
     // }
     if (!player) {
-      throw new NotFoundException([
+      throw new ForbiddenException([
         {
           message: 'You are not a member of this game',
         },
