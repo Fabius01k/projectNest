@@ -21,7 +21,7 @@ export class QuizGameService {
   async findActiveGameToConnect(): Promise<QuizGameTrm | null> {
     const activeGame =
       await this.quizRepositoryTypeOrm.findActiveGamesInDbTrm();
-    console.log(activeGame, 'service');
+
     return activeGame;
   }
 }

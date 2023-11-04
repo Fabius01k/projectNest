@@ -88,7 +88,7 @@ export class QuizRepositoryTypeOrm {
 
     const randomQuestions = await this.questionRepository
       .createQueryBuilder('QuestionTrm')
-      .where('QuestionTrm.published = :published', { published: true })
+      //.where('QuestionTrm.published = :published', { published: true })
       .orderBy('RANDOM()')
       .limit(5)
       .getMany();
@@ -693,7 +693,7 @@ export class QuizRepositoryTypeOrm {
   ): Promise<boolean> {
     const publishedQuestion = await this.questionRepository.update(
       { id: id },
-      { published: publishDto.published },
+      { published: publishDto.published, updatedAt: new Date().toISOString() },
     );
 
     return (
@@ -702,13 +702,26 @@ export class QuizRepositoryTypeOrm {
       publishedQuestion.affected > 0
     );
   }
+  // async findActivePlayersInDbTrm(userId: string): Promise<PlayerTrm[] | null> {
+  //   const player: PlayerTrm[] = await this.playerRepository
+  //     .createQueryBuilder('PlayerTrm')
+  //     .where('PlayerTrm.userId = :userId', { userId: userId })
+  //     // .andWhere('PlayerTrm.userStatus IN (:...statuses)', {
+  //     //   statuses: ['Active', 'Winner', 'Loser', 'Draw'],
+  //     // })
+  //     .getMany();
+  //
+  //   if (player && player.length > 0) {
+  //     return player;
+  //   } else {
+  //     return null;
+  //   }
+  // }
   async findActivePlayersInDbTrm(userId: string): Promise<PlayerTrm | null> {
     const player = await this.playerRepository
       .createQueryBuilder('PlayerTrm')
       .where('PlayerTrm.userId = :userId', { userId: userId })
-      .andWhere('PlayerTrm.userStatus IN (:...statuses)', {
-        statuses: ['Active', 'Winner', 'Loser', 'Draw'],
-      })
+      .andWhere('PlayerTrm.userStatus = :status', { status: 'Active' })
       .getOne();
 
     if (player) {
@@ -722,7 +735,7 @@ export class QuizRepositoryTypeOrm {
       .createQueryBuilder('PlayerTrm')
       .where('PlayerTrm.userId = :userId', { userId: userId })
       .getOne();
-    console.log(player?.gameId);
+
     // const game = await this.gameRepository
     //   .createQueryBuilder('QuizGameTrm')
     //   .where('QuizGameTrm.id = :gameId', { gameId: player!.gameId })
@@ -794,11 +807,26 @@ export class QuizRepositoryTypeOrm {
       return null;
     }
   }
-  async findUnfinishedGamesInDbTrm(player: PlayerTrm): Promise<QuizGameView> {
+  // async findUnfinishedGamesInDbTrm(
+  //   player: PlayerTrm[],
+  // ): Promise<QuizGameView | null> {
+  //   const unfinishedGame = await this.gameRepository
+  //     .createQueryBuilder('QuizGameTrm')
+  //     .where('QuizGameTrm.id = :gameId', { gameId: player. })
+  //     .andWhere('QuizGameTrm.status != :status', { status: 'Finished' })
+  //     .getOne();
+  //   if (!unfinishedGame) return null;
+  //   return this.mapUnfinishedGame(unfinishedGame!, player);
+  // }
+  async findUnfinishedGamesInDbTrm(
+    player: PlayerTrm,
+  ): Promise<QuizGameView | null> {
     const unfinishedGame = await this.gameRepository
       .createQueryBuilder('QuizGameTrm')
       .where('QuizGameTrm.id = :gameId', { gameId: player.gameId })
+      .andWhere('QuizGameTrm.status != :status', { status: 'Finished' })
       .getOne();
+    if (!unfinishedGame) return null;
     return this.mapUnfinishedGame(unfinishedGame!, player);
   }
   async findGameByIdInDbTrm(

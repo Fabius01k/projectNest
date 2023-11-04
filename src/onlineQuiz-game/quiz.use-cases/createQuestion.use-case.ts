@@ -23,7 +23,6 @@ export class CreateQuestionUseCase
     newQuestion.published = false;
     newQuestion.createdAt = new Date().toISOString();
     // newQuestion.updatedAt = new Date().toISOString();
-    console.log(newQuestion, 'use-cases');
 
     return await this.quizRepositoryTypeOrm.createQuestionInDbTrm(newQuestion);
   }

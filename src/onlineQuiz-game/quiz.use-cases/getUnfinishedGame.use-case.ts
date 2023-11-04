@@ -12,17 +12,19 @@ export class GetUnfinishedGameUseCase
 {
   constructor(protected quizRepositoryTypeOrm: QuizRepositoryTypeOrm) {}
 
-  async execute(command: GetUnfinishedGameCommand): Promise<QuizGameView> {
-    const isUnfinishedGame = await this.quizRepositoryTypeOrm.isUnfinishedGame(
-      command.userId,
-    );
-    if (!isUnfinishedGame) {
-      throw new NotFoundException([
-        {
-          message: 'Game not found',
-        },
-      ]);
-    }
+  async execute(
+    command: GetUnfinishedGameCommand,
+  ): Promise<QuizGameView | null> {
+    // const isPlayer = await this.quizRepositoryTypeOrm.isUnfinishedGame(
+    //   command.userId,
+    // );
+    // if (!isPlayer) {
+    //   throw new NotFoundException([
+    //     {
+    //       message: 'You are not a player any game',
+    //     },
+    //   ]);
+    // }
     const player = await this.quizRepositoryTypeOrm.findActivePlayersInDbTrm(
       command.userId,
     );

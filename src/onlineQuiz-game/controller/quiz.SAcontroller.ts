@@ -123,7 +123,7 @@ export class QuizGameSaController {
   @UseGuards(BasicAuthGuard)
   @Put('quiz/questions/:id/publish')
   @HttpCode(204)
-  async publishQueston(
+  async publishQuestion(
     @Param('id') id: string,
     @Body() publishDto: QuestionUpdatedInputModel,
   ): Promise<boolean> {

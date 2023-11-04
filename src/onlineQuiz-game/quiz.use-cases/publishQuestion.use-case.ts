@@ -17,10 +17,18 @@ export class PublishQuestionUseCase
   constructor(protected quizRepositoryTypeOrm: QuizRepositoryTypeOrm) {}
 
   async execute(command: PublishQuestionCommand): Promise<boolean> {
-    await this.quizRepositoryTypeOrm.publishQuestionInDbTrm(
-      command.id,
-      command.publishDto,
-    );
+    const publishQuestion =
+      await this.quizRepositoryTypeOrm.publishQuestionInDbTrm(
+        command.id,
+        command.publishDto,
+      );
+    if (!publishQuestion) {
+      throw new NotFoundException([
+        {
+          message: 'Question not found',
+        },
+      ]);
+    }
 
     return true;
   }
