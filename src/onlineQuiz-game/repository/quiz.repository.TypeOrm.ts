@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QuestionResponse, QuestionTrm } from '../entities/question.entity';
 import { Not, Repository } from 'typeorm';
@@ -829,6 +833,18 @@ export class QuizRepositoryTypeOrm {
     if (!unfinishedGame) return null;
     return this.mapUnfinishedGame(unfinishedGame!, player);
   }
+  async findGame(gameId: string): Promise<boolean> {
+    const game = await this.gameRepository
+      .createQueryBuilder('QuizGameTrm')
+      .where('QuizGameTrm.id = :gameId', { gameId: gameId })
+      .getOne();
+
+    if (!game) {
+      return false;
+    } else {
+      return true;
+    }
+  }
   async findGameByIdInDbTrm(
     player: PlayerTrm,
     gameId: string,
@@ -837,6 +853,14 @@ export class QuizRepositoryTypeOrm {
       .createQueryBuilder('QuizGameTrm')
       .where('QuizGameTrm.id = :gameId', { gameId: gameId })
       .getOne();
+
+    if (!game) {
+      throw new BadRequestException([
+        {
+          message: 'Game nof found',
+        },
+      ]);
+    }
     return this.mapGameById(game!, player);
   }
   // async getPlayerOneInDbTrm(userId: string): Promise<PlayerTrm | null> {

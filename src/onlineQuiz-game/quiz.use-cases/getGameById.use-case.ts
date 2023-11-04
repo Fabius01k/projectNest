@@ -1,7 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { QuizRepositoryTypeOrm } from '../repository/quiz.repository.TypeOrm';
 import { QuizGameView } from '../viewModels/quiz-game.wiew-model';
-import { ForbiddenException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 
 export class GetGameByIdCommand {
   constructor(
@@ -14,6 +18,15 @@ export class GetGameByIdUseCase implements ICommandHandler<GetGameByIdCommand> {
   constructor(protected quizRepositoryTypeOrm: QuizRepositoryTypeOrm) {}
 
   async execute(command: GetGameByIdCommand): Promise<QuizGameView> {
+    const game = await this.quizRepositoryTypeOrm.findGame(command.gameId);
+
+    if (!game) {
+      throw new BadRequestException([
+        {
+          message: 'Incorrect id format',
+        },
+      ]);
+    }
     const player = await this.quizRepositoryTypeOrm.findNeedPlayersInDbTrm(
       command.userId,
       command.gameId,
@@ -26,7 +39,7 @@ export class GetGameByIdUseCase implements ICommandHandler<GetGameByIdCommand> {
     //   ]);
     // }
     if (!player) {
-      throw new ForbiddenException([
+      throw new NotFoundException([
         {
           message: 'You are not a member of this game',
         },
