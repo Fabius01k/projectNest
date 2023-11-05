@@ -18,6 +18,8 @@ export class QuizGameTrm {
   startGameDate: string;
   @Column({ default: null })
   finishGameDate: string;
+  @Column({ type: 'text', default: [], array: true })
+  questionsId: string[];
   @OneToMany(() => QuestionTrm, (q) => q.game)
   gameQuestions: QuestionTrm[];
   @OneToMany(() => PlayerTrm, (p) => p.userId)

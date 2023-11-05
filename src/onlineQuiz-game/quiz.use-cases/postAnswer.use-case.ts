@@ -33,14 +33,19 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
         },
       ]);
     }
+    // const all = await this.quizRepositoryTypeOrm.allQu();
     const gameQuestions =
       await this.quizRepositoryTypeOrm.findQuestionsActiveGame(player);
+    // console.log(gameQuestions, player, isActiveGame, all, '12345');
+    console.log(gameQuestions, 1);
     const firstPlayerAnswers =
       await this.quizRepositoryTypeOrm.countFirstPlayerAnswers(player);
     const secondPlayerAnswers =
       await this.quizRepositoryTypeOrm.countSecondPlayerAnswers(player);
 
     if (firstPlayerAnswers === 0) {
+      console.log(gameQuestions, 2);
+      console.log(gameQuestions[0].correctAnswers, '0');
       const checkAnswer = gameQuestions[0].correctAnswers.includes(
         command.answer,
       );
@@ -61,6 +66,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
     }
     if (firstPlayerAnswers === 1) {
+      console.log(gameQuestions[1].correctAnswers, '1');
       const checkAnswer = gameQuestions[1].correctAnswers.includes(
         command.answer,
       );
@@ -81,6 +87,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
     }
     if (firstPlayerAnswers === 2) {
+      console.log(gameQuestions[2].correctAnswers, '2');
       const checkAnswer = gameQuestions[2].correctAnswers.includes(
         command.answer,
       );
@@ -101,6 +108,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
     }
     if (firstPlayerAnswers === 3) {
+      console.log(gameQuestions[3].correctAnswers, '3');
       const checkAnswer = gameQuestions[3].correctAnswers.includes(
         command.answer,
       );
@@ -121,6 +129,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
     }
     if (firstPlayerAnswers === 4 && secondPlayerAnswers < 5) {
+      console.log(gameQuestions[4].correctAnswers, '4');
       // if (firstPlayerAnswers === 4 && secondPlayerAnswers === 4) {
       //   const checkAnswer = gameQuestions[4].correctAnswers.includes(
       //     command.answer,
@@ -173,6 +182,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
     }
     if (firstPlayerAnswers === 4 && secondPlayerAnswers === 5) {
+      console.log(gameQuestions[4].correctAnswers, '4.5');
       const checkAnswer = gameQuestions[4].correctAnswers.includes(
         command.answer,
       );

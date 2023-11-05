@@ -90,24 +90,48 @@ export class QuizRepositoryTypeOrm {
     //   .andWhere('UserAnswersTrm.answerStatus = :status', { status: 'Correct' });
     // const secondPlayerScores = await secondPlayerScoresBuilder.getCount();
 
+    // const randomQuestions = await this.questionRepository
+    //   .createQueryBuilder('QuestionTrm')
+    //   .where('QuestionTrm.published = :published', { published: true })
+    //   .orderBy('QuestionTrm.id', 'ASC')
+    //   .limit(5)
+    //   .getMany();
+    // const questions: { id: string; body: string }[] = [];
+    // for (const question of randomQuestions) {
+    //   question.game = newGame;
+    //   await this.questionRepository.save(question);
+    // }
+    // for (const question of randomQuestions) {
+    //   questions.push({
+    //     id: question.id,
+    //     body: question.body,
+    //   });
+    // }
     const randomQuestions = await this.questionRepository
       .createQueryBuilder('QuestionTrm')
-      //.where('QuestionTrm.published = :published', { published: true })
-      .orderBy('RANDOM()')
+      .where('QuestionTrm.published = :published', { published: true })
+      .orderBy('QuestionTrm.id', 'ASC')
       .limit(5)
       .getMany();
     const questions: { id: string; body: string }[] = [];
-    for (const question of randomQuestions) {
-      question.game = newGame;
-      await this.questionRepository.save(question);
-    }
+
+    const questionsId: string[] = [];
+
+    randomQuestions.forEach((question) => {
+      questionsId.push(question.id);
+    });
+
+    await this.gameRepository.update(
+      { id: newGame.id },
+      { questionsId: questionsId },
+    );
+
     for (const question of randomQuestions) {
       questions.push({
         id: question.id,
         body: question.body,
       });
     }
-    // question.game = newGame;
 
     return {
       id: newGame.id,
@@ -277,17 +301,15 @@ export class QuizRepositoryTypeOrm {
     //     'QuizGameTrm',
     //     'QuizGameTrm.id = QuestionTrm.gameId',
     //   )
-    //   .where('QuestionTrm.id = :gameId', { gameId: unfinishedGame.id })
+    //   .where('QuestionTrm.gameId = :gameId', { gameId: unfinishedGame.id })
     //   .getMany();
+
     const questionsPromise = this.questionRepository
       .createQueryBuilder('QuestionTrm')
       .select(['QuestionTrm.id', 'QuestionTrm.body'])
-      .leftJoin(
-        'QuestionTrm.game',
-        'QuizGameTrm',
-        'QuizGameTrm.id = QuestionTrm.gameId',
-      )
-      .where('QuestionTrm.gameId = :gameId', { gameId: unfinishedGame.id })
+      .where('QuestionTrm.id IN (:...questionIds)', {
+        questionIds: unfinishedGame.questionsId,
+      })
       .getMany();
 
     const [secondPlayer, firstPlayerAnswers, secondPlayerAnswers, questions] =
@@ -502,14 +524,21 @@ export class QuizRepositoryTypeOrm {
     //     .getCount(),
     // );
 
+    // const questionsPromise = this.questionRepository
+    //   .createQueryBuilder('QuestionTrm')
+    //   .select(['QuestionTrm.id', 'QuestionTrm.body'])
+    //   .leftJoin(
+    //     'QuestionTrm.game',
+    //     'QuizGameTrm',
+    //     'QuizGameTrm.id = QuestionTrm.gameId',
+    //   )
+    //   .getMany();
     const questionsPromise = this.questionRepository
       .createQueryBuilder('QuestionTrm')
       .select(['QuestionTrm.id', 'QuestionTrm.body'])
-      .leftJoin(
-        'QuestionTrm.game',
-        'QuizGameTrm',
-        'QuizGameTrm.id = QuestionTrm.gameId',
-      )
+      .where('QuestionTrm.id IN (:...questionIds)', {
+        questionIds: game.questionsId,
+      })
       .getMany();
 
     const [secondPlayer, firstPlayerAnswers, secondPlayerAnswers, questions] =
@@ -751,14 +780,14 @@ export class QuizRepositoryTypeOrm {
       return false;
     }
   }
-  async isActiveGame(player: PlayerTrm): Promise<boolean> {
+  async isActiveGame(player: PlayerTrm): Promise<boolean | QuizGameTrm> {
     const game = await this.gameRepository
       .createQueryBuilder('QuizGameTrm')
       .where('QuizGameTrm.id = :gameId', { gameId: player.gameId })
       .andWhere('QuizGameTrm.status = :status', { status: 'Active' })
       .getOne();
     if (game) {
-      return true;
+      return game;
     } else {
       return false;
     }
@@ -909,21 +938,44 @@ export class QuizRepositoryTypeOrm {
       newStartGameDate,
     );
   }
+  // async findQuestionsActiveGame(player: PlayerTrm): Promise<QuestionTrm[]> {
+  //   const questions = await this.questionRepository
+  //     .createQueryBuilder('QuestionTrm')
+  //     .select([
+  //       'QuestionTrm.id',
+  //       'QuestionTrm.body',
+  //       'QuestionTrm.correctAnswers',
+  //     ])
+  //     .leftJoin(
+  //       'QuestionTrm.game',
+  //       'QuizGameTrm',
+  //       'QuizGameTrm.id = QuestionTrm.gameId',
+  //     )
+  //     .where('QuestionTrm.gameId = :gameId', { gameId: player.gameId })
+  //     .getMany();
+  //   return questions;
+  // }
   async findQuestionsActiveGame(player: PlayerTrm): Promise<QuestionTrm[]> {
-    const questions = await this.questionRepository
+    const game = await this.gameRepository
+      .createQueryBuilder('QuizGameTrm')
+      .where('QuizGameTrm.id = :gameId', { gameId: player.gameId })
+      .getOne();
+
+    const questionsPromise = await this.questionRepository
       .createQueryBuilder('QuestionTrm')
       .select([
         'QuestionTrm.id',
         'QuestionTrm.body',
         'QuestionTrm.correctAnswers',
       ])
-      .leftJoin(
-        'QuestionTrm.game',
-        'QuizGameTrm',
-        'QuizGameTrm.id = QuestionTrm.gameId',
-      )
-      .where('QuestionTrm.gameId = :gameId', { gameId: player.gameId })
+      .where('QuestionTrm.id IN (:...questionIds)', {
+        questionIds: game!.questionsId,
+      })
       .getMany();
+    return questionsPromise;
+  }
+  async allQu(): Promise<QuestionTrm[]> {
+    const questions = await this.questionRepository.find();
     return questions;
   }
   // const questionsPromise = this.questionRepository

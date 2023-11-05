@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   HttpCode,
+  NotFoundException,
   Param,
   Post,
   Request,
@@ -59,6 +61,13 @@ export class QuizGameController {
     @Request() req,
     @Param('id') id: string,
   ): Promise<QuizGameView> {
+    if (isNaN(Number(id))) {
+      throw new BadRequestException([
+        {
+          message: 'Incorrect id format',
+        },
+      ]);
+    }
     const game = await this.commandBus.execute(
       new GetGameByIdCommand(req.userId, id),
     );
@@ -74,6 +83,7 @@ export class QuizGameController {
     const userAnswer = await this.commandBus.execute(
       new PostAnswerCommand(req.userId, answer),
     );
+
     return userAnswer;
   }
 }

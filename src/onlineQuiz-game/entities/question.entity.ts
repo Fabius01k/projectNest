@@ -26,8 +26,6 @@ export class QuestionTrm {
   @ManyToOne(() => QuizGameTrm, (q) => q.gameQuestions)
   @JoinColumn({ name: 'gameId' })
   game: QuizGameTrm;
-  // @OneToMany(() => UserAnswersTrm, (u) => u.questionId)
-  // questionAnswers: UserAnswersTrm[];
 }
 
 export interface QuestionResponse {
