@@ -193,11 +193,6 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
     }
     if (firstPlayerAnswers === 4 && secondPlayerAnswers === 5) {
-      console.log(
-        firstPlayerAnswers,
-        player.userId,
-        '199 строка, игрок 1 -4, игрок 2 - 5',
-      );
       // console.log(gameQuestions[4].correctAnswers, '4.5');
       const checkAnswer = gameQuestions[4].correctAnswers.includes(
         command.answer,
@@ -267,11 +262,6 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return lastAnswer;
     }
     if (firstPlayerAnswers === 5) {
-      console.log(
-        firstPlayerAnswers,
-        player.userId,
-        '273 строка, 403 ошибка, ответов уже 5',
-      );
       throw new ForbiddenException([
         {
           message:

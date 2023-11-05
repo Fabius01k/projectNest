@@ -1148,13 +1148,13 @@ export class QuizRepositoryTypeOrm {
       .createQueryBuilder()
       .update(PlayerTrm)
       .set({ scoresNumberInGame: () => 'scoresNumberInGame + 1' })
-      .where('userId = :userId', { userId: firstPlayerFinishId })
+      .where('id = :id', { id: firstPlayerFinishId })
       .execute();
   }
   async makeMarkAboutTheFirstPlayer(player: PlayerTrm): Promise<void> {
     await this.gameRepository.update(
       { id: player.gameId },
-      { firstPlayerFinishId: player.userId },
+      { firstPlayerFinishId: player.id },
     );
   }
   // async makeFirstPlayerWin(player: PlayerTrm): Promise<void> {
