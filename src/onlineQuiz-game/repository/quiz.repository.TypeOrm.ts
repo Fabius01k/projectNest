@@ -267,7 +267,7 @@ export class QuizRepositoryTypeOrm {
       const firstPlayerAnswersPromise = await this.answerRepository
         .createQueryBuilder('UserAnswersTrm')
         .where('UserAnswersTrm.playerId = :playerId', {
-          playerId: firstPlayerPromise!.userId,
+          playerId: firstPlayerPromise!.id,
         })
         .getMany();
 
@@ -296,14 +296,14 @@ export class QuizRepositoryTypeOrm {
     const firstPlayerAnswersPromise = this.answerRepository
       .createQueryBuilder('UserAnswersTrm')
       .where('UserAnswersTrm.playerId = :playerId', {
-        playerId: firstPlayerPromise!.userId,
+        playerId: firstPlayerPromise!.id,
       })
       .getMany();
 
     const secondPlayerAnswersPromise = this.answerRepository
       .createQueryBuilder('UserAnswersTrm')
       .where('UserAnswersTrm.playerId = :playerId', {
-        playerId: (await secondPlayerPromise)?.userId,
+        playerId: (await secondPlayerPromise)?.id,
       })
       .getMany();
 
@@ -521,7 +521,7 @@ export class QuizRepositoryTypeOrm {
       const firstPlayerAnswersPromise = await this.answerRepository
         .createQueryBuilder('UserAnswersTrm')
         .where('UserAnswersTrm.playerId = :playerId', {
-          playerId: firstPlayerPromise!.userId,
+          playerId: firstPlayerPromise!.id,
         })
         .getMany();
 
@@ -551,13 +551,13 @@ export class QuizRepositoryTypeOrm {
     const firstPlayerAnswersPromise = this.answerRepository
       .createQueryBuilder('UserAnswersTrm')
       .where('UserAnswersTrm.playerId = :playerId', {
-        playerId: firstPlayerPromise!.userId,
+        playerId: firstPlayerPromise!.id,
       })
       .getMany();
     const secondPlayerAnswersPromise = await this.answerRepository
       .createQueryBuilder('UserAnswersTrm')
       .where('UserAnswersTrm.playerId = :playerId', {
-        playerId: secondPlayerPromise?.userId,
+        playerId: secondPlayerPromise?.id,
       })
       .getMany();
 
