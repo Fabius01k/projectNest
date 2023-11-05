@@ -74,42 +74,9 @@ export class QuizRepositoryTypeOrm {
       .where('PlayerTrm.gameId = :gameId', { gameId: newGame.id })
       .getOne();
 
-    // const firstPlayerScoresBuilder = await this.answerRepository
-    //   .createQueryBuilder('UserAnswersTrm')
-    //   .where('UserAnswersTrm.playerId = :playerId', {
-    //     playerId: firstPlayer!.userId,
-    //   })
-    //   .andWhere('UserAnswersTrm.answerStatus = :status', { status: 'Correct' });
-    // const firstPlayerScores = await firstPlayerScoresBuilder.getCount();
-
-    // const secondPlayerScoresBuilder = await this.answerRepository
-    //   .createQueryBuilder('UserAnswersTrm')
-    //   .where('UserAnswersTrm.playerId = :playerId', {
-    //     playerId: secondPlayer.userId,
-    //   })
-    //   .andWhere('UserAnswersTrm.answerStatus = :status', { status: 'Correct' });
-    // const secondPlayerScores = await secondPlayerScoresBuilder.getCount();
-
-    // const randomQuestions = await this.questionRepository
-    //   .createQueryBuilder('QuestionTrm')
-    //   .where('QuestionTrm.published = :published', { published: true })
-    //   .orderBy('QuestionTrm.id', 'ASC')
-    //   .limit(5)
-    //   .getMany();
-    // const questions: { id: string; body: string }[] = [];
-    // for (const question of randomQuestions) {
-    //   question.game = newGame;
-    //   await this.questionRepository.save(question);
-    // }
-    // for (const question of randomQuestions) {
-    //   questions.push({
-    //     id: question.id,
-    //     body: question.body,
-    //   });
-    // }
     const randomQuestions = await this.questionRepository
       .createQueryBuilder('QuestionTrm')
-      //.where('QuestionTrm.published = :published', { published: true })
+      .where('QuestionTrm.published = :published', { published: true })
       .orderBy('QuestionTrm.id', 'ASC')
       .limit(5)
       .getMany();
@@ -1124,11 +1091,11 @@ export class QuizRepositoryTypeOrm {
       .getOne();
     return firstPlayerScoresBuilder!.scoresNumberInGame;
   }
-  async checkRightAnswersFirstPlayer(userId: string): Promise<number> {
+  async checkRightAnswersFirstPlayer(player: PlayerTrm): Promise<number> {
     const firstPlayerScoresBuilder = await this.answerRepository
       .createQueryBuilder('UserAnswersTrm')
       .where('UserAnswersTrm.playerId = :playerId', {
-        playerId: userId,
+        playerId: player.id,
       })
       .andWhere('UserAnswersTrm.answerStatus = :status', { status: 'Correct' });
     return await firstPlayerScoresBuilder.getCount();

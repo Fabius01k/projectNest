@@ -155,12 +155,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       //     await this.quizRepositoryTypeOrm.makeMarkAboutTheFirstPlayer(player);
       //   }
       // }
-      console.log(
-        firstPlayerAnswers,
-        player.userId,
-        secondPlayerAnswers,
-        '161 строка, игрок 1 -4, игрок 2 < 5',
-      );
+
       const checkAnswer = gameQuestions[4].correctAnswers.includes(
         command.answer,
       );
@@ -176,9 +171,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
 
       if (!firstFinishedPlayerInGame) {
         const rightAnswersFirstPlayer =
-          await this.quizRepositoryTypeOrm.checkRightAnswersFirstPlayer(
-            player.userId,
-          );
+          await this.quizRepositoryTypeOrm.checkRightAnswersFirstPlayer(player);
         if (rightAnswersFirstPlayer >= 1 || userAnswer === 'Correct') {
           await this.quizRepositoryTypeOrm.makeMarkAboutTheFirstPlayer(player);
         }
