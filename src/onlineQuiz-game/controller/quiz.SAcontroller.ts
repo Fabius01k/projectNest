@@ -125,9 +125,9 @@ export class QuizGameSaController {
   @HttpCode(204)
   async publishQuestion(
     @Param('id') id: string,
-    @Body('published') published: QuestionUpdatedInputModel,
+    @Body() publishDto: QuestionUpdatedInputModel,
   ): Promise<boolean> {
-    await this.commandBus.execute(new PublishQuestionCommand(id, published));
+    await this.commandBus.execute(new PublishQuestionCommand(id, publishDto));
 
     return true;
   }
