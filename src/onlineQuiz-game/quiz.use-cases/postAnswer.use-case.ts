@@ -18,6 +18,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
     const player = await this.quizRepositoryTypeOrm.findActivePlayersInDbTrm(
       command.userId,
     );
+    console.log(player, ' 21 строка ');
     if (!player) {
       throw new ForbiddenException([
         {
@@ -26,6 +27,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       ]);
     }
     const isActiveGame = await this.quizRepositoryTypeOrm.isActiveGame(player);
+    console.log(isActiveGame, ' 30 строка ');
     if (!isActiveGame) {
       throw new ForbiddenException([
         {
@@ -37,15 +39,19 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
     const gameQuestions =
       await this.quizRepositoryTypeOrm.findQuestionsActiveGame(player);
     // console.log(gameQuestions, player, isActiveGame, all, '12345');
-    console.log(gameQuestions, 1);
+    // console.log(gameQuestions, 1);
     const firstPlayerAnswers =
       await this.quizRepositoryTypeOrm.countFirstPlayerAnswers(player);
     const secondPlayerAnswers =
       await this.quizRepositoryTypeOrm.countSecondPlayerAnswers(player);
 
     if (firstPlayerAnswers === 0) {
-      console.log(gameQuestions, 2);
-      console.log(gameQuestions[0].correctAnswers, '0');
+      console.log(
+        firstPlayerAnswers,
+        player.userId,
+        '49 строка и ответ равен 0',
+      );
+      // console.log(gameQuestions[0].correctAnswers, '0');
       const checkAnswer = gameQuestions[0].correctAnswers.includes(
         command.answer,
       );
@@ -58,7 +64,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       }
       const newAnswer = new UserAnswersTrm();
       newAnswer.id = new Date().getTime().toString();
-      newAnswer.playerId = player.userId;
+      newAnswer.playerId = player.id;
       newAnswer.questionId = gameQuestions[0].id;
       newAnswer.answerStatus = userAnswer;
       newAnswer.addedAt = new Date().toISOString();
@@ -66,7 +72,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
     }
     if (firstPlayerAnswers === 1) {
-      console.log(gameQuestions[1].correctAnswers, '1');
+      // console.log(gameQuestions[1].correctAnswers, '1');
       const checkAnswer = gameQuestions[1].correctAnswers.includes(
         command.answer,
       );
@@ -79,7 +85,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       }
       const newAnswer = new UserAnswersTrm();
       newAnswer.id = new Date().getTime().toString();
-      newAnswer.playerId = player.userId;
+      newAnswer.playerId = player.id;
       newAnswer.questionId = gameQuestions[1].id;
       newAnswer.answerStatus = userAnswer;
       newAnswer.addedAt = new Date().toISOString();
@@ -100,7 +106,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       }
       const newAnswer = new UserAnswersTrm();
       newAnswer.id = new Date().getTime().toString();
-      newAnswer.playerId = player.userId;
+      newAnswer.playerId = player.id;
       newAnswer.questionId = gameQuestions[2].id;
       newAnswer.answerStatus = userAnswer;
       newAnswer.addedAt = new Date().toISOString();
@@ -108,7 +114,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
     }
     if (firstPlayerAnswers === 3) {
-      console.log(gameQuestions[3].correctAnswers, '3');
+      // console.log(gameQuestions[3].correctAnswers, '3');
       const checkAnswer = gameQuestions[3].correctAnswers.includes(
         command.answer,
       );
@@ -121,7 +127,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       }
       const newAnswer = new UserAnswersTrm();
       newAnswer.id = new Date().getTime().toString();
-      newAnswer.playerId = player.userId;
+      newAnswer.playerId = player.id;
       newAnswer.questionId = gameQuestions[3].id;
       newAnswer.answerStatus = userAnswer;
       newAnswer.addedAt = new Date().toISOString();
@@ -129,7 +135,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
     }
     if (firstPlayerAnswers === 4 && secondPlayerAnswers < 5) {
-      console.log(gameQuestions[4].correctAnswers, '4');
+      // console.log(gameQuestions[4].correctAnswers, '4');
       // if (firstPlayerAnswers === 4 && secondPlayerAnswers === 4) {
       //   const checkAnswer = gameQuestions[4].correctAnswers.includes(
       //     command.answer,
@@ -149,7 +155,12 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       //     await this.quizRepositoryTypeOrm.makeMarkAboutTheFirstPlayer(player);
       //   }
       // }
-
+      console.log(
+        firstPlayerAnswers,
+        player.userId,
+        secondPlayerAnswers,
+        '161 строка, игрок 1 -4, игрок 2 < 5',
+      );
       const checkAnswer = gameQuestions[4].correctAnswers.includes(
         command.answer,
       );
@@ -174,7 +185,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       }
       const newAnswer = new UserAnswersTrm();
       newAnswer.id = new Date().getTime().toString();
-      newAnswer.playerId = player.userId;
+      newAnswer.playerId = player.id;
       newAnswer.questionId = gameQuestions[4].id;
       newAnswer.answerStatus = userAnswer;
       newAnswer.addedAt = new Date().toISOString();
@@ -182,7 +193,12 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
     }
     if (firstPlayerAnswers === 4 && secondPlayerAnswers === 5) {
-      console.log(gameQuestions[4].correctAnswers, '4.5');
+      console.log(
+        firstPlayerAnswers,
+        player.userId,
+        '199 строка, игрок 1 -4, игрок 2 - 5',
+      );
+      // console.log(gameQuestions[4].correctAnswers, '4.5');
       const checkAnswer = gameQuestions[4].correctAnswers.includes(
         command.answer,
       );
@@ -216,7 +232,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       // }
       const newAnswer = new UserAnswersTrm();
       newAnswer.id = new Date().getTime().toString();
-      newAnswer.playerId = player.userId;
+      newAnswer.playerId = player.id;
       newAnswer.questionId = gameQuestions[4].id;
       newAnswer.answerStatus = userAnswer;
       newAnswer.addedAt = new Date().toISOString();
@@ -251,6 +267,11 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return lastAnswer;
     }
     if (firstPlayerAnswers === 5) {
+      console.log(
+        firstPlayerAnswers,
+        player.userId,
+        '273 строка, 403 ошибка, ответов уже 5',
+      );
       throw new ForbiddenException([
         {
           message:

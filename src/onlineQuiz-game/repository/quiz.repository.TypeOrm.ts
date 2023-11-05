@@ -900,7 +900,7 @@ export class QuizRepositoryTypeOrm {
       .createQueryBuilder('QuizGameTrm')
       .where('QuizGameTrm.status = :status', { status: 'PendingSecondPlayer' })
       .getOne();
-    console.log(activeGame, 'repo');
+    // console.log(activeGame, 'repo');
     if (activeGame) {
       return activeGame;
     } else {
@@ -1060,7 +1060,7 @@ export class QuizRepositoryTypeOrm {
     const firstNumber = await this.answerRepository
       .createQueryBuilder('UserAnswersTrm')
       .where('UserAnswersTrm.playerId = :playerId', {
-        playerId: player.userId,
+        playerId: player.id,
       })
       .getCount();
     return firstNumber;
@@ -1076,7 +1076,7 @@ export class QuizRepositoryTypeOrm {
     const secondNumber = await this.answerRepository
       .createQueryBuilder('UserAnswersTrm')
       .where('UserAnswersTrm.playerId = :playerId', {
-        playerId: secondPlayerPromise!.userId,
+        playerId: secondPlayerPromise!.id,
       })
       .getCount();
     return secondNumber;
