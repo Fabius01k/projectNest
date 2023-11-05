@@ -109,7 +109,7 @@ export class QuizRepositoryTypeOrm {
     // }
     const randomQuestions = await this.questionRepository
       .createQueryBuilder('QuestionTrm')
-      .where('QuestionTrm.published = :published', { published: true })
+      //.where('QuestionTrm.published = :published', { published: true })
       .orderBy('QuestionTrm.id', 'ASC')
       .limit(5)
       .getMany();
@@ -1099,7 +1099,7 @@ export class QuizRepositoryTypeOrm {
         .createQueryBuilder()
         .update(PlayerTrm)
         .set({ scoresNumberInGame: () => 'scoresNumberInGame + 1' })
-        .where('userId = :userId', { userId: newAnswer.playerId })
+        .where('id = :id', { id: newAnswer.playerId })
         .execute();
     }
 
