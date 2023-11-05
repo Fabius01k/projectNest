@@ -109,7 +109,7 @@ export class QuizRepositoryTypeOrm {
     // }
     const randomQuestions = await this.questionRepository
       .createQueryBuilder('QuestionTrm')
-      //.where('QuestionTrm.published = :published', { published: true })
+      .where('QuestionTrm.published = :published', { published: true })
       .orderBy('QuestionTrm.id', 'ASC')
       .limit(5)
       .getMany();
