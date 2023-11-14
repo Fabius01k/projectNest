@@ -42,12 +42,14 @@ export class AuthGuard implements CanActivate {
 
       request['userId'] = payload.userId;
     } catch {
+      console.log('guard 4');
       throw new UnauthorizedException([
         {
           message: 'Unauthorized',
         },
       ]);
     }
+
     return true;
   }
 

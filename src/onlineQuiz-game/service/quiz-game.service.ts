@@ -1,6 +1,12 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { QuizRepositoryTypeOrm } from '../repository/quiz.repository.TypeOrm';
 import { QuizGameTrm } from '../entities/quiz-game.entity';
+import { PlayerStatisticsView } from '../viewModels/player-statistics.view.model';
+import { PlayerTrm } from '../entities/player.entity';
 
 @Injectable()
 export class QuizGameService {
@@ -23,5 +29,20 @@ export class QuizGameService {
       await this.quizRepositoryTypeOrm.findActiveGamesInDbTrm();
 
     return activeGame;
+  }
+  async getPlayersStatistic(
+    userId: string,
+  ): Promise<PlayerStatisticsView | null> {
+    const playerStatistic =
+      await this.quizRepositoryTypeOrm.findPlayerStatistic(userId);
+
+    if (!playerStatistic) {
+      throw new NotFoundException([
+        {
+          message: 'Player not found',
+        },
+      ]);
+    }
+    return playerStatistic;
   }
 }

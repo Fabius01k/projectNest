@@ -7,26 +7,77 @@ import {
   NotFoundException,
   Param,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { AuthGuard } from '../../authNest/guards/bearer.guard';
-import { AnswerView, QuizGameView } from '../viewModels/quiz-game.wiew-model';
+import {
+  AnswerView,
+  GameResponse,
+  QuizGameView,
+} from '../viewModels/quiz-game.wiew-model';
 import { QuizGameService } from '../service/quiz-game.service';
 import { CreateNewGameCommand } from '../quiz.use-cases/createNewGame.use-case';
 import { JoinToActiveGameCommand } from '../quiz.use-cases/joinToActiveGame.use-case';
 import { GetUnfinishedGameCommand } from '../quiz.use-cases/getUnfinishedGame.use-case';
 import { GetGameByIdCommand } from '../quiz.use-cases/getGameById.use-case';
 import { PostAnswerCommand } from '../quiz.use-cases/postAnswer.use-case';
-console.log(1);
+import { PlayerStatisticsView } from '../viewModels/player-statistics.view.model';
+import { GetAllMyGamesCommand } from '../quiz.use-cases/getAllMyGames.use-case';
+@UseGuards(AuthGuard)
 @Controller('pair-game-quiz')
 export class QuizGameController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly quizGameService: QuizGameService,
   ) {}
-  @UseGuards(AuthGuard)
+  @Get('pairs/my')
+  @HttpCode(200)
+  async getAllMyGames(
+    @Request() req,
+    @Query('sortBy') sortBy: string[],
+    @Query('sortDirection') sortDirection: 'asc' | 'desc',
+    @Query('pageSize') pageSize: number,
+    @Query('pageNumber') pageNumber: number,
+  ): Promise<GameResponse> {
+    if (!sortBy || sortBy.length < 0) {
+      sortBy = ['pairCreatedDate'];
+    }
+    const firstSortBy = sortBy[0];
+    const secondSortBy = sortBy[1] || 'pairCreatedDate';
+
+    if (!sortDirection || sortDirection.toLowerCase() !== 'asc') {
+      sortDirection = 'desc';
+    }
+
+    const checkPageSize = +pageSize;
+    if (!pageSize || !Number.isInteger(checkPageSize) || checkPageSize <= 0) {
+      pageSize = 10;
+    }
+
+    const checkPageNumber = +pageNumber;
+    if (
+      !pageNumber ||
+      !Number.isInteger(checkPageNumber) ||
+      checkPageNumber <= 0
+    ) {
+      pageNumber = 1;
+    }
+
+    return await this.commandBus.execute(
+      new GetAllMyGamesCommand(
+        firstSortBy,
+        secondSortBy,
+        sortDirection,
+        pageSize,
+        pageNumber,
+        req.userId,
+      ),
+    );
+  }
+  // @UseGuards(AuthGuard)
   @Post('pairs/connection')
   @HttpCode(200)
   async connectToTheGame(@Request() req): Promise<any> {
@@ -45,7 +96,7 @@ export class QuizGameController {
       );
     }
   }
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get('pairs/my-current')
   @HttpCode(200)
   async getUnfinishedGame(@Request() req): Promise<QuizGameView> {
@@ -54,7 +105,7 @@ export class QuizGameController {
     );
     return game;
   }
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get('pairs/:id')
   @HttpCode(200)
   async getGameById(
@@ -73,7 +124,7 @@ export class QuizGameController {
     );
     return game;
   }
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post('pairs/my-current/answers')
   @HttpCode(200)
   async postAnswer(
@@ -85,5 +136,17 @@ export class QuizGameController {
     );
 
     return userAnswer;
+  }
+
+  // @UseGuards(AuthGuard)
+  @Get('users/my-statistic')
+  @HttpCode(200)
+  async getStatisticAboutPlayer(
+    @Request() req,
+  ): Promise<PlayerStatisticsView | null> {
+    const statistic = await this.quizGameService.getPlayersStatistic(
+      req.userId,
+    );
+    return statistic;
   }
 }

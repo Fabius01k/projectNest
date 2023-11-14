@@ -1,3 +1,5 @@
+import { IsNumber, IsOptional, IsPositive } from 'class-validator';
+
 export type QuizGameView = {
   id: string;
   firstPlayerProgress: {
@@ -41,3 +43,17 @@ export type AnswerView = {
   answerStatus: string;
   addedAt: string;
 };
+
+export interface GameResponse {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: QuizGameView[];
+}
+export class QueryDtoModel {
+  @IsPositive()
+  @IsNumber()
+  @IsOptional()
+  pageSize: number;
+}
