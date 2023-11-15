@@ -18,7 +18,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
     const player = await this.quizRepositoryTypeOrm.findActivePlayersInDbTrm(
       command.userId,
     );
-    console.log(player, ' 21 строка ');
+
     if (!player) {
       throw new ForbiddenException([
         {
@@ -27,7 +27,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       ]);
     }
     const isActiveGame = await this.quizRepositoryTypeOrm.isActiveGame(player);
-    console.log(isActiveGame, ' 30 строка ');
+
     if (!isActiveGame) {
       throw new ForbiddenException([
         {
@@ -46,12 +46,6 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       await this.quizRepositoryTypeOrm.countSecondPlayerAnswers(player);
 
     if (firstPlayerAnswers === 0) {
-      console.log(
-        firstPlayerAnswers,
-        player.userId,
-        '49 строка и ответ равен 0',
-      );
-      // console.log(gameQuestions[0].correctAnswers, '0');
       const checkAnswer = gameQuestions[0].correctAnswers.includes(
         command.answer,
       );

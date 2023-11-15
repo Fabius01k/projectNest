@@ -77,9 +77,6 @@ export class QuizRepositoryTypeOrm {
     const playerAvgScores =
       Math.ceil((playerSumScores / playerTotalGameCount) * 100) / 100;
     // умножить на 100, + округлнение в большую стороную +
-    console.log(
-      Math.ceil((playerSumScores / playerTotalGameCount) * 100) / 100,
-    );
 
     const playerWinCount = await this.playerRepository
       .createQueryBuilder('PlayerTrm')
@@ -174,7 +171,7 @@ export class QuizRepositoryTypeOrm {
 
     const randomQuestions = await this.questionRepository
       .createQueryBuilder('QuestionTrm')
-      .where('QuestionTrm.published = :published', { published: true })
+      // .where('QuestionTrm.published = :published', { published: true })
       .orderBy('QuestionTrm.id', 'ASC')
       .limit(5)
       .getMany();
@@ -928,47 +925,56 @@ export class QuizRepositoryTypeOrm {
   }
 
   async makeFirstPlayerWin(player: PlayerTrm): Promise<void> {
+    const firstPlayer = await this.playerRepository.findOne({
+      where: { gameId: player.gameId },
+    });
     await this.playerRepository.update(
-      { userId: player.userId },
+      { id: firstPlayer!.id },
       { userStatus: 'Winner' },
     );
 
     const secondPlayer = await this.playerRepository.findOne({
-      where: { gameId: player.gameId, userId: Not(player.userId) },
+      where: { gameId: player.gameId, id: Not(firstPlayer!.id) },
     });
 
     await this.playerRepository.update(
-      { userId: secondPlayer!.userId },
+      { id: secondPlayer!.id },
       { userStatus: 'Loser' },
     );
   }
   async makeSecondPlayerWin(player: PlayerTrm): Promise<void> {
+    const firstPlayer = await this.playerRepository.findOne({
+      where: { gameId: player.gameId },
+    });
     await this.playerRepository.update(
-      { userId: player.userId },
+      { id: firstPlayer!.id },
       { userStatus: 'Loser' },
     );
 
     const secondPlayer = await this.playerRepository.findOne({
-      where: { gameId: player.gameId, userId: Not(player.userId) },
+      where: { gameId: player.gameId, id: Not(firstPlayer!.id) },
     });
 
     await this.playerRepository.update(
-      { userId: secondPlayer!.userId },
+      { id: secondPlayer!.id },
       { userStatus: 'Winner' },
     );
   }
   async notAWinner(player: PlayerTrm): Promise<void> {
+    const firstPlayer = await this.playerRepository.findOne({
+      where: { gameId: player.gameId },
+    });
     await this.playerRepository.update(
-      { userId: player.userId },
+      { id: firstPlayer!.id },
       { userStatus: 'Draw' },
     );
 
     const secondPlayer = await this.playerRepository.findOne({
-      where: { gameId: player.gameId, userId: Not(player.userId) },
+      where: { gameId: player.gameId, id: Not(firstPlayer!.id) },
     });
 
     await this.playerRepository.update(
-      { userId: secondPlayer!.userId },
+      { id: secondPlayer!.id },
       { userStatus: 'Draw' },
     );
   }
