@@ -1033,7 +1033,7 @@ export class QuizRepositoryTypeOrm {
       )
       .addOrderBy(
         'QuizGameTrm.' + 'pairCreatedDate',
-        sortDirection.toUpperCase() as 'DESC',
+        sortDirection.toUpperCase() as 'ASC' | 'DESC',
       )
       .take(pageSize)
       .skip((pageNumber - 1) * pageSize);
