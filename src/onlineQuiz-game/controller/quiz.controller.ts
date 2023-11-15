@@ -37,16 +37,16 @@ export class QuizGameController {
   @HttpCode(200)
   async getAllMyGames(
     @Request() req,
-    @Query('sortBy') sortBy: string[],
+    @Query('sortBy') sortBy: string,
     @Query('sortDirection') sortDirection: 'asc' | 'desc',
     @Query('pageSize') pageSize: number,
     @Query('pageNumber') pageNumber: number,
   ): Promise<GameResponse> {
-    if (!sortBy || sortBy.length < 0) {
-      sortBy = ['pairCreatedDate'];
+    if (!sortBy) {
+      sortBy = 'pairCreatedDate';
     }
-    const firstSortBy = sortBy[0];
-    const secondSortBy = sortBy[1] || 'pairCreatedDate';
+    // const firstSortBy = sortBy[0];
+    // const secondSortBy = sortBy[1] || 'pairCreatedDate';
 
     if (!sortDirection || sortDirection.toLowerCase() !== 'asc') {
       sortDirection = 'desc';
@@ -68,8 +68,7 @@ export class QuizGameController {
 
     return await this.commandBus.execute(
       new GetAllMyGamesCommand(
-        firstSortBy,
-        secondSortBy,
+        sortBy,
         sortDirection,
         pageSize,
         pageNumber,

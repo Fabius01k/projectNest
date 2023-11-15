@@ -74,7 +74,12 @@ export class QuizRepositoryTypeOrm {
       .where('PlayerTrm.userId = :userId', { userId: player.userId })
       .getCount();
 
-    const playerAvgScores = (playerSumScores / playerTotalGameCount).toFixed(2);
+    const playerAvgScores =
+      Math.ceil((playerSumScores / playerTotalGameCount) * 100) / 100;
+    // умножить на 100, + округлнение в большую стороную +
+    console.log(
+      Math.ceil((playerSumScores / playerTotalGameCount) * 100) / 100,
+    );
 
     const playerWinCount = await this.playerRepository
       .createQueryBuilder('PlayerTrm')
@@ -96,7 +101,7 @@ export class QuizRepositoryTypeOrm {
 
     return {
       sumScore: playerSumScores,
-      avgScores: parseInt(playerAvgScores),
+      avgScores: playerAvgScores,
       gamesCount: playerTotalGameCount,
       winsCount: playerWinCount,
       lossesCount: playerLossCount,
@@ -998,8 +1003,7 @@ export class QuizRepositoryTypeOrm {
     return statistic;
   }
   async findAllMyGamesInDbTrm(
-    firstSortBy: string,
-    secondSortBy: string,
+    sortBy: string,
     sortDirection: 'asc' | 'desc',
     pageSize: number,
     pageNumber: number,
@@ -1024,12 +1028,12 @@ export class QuizRepositoryTypeOrm {
         gameIds: players.map((player) => player.gameId),
       })
       .orderBy(
-        'QuizGameTrm.' + firstSortBy,
+        'QuizGameTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
       )
       .addOrderBy(
-        'QuizGameTrm.' + firstSortBy,
-        sortDirection.toUpperCase() as 'ASC' | 'DESC',
+        'QuizGameTrm.' + 'pairCreatedDate',
+        sortDirection.toUpperCase() as 'DESC',
       )
       .take(pageSize)
       .skip((pageNumber - 1) * pageSize);
