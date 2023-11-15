@@ -1031,10 +1031,11 @@ export class QuizRepositoryTypeOrm {
         'QuizGameTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
       )
-      .addOrderBy(
-        'QuizGameTrm.' + 'pairCreatedDate',
-        sortDirection.toUpperCase() as 'ASC',
-      )
+      // .addOrderBy(
+      //   'QuizGameTrm.' + 'pairCreatedDate',
+      //   sortDirection.toUpperCase() as 'ASC',
+      // )
+      .addOrderBy('QuizGameTrm.pairCreatedDate', 'DESC')
       .take(pageSize)
       .skip((pageNumber - 1) * pageSize);
 
