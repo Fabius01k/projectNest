@@ -883,10 +883,10 @@ export class QuizRepositoryTypeOrm {
       { status: 'Finished', finishGameDate: new Date().toISOString() },
     );
   }
-  async checkScoresFirstPlayer(userId: string): Promise<number> {
+  async checkScoresFirstPlayer(player: PlayerTrm): Promise<number> {
     const firstPlayerScoresBuilder = await this.playerRepository
       .createQueryBuilder('PlayerTrm')
-      .where('PlayerTrm.userId = :userId', { userId: userId })
+      .where('PlayerTrm.id = :id', { id: player.id })
       .getOne();
     return firstPlayerScoresBuilder!.scoresNumberInGame;
   }
@@ -904,7 +904,7 @@ export class QuizRepositoryTypeOrm {
     const secondPlayerPromise = await this.playerRepository
       .createQueryBuilder('PlayerTrm')
       .where('PlayerTrm.gameId = :gameId', { gameId: player.gameId })
-      .andWhere('PlayerTrm.userId != :userId', { userId: player.userId })
+      .andWhere('PlayerTrm.id != :id', { id: player.id })
       .getOne();
 
     return secondPlayerPromise!.scoresNumberInGame;

@@ -232,7 +232,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       await this.quizRepositoryTypeOrm.finishTheGameInDbTrm(player.gameId);
 
       const firstPlayerScoresFinally =
-        await this.quizRepositoryTypeOrm.checkScoresFirstPlayer(player.userId);
+        await this.quizRepositoryTypeOrm.checkScoresFirstPlayer(player);
       const secondPlayerScoresFinally =
         await this.quizRepositoryTypeOrm.checkScoresSecondPlayer(player);
 
