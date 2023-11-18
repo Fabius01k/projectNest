@@ -1037,6 +1037,38 @@ export class QuizRepositoryTypeOrm {
     );
     console.log(sortParam);
 
+    // const sortedItems = items
+    //   .sort((a, b) => {
+    //     for (const sortCriteria of sortParam) {
+    //       const [fieldName, sortDirection] = sortCriteria.split(' ', 2);
+    //       if (fieldName === 'avgScores') {
+    //         if (a.avgScores > b.avgScores) {
+    //           return sortDirection === 'desc' ? -1 : 1;
+    //         } else if (a.avgScores < b.avgScores) {
+    //           return sortDirection === 'desc' ? 1 : -1;
+    //         }
+    //       } else if (fieldName === 'sumScore') {
+    //         if (a.sumScore > b.sumScore) {
+    //           return sortDirection === 'desc' ? -1 : 1;
+    //         } else if (a.sumScore < b.sumScore) {
+    //           return sortDirection === 'desc' ? 1 : -1;
+    //         }
+    //       } else if (fieldName === 'winsCount') {
+    //         if (a.winsCount > b.winsCount) {
+    //           return sortDirection === 'desc' ? -1 : 1;
+    //         } else if (a.winsCount < b.winsCount) {
+    //           return sortDirection === 'desc' ? 1 : -1;
+    //         }
+    //       } else if (fieldName === 'lossesCount') {
+    //         if (a.lossesCount > b.lossesCount) {
+    //           return sortDirection === 'desc' ? -1 : 1;
+    //         } else if (a.lossesCount < b.lossesCount) {
+    //           return sortDirection === 'desc' ? 1 : -1;
+    //         }
+    //       }
+    //     }
+    //     return 0;
+    //   })
     const sortedItems = items
       .sort((a, b) => {
         for (const sortCriteria of sortParam) {
@@ -1054,17 +1086,7 @@ export class QuizRepositoryTypeOrm {
               return sortDirection === 'desc' ? 1 : -1;
             }
           } else if (fieldName === 'winsCount') {
-            if (a.winsCount > b.winsCount) {
-              return sortDirection === 'desc' ? -1 : 1;
-            } else if (a.winsCount < b.winsCount) {
-              return sortDirection === 'desc' ? 1 : -1;
-            }
           } else if (fieldName === 'lossesCount') {
-            if (a.lossesCount > b.lossesCount) {
-              return sortDirection === 'desc' ? -1 : 1;
-            } else if (a.lossesCount < b.lossesCount) {
-              return sortDirection === 'desc' ? 1 : -1;
-            }
           }
         }
         return 0;
