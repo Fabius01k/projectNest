@@ -1051,20 +1051,19 @@ export class QuizRepositoryTypeOrm {
             return sortDirection === 'desc' ? 1 : -1;
           }
         } else if (fieldName === 'winsCount') {
-          // Сортировка по полю winsCount
         } else if (fieldName === 'lossesCount') {
-          // Сортировка по полю lossesCount
         }
       }
       return 0;
     });
+    const topItems = sortedItems.slice(0, 3);
 
     return {
       pagesCount: Math.ceil(totalCountQuery / pageSize),
       page: pageNumber,
       pageSize,
       totalCount: totalCountQuery,
-      items: sortedItems,
+      items: topItems,
     };
   }
   async findAllMyGamesInDbTrm(
