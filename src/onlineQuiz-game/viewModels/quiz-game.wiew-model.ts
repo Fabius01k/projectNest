@@ -1,4 +1,5 @@
 import { IsNumber, IsOptional, IsPositive } from 'class-validator';
+import { TopUserView } from './player-statistics.view.model';
 
 export type QuizGameView = {
   id: string;
@@ -50,6 +51,13 @@ export interface GameResponse {
   pageSize: number;
   totalCount: number;
   items: QuizGameView[];
+}
+export interface TopUsersResponse {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: TopUserView[];
 }
 export class QueryDtoModel {
   @IsPositive()

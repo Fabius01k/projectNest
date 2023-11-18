@@ -12,10 +12,15 @@ import {
   AnswerView,
   GameResponse,
   QuizGameView,
+  TopUsersResponse,
 } from '../viewModels/quiz-game.wiew-model';
 import { UserAnswersTrm } from '../entities/user-answers.entity';
 import { QuestionUpdatedInputModel } from '../../inputmodels-validation/question.updatedInputModel';
-import { PlayerStatisticsView } from '../viewModels/player-statistics.view.model';
+import {
+  PlayerStatisticsView,
+  TopUserView,
+} from '../viewModels/player-statistics.view.model';
+import { UserTrm } from '../../entities/user.entity';
 
 @Injectable()
 export class QuizRepositoryTypeOrm {
@@ -28,6 +33,8 @@ export class QuizRepositoryTypeOrm {
     protected gameRepository: Repository<QuizGameTrm>,
     @InjectRepository(UserAnswersTrm)
     protected answerRepository: Repository<UserAnswersTrm>,
+    @InjectRepository(UserTrm)
+    protected userRepository: Repository<UserTrm>,
   ) {}
   private async mapGameForFirstPlayer(
     game: QuizGameTrm,
@@ -105,57 +112,58 @@ export class QuizRepositoryTypeOrm {
       drawsCount: playerDrawsCount,
     };
   }
-  // private async mapPlayerStatisticForView(
-  //   player: PlayerTrm,
-  // ): Promise<PlayerStatisticsView> {
-  //   const queries = [
-  //     this.playerRepository
-  //       .createQueryBuilder('PlayerTrm')
-  //       .select('SUM(player.scoresNumberInGame)', 'sumScore')
-  //       .where('PlayerTrm.userId = :userId', { userId: player.userId })
-  //       .getRawOne(),
-  //     this.playerRepository
-  //       .createQueryBuilder('PlayerTrm')
-  //       .where('PlayerTrm.userId = :userId', { userId: player.userId })
-  //       .getCount(),
-  //     this.playerRepository
-  //       .createQueryBuilder('PlayerTrm')
-  //       .where('PlayerTrm.userId = :userId', { userId: player.userId })
-  //       .andWhere('PlayerTrm.userStatus = :status', { status: 'Winner' })
-  //       .getCount(),
-  //     this.playerRepository
-  //       .createQueryBuilder('PlayerTrm')
-  //       .where('PlayerTrm.userId = :userId', { userId: player.userId })
-  //       .andWhere('PlayerTrm.userStatus = :status', { status: 'Loser' })
-  //       .getCount(),
-  //     this.playerRepository
-  //       .createQueryBuilder('PlayerTrm')
-  //       .where('PlayerTrm.userId = :userId', { userId: player.userId })
-  //       .andWhere('PlayerTrm.userStatus = :status', { status: 'Draw' })
-  //       .getCount(),
-  //   ];
-  //
-  //   const [
-  //     playerSumScores,
-  //     playerTotalGameCount,
-  //     playerWinCount,
-  //     playerLossCount,
-  //     playerDrawsCount,
-  //   ] = await Promise.all(queries);
-  //
-  //   const playerAvgScores = (
-  //     playerSumScores.sumScore / playerTotalGameCount
-  //   ).toFixed(2);
-  //
-  //   return {
-  //     sumScore: playerSumScores,
-  //     avgScores: parseInt(playerAvgScores),
-  //     gamesCount: playerTotalGameCount,
-  //     winsCount: playerWinCount,
-  //     lossesCount: playerLossCount,
-  //     drawsCount: playerDrawsCount,
-  //   };
-  // }
+  private async mapTopUserForView(userId: string): Promise<TopUserView> {
+    const user = await this.userRepository
+      .createQueryBuilder('UserTrm')
+      .where('UserTrm.id =:id', { id: userId })
+      .getOne();
+    const playerSumScores = await this.playerRepository
+      .createQueryBuilder('PlayerTrm')
+      .select('SUM(PlayerTrm.scoresNumberInGame)', 'sumScore')
+      .where('PlayerTrm.userId = :userId', { userId: userId })
+      .getRawOne()
+      .then((result) => parseInt(result.sumScore));
+
+    const playerTotalGameCount = await this.playerRepository
+      .createQueryBuilder('PlayerTrm')
+      .where('PlayerTrm.userId = :userId', { userId: userId })
+      .getCount();
+
+    const playerAvgScores =
+      Math.ceil((playerSumScores / playerTotalGameCount) * 100) / 100;
+    // умножить на 100, + округлнение в большую стороную +
+
+    const playerWinCount = await this.playerRepository
+      .createQueryBuilder('PlayerTrm')
+      .where('PlayerTrm.userId = :userId', { userId: userId })
+      .andWhere('PlayerTrm.userStatus = :status', { status: 'Winner' })
+      .getCount();
+
+    const playerLossCount = await this.playerRepository
+      .createQueryBuilder('PlayerTrm')
+      .where('PlayerTrm.userId = :userId', { userId: userId })
+      .andWhere('PlayerTrm.userStatus = :status', { status: 'Loser' })
+      .getCount();
+
+    const playerDrawsCount = await this.playerRepository
+      .createQueryBuilder('PlayerTrm')
+      .where('PlayerTrm.userId = :userId', { userId: userId })
+      .andWhere('PlayerTrm.userStatus = :status', { status: 'Draw' })
+      .getCount();
+
+    return {
+      sumScore: playerSumScores,
+      avgScores: playerAvgScores,
+      gamesCount: playerTotalGameCount,
+      winsCount: playerWinCount,
+      lossesCount: playerLossCount,
+      drawsCount: playerDrawsCount,
+      player: {
+        id: user!.id,
+        login: user!.login,
+      },
+    };
+  }
 
   private async mapGameForSecondPlayer(
     newGame: QuizGameTrm,
@@ -1008,6 +1016,57 @@ export class QuizRepositoryTypeOrm {
     const statistic = await this.mapPlayerStatisticForView(player);
     return statistic;
   }
+  async findTopUsersInDbTrm(
+    sort: string[],
+    pageSize: number,
+    pageNumber: number,
+  ): Promise<TopUsersResponse> {
+    const uniqueUserIds = await this.playerRepository
+      .createQueryBuilder('PlayerTrm')
+      .select('PlayerTrm.userId', 'userId')
+      .distinct(true)
+      .getRawMany();
+    const sortParam = sort.map((param) => param.replace(/\+/g, ' '));
+    const userIds = uniqueUserIds.map((row) => row.userId);
+    const totalCountQuery = await uniqueUserIds.length;
+
+    const items = await Promise.all(
+      userIds.map((userId) => this.mapTopUserForView(userId)),
+    );
+    console.log(sortParam);
+
+    const sortedItems = items.sort((a, b) => {
+      for (const sortCriteria of sortParam) {
+        const [fieldName, sortDirection] = sortCriteria.split(' ', 2);
+        if (fieldName === 'avgScores') {
+          if (a.avgScores > b.avgScores) {
+            return sortDirection === 'desc' ? -1 : 1;
+          } else if (a.avgScores < b.avgScores) {
+            return sortDirection === 'desc' ? 1 : -1;
+          }
+        } else if (fieldName === 'sumScore') {
+          if (a.sumScore > b.sumScore) {
+            return sortDirection === 'desc' ? -1 : 1;
+          } else if (a.sumScore < b.sumScore) {
+            return sortDirection === 'desc' ? 1 : -1;
+          }
+        } else if (fieldName === 'winsCount') {
+          // Сортировка по полю winsCount
+        } else if (fieldName === 'lossesCount') {
+          // Сортировка по полю lossesCount
+        }
+      }
+      return 0;
+    });
+
+    return {
+      pagesCount: Math.ceil(totalCountQuery / pageSize),
+      page: pageNumber,
+      pageSize,
+      totalCount: totalCountQuery,
+      items: sortedItems,
+    };
+  }
   async findAllMyGamesInDbTrm(
     sortBy: string,
     sortDirection: 'asc' | 'desc',
@@ -1037,10 +1096,6 @@ export class QuizRepositoryTypeOrm {
         'QuizGameTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
       )
-      // .addOrderBy(
-      //   'QuizGameTrm.' + 'pairCreatedDate',
-      //   sortDirection.toUpperCase() as 'ASC',
-      // )
       .addOrderBy('QuizGameTrm.pairCreatedDate', 'DESC')
       .take(pageSize)
       .skip((pageNumber - 1) * pageSize);

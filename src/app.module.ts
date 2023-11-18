@@ -97,6 +97,7 @@ import { GetUnfinishedGameUseCase } from './onlineQuiz-game/quiz.use-cases/getUn
 import { GetGameByIdUseCase } from './onlineQuiz-game/quiz.use-cases/getGameById.use-case';
 import { PostAnswerUseCase } from './onlineQuiz-game/quiz.use-cases/postAnswer.use-case';
 import { GetAllMyGamesUseCase } from './onlineQuiz-game/quiz.use-cases/getAllMyGames.use-case';
+import { GetTopUsersUseCase } from './onlineQuiz-game/quiz.use-cases/getTopUsers.use-case';
 
 const superAdminControllers = [
   UserController,
@@ -168,6 +169,7 @@ const quizUseCases = [
   GetGameByIdUseCase,
   PostAnswerUseCase,
   GetAllMyGamesUseCase,
+  GetTopUsersUseCase,
 ];
 const blogUseCases = [
   GetAllBlogsUseCase,

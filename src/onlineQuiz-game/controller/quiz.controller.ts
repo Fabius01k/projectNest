@@ -17,6 +17,7 @@ import {
   AnswerView,
   GameResponse,
   QuizGameView,
+  TopUsersResponse,
 } from '../viewModels/quiz-game.wiew-model';
 import { QuizGameService } from '../service/quiz-game.service';
 import { CreateNewGameCommand } from '../quiz.use-cases/createNewGame.use-case';
@@ -26,6 +27,8 @@ import { GetGameByIdCommand } from '../quiz.use-cases/getGameById.use-case';
 import { PostAnswerCommand } from '../quiz.use-cases/postAnswer.use-case';
 import { PlayerStatisticsView } from '../viewModels/player-statistics.view.model';
 import { GetAllMyGamesCommand } from '../quiz.use-cases/getAllMyGames.use-case';
+import { GetTopUsersCommand } from '../quiz.use-cases/getTopUsers.use-case';
+import { Public } from '../../authNest/decorations/public.decoration';
 @UseGuards(AuthGuard)
 @Controller('pair-game-quiz')
 export class QuizGameController {
@@ -33,6 +36,35 @@ export class QuizGameController {
     private readonly commandBus: CommandBus,
     private readonly quizGameService: QuizGameService,
   ) {}
+  @Public()
+  @Get('users/top')
+  @HttpCode(200)
+  async getTopUsers(
+    @Query('sort') sort: string[],
+    @Query('pageSize') pageSize: number,
+    @Query('pageNumber') pageNumber: number,
+  ): Promise<TopUsersResponse> {
+    if (!sort || sort.length === 0) {
+      sort = ['avgScores desc', 'sumScore desc'];
+    }
+    const checkPageSize = +pageSize;
+    if (!pageSize || !Number.isInteger(checkPageSize) || checkPageSize <= 0) {
+      pageSize = 10;
+    }
+
+    const checkPageNumber = +pageNumber;
+    if (
+      !pageNumber ||
+      !Number.isInteger(checkPageNumber) ||
+      checkPageNumber <= 0
+    ) {
+      pageNumber = 1;
+    }
+    return await this.commandBus.execute(
+      new GetTopUsersCommand(sort, pageSize, pageNumber),
+    );
+  }
+
   @Get('pairs/my')
   @HttpCode(200)
   async getAllMyGames(
