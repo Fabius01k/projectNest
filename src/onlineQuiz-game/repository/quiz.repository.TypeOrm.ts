@@ -129,9 +129,11 @@ export class QuizRepositoryTypeOrm {
       .where('PlayerTrm.userId = :userId', { userId: userId })
       .getCount();
 
-    const playerAvgScores =
-      Math.ceil((playerSumScores / playerTotalGameCount) * 100) / 100;
-    // умножить на 100, + округлнение в большую стороную +
+    // const playerAvgScores =
+    //   Math.ceil((playerSumScores / playerTotalGameCount) * 100) / 100;
+    const playerAvgScores = +(playerSumScores / playerTotalGameCount).toFixed(
+      2,
+    );
 
     const playerWinCount = await this.playerRepository
       .createQueryBuilder('PlayerTrm')
