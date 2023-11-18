@@ -854,7 +854,7 @@ export class QuizRepositoryTypeOrm {
     const secondPlayerPromise = await this.playerRepository
       .createQueryBuilder('PlayerTrm')
       .where('PlayerTrm.gameId = :gameId', { gameId: player.gameId })
-      .andWhere('PlayerTrm.id != :id', { userId: player.id })
+      .andWhere('PlayerTrm.id != :id', { id: player.id })
       .getOne();
 
     const secondNumber = await this.answerRepository
