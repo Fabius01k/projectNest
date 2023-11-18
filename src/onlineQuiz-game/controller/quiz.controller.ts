@@ -44,8 +44,20 @@ export class QuizGameController {
     @Query('pageSize') pageSize: number,
     @Query('pageNumber') pageNumber: number,
   ): Promise<TopUsersResponse> {
+    console.log(sort);
+    // if (!sort || sort.length === 0) {
+    //   sort = ['avgScores desc', 'sumScore desc'];
+    // }
     if (!sort || sort.length === 0) {
       sort = ['avgScores desc', 'sumScore desc'];
+    } else if (typeof sort === 'string') {
+      sort = [sort];
+    } else if (
+      typeof sort === 'object' &&
+      sort.length === 1 &&
+      typeof sort[0] === 'string'
+    ) {
+      sort = [sort[0]];
     }
     const checkPageSize = +pageSize;
     if (!pageSize || !Number.isInteger(checkPageSize) || checkPageSize <= 0) {

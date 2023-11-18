@@ -1098,7 +1098,6 @@ export class QuizRepositoryTypeOrm {
       //     return 0;
       //   })
       .slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
-    // const topItems = sortedItems.slice(0, 3);
 
     return {
       pagesCount: Math.ceil(totalCountQuery / pageSize),
