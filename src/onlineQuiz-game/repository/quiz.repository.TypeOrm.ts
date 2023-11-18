@@ -934,7 +934,7 @@ export class QuizRepositoryTypeOrm {
 
   async makeFirstPlayerWin(player: PlayerTrm): Promise<void> {
     const firstPlayer = await this.playerRepository.findOne({
-      where: { gameId: player.gameId },
+      where: { gameId: player.gameId, id: player.id },
     });
     await this.playerRepository.update(
       { id: firstPlayer!.id },
@@ -952,7 +952,7 @@ export class QuizRepositoryTypeOrm {
   }
   async makeSecondPlayerWin(player: PlayerTrm): Promise<void> {
     const firstPlayer = await this.playerRepository.findOne({
-      where: { gameId: player.gameId },
+      where: { gameId: player.gameId, id: player.id },
     });
     await this.playerRepository.update(
       { id: firstPlayer!.id },
@@ -970,7 +970,7 @@ export class QuizRepositoryTypeOrm {
   }
   async notAWinner(player: PlayerTrm): Promise<void> {
     const firstPlayer = await this.playerRepository.findOne({
-      where: { gameId: player.gameId },
+      where: { gameId: player.gameId, id: player.id },
     });
     await this.playerRepository.update(
       { id: firstPlayer!.id },

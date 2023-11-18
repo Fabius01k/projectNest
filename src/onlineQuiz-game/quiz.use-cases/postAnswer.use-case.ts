@@ -35,11 +35,10 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
         },
       ]);
     }
-    // const all = await this.quizRepositoryTypeOrm.allQu();
+
     const gameQuestions =
       await this.quizRepositoryTypeOrm.findQuestionsActiveGame(player);
-    // console.log(gameQuestions, player, isActiveGame, all, '12345');
-    // console.log(gameQuestions, 1);
+
     const firstPlayerAnswers =
       await this.quizRepositoryTypeOrm.countFirstPlayerAnswers(player);
     const secondPlayerAnswers =
@@ -159,7 +158,6 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
     }
     if (firstPlayerAnswers === 4 && secondPlayerAnswers === 5) {
-      // console.log(gameQuestions[4].correctAnswers, '4.5');
       const checkAnswer = gameQuestions[4].correctAnswers.includes(
         command.answer,
       );
@@ -214,6 +212,9 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
         await this.quizRepositoryTypeOrm.checkScoresFirstPlayer(player);
       const secondPlayerScoresFinally =
         await this.quizRepositoryTypeOrm.checkScoresSecondPlayer(player);
+
+      console.log(firstPlayerScoresFinally, 'очки первого игрока');
+      console.log(secondPlayerScoresFinally, 'очки второго игрока');
 
       if (firstPlayerScoresFinally > secondPlayerScoresFinally) {
         await this.quizRepositoryTypeOrm.makeFirstPlayerWin(player);
