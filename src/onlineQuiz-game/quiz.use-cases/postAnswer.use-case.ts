@@ -129,27 +129,6 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
     }
     if (firstPlayerAnswers === 4 && secondPlayerAnswers < 5) {
-      // console.log(gameQuestions[4].correctAnswers, '4');
-      // if (firstPlayerAnswers === 4 && secondPlayerAnswers === 4) {
-      //   const checkAnswer = gameQuestions[4].correctAnswers.includes(
-      //     command.answer,
-      //   );
-      //   let userAnswer: string;
-      //
-      //   if (checkAnswer) {
-      //     userAnswer = 'Correct';
-      //   } else {
-      //     userAnswer = 'Incorrect';
-      //   }
-      //   const rightAnswersFirstPlayer =
-      //     await this.quizRepositoryTypeOrm.checkRightAnswersFirstPlayer(
-      //       player.userId,
-      //     );
-      //   if (rightAnswersFirstPlayer >= 1 || userAnswer === 'Correct') {
-      //     await this.quizRepositoryTypeOrm.makeMarkAboutTheFirstPlayer(player);
-      //   }
-      // }
-
       const checkAnswer = gameQuestions[4].correctAnswers.includes(
         command.answer,
       );
