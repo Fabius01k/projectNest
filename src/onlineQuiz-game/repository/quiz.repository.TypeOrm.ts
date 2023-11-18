@@ -1054,7 +1054,17 @@ export class QuizRepositoryTypeOrm {
               return sortDirection === 'desc' ? 1 : -1;
             }
           } else if (fieldName === 'winsCount') {
+            if (a.winsCount > b.winsCount) {
+              return sortDirection === 'desc' ? -1 : 1;
+            } else if (a.winsCount < b.winsCount) {
+              return sortDirection === 'desc' ? 1 : -1;
+            }
           } else if (fieldName === 'lossesCount') {
+            if (a.lossesCount > b.lossesCount) {
+              return sortDirection === 'desc' ? -1 : 1;
+            } else if (a.lossesCount < b.lossesCount) {
+              return sortDirection === 'desc' ? 1 : -1;
+            }
           }
         }
         return 0;
