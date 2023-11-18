@@ -1058,14 +1058,14 @@ export class QuizRepositoryTypeOrm {
       }
       return 0;
     });
-    // const topItems = sortedItems.slice(0, 3);
+    const topItems = sortedItems.slice(0, 3);
 
     return {
       pagesCount: Math.ceil(totalCountQuery / pageSize),
       page: pageNumber,
       pageSize,
       totalCount: totalCountQuery,
-      items: sortedItems,
+      items: topItems,
     };
   }
   async findAllMyGamesInDbTrm(
