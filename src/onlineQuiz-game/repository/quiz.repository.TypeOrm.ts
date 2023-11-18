@@ -1037,35 +1037,37 @@ export class QuizRepositoryTypeOrm {
     );
     console.log(sortParam);
 
-    const sortedItems = items.sort((a, b) => {
-      for (const sortCriteria of sortParam) {
-        const [fieldName, sortDirection] = sortCriteria.split(' ', 2);
-        if (fieldName === 'avgScores') {
-          if (a.avgScores > b.avgScores) {
-            return sortDirection === 'desc' ? -1 : 1;
-          } else if (a.avgScores < b.avgScores) {
-            return sortDirection === 'desc' ? 1 : -1;
+    const sortedItems = items
+      .sort((a, b) => {
+        for (const sortCriteria of sortParam) {
+          const [fieldName, sortDirection] = sortCriteria.split(' ', 2);
+          if (fieldName === 'avgScores') {
+            if (a.avgScores > b.avgScores) {
+              return sortDirection === 'desc' ? -1 : 1;
+            } else if (a.avgScores < b.avgScores) {
+              return sortDirection === 'desc' ? 1 : -1;
+            }
+          } else if (fieldName === 'sumScore') {
+            if (a.sumScore > b.sumScore) {
+              return sortDirection === 'desc' ? -1 : 1;
+            } else if (a.sumScore < b.sumScore) {
+              return sortDirection === 'desc' ? 1 : -1;
+            }
+          } else if (fieldName === 'winsCount') {
+          } else if (fieldName === 'lossesCount') {
           }
-        } else if (fieldName === 'sumScore') {
-          if (a.sumScore > b.sumScore) {
-            return sortDirection === 'desc' ? -1 : 1;
-          } else if (a.sumScore < b.sumScore) {
-            return sortDirection === 'desc' ? 1 : -1;
-          }
-        } else if (fieldName === 'winsCount') {
-        } else if (fieldName === 'lossesCount') {
         }
-      }
-      return 0;
-    });
-    const topItems = sortedItems.slice(0, 3);
+        return 0;
+      })
+      .slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+    // const topItems = sortedItems.slice(0, 3);
 
     return {
       pagesCount: Math.ceil(totalCountQuery / pageSize),
       page: pageNumber,
       pageSize,
       totalCount: totalCountQuery,
-      items: topItems,
+      items: sortedItems,
     };
   }
   async findAllMyGamesInDbTrm(
