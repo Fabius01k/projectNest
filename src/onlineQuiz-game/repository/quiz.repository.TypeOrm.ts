@@ -919,6 +919,16 @@ export class QuizRepositoryTypeOrm {
 
     return secondPlayerPromise!.scoresNumberInGame;
   }
+  async findSecondPlayer(player: PlayerTrm): Promise<PlayerTrm> {
+    const secondPlayerPromise = await this.playerRepository
+      .createQueryBuilder('PlayerTrm')
+      .where('PlayerTrm.gameId = :gameId', { gameId: player.gameId })
+      .andWhere('PlayerTrm.userId != :userId', {
+        userId: player!.userId,
+      })
+      .getOne();
+    return secondPlayerPromise!;
+  }
   async takeExtraScore(firstPlayerFinishId: string): Promise<void> {
     await this.playerRepository
       .createQueryBuilder()

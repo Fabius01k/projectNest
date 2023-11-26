@@ -155,7 +155,82 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
       newAnswer.answerStatus = userAnswer;
       newAnswer.addedAt = new Date().toISOString();
 
-      return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
+      const lastAnswerFirstPlayer =
+        await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
+
+      // setTimeout(async () => {
+      //   secondPlayerAnswersAfterTenSeconds =
+      //     await this.quizRepositoryTypeOrm.countSecondPlayerAnswers(player);
+      // }, 10000);
+      //
+      // const unansweredQuestionsSecondPlayer =
+      //   5 - secondPlayerAnswersAfterTenSeconds;
+
+      setTimeout(async () => {
+        const secondPlayer =
+          await this.quizRepositoryTypeOrm.findSecondPlayer(player);
+        const secondPlayerAnswersAfterTenSeconds =
+          await this.quizRepositoryTypeOrm.countSecondPlayerAnswers(player);
+
+        const unansweredQuestionsSecondPlayer =
+          5 - secondPlayerAnswersAfterTenSeconds;
+
+        if (unansweredQuestionsSecondPlayer > 0) {
+          console.log(
+            unansweredQuestionsSecondPlayer,
+            'unansweredQuestionsSecondPlayer',
+          );
+          console.log(
+            secondPlayerAnswersAfterTenSeconds,
+            'secondPlayerAnswersAfterTenSeconds',
+          );
+
+          // const unansweredQuestionsIndex = unansweredQuestionsSecondPlayer - 1;
+
+          for (let i = 0; i < unansweredQuestionsSecondPlayer; i++) {
+            const noAnswer = new UserAnswersTrm();
+            noAnswer.id = new Date().getTime().toString();
+            noAnswer.playerId = secondPlayer.id;
+            noAnswer.questionId =
+              gameQuestions[secondPlayerAnswersAfterTenSeconds + i].id;
+            noAnswer.answerStatus = 'Incorrect';
+            noAnswer.addedAt = new Date().toISOString();
+
+            await this.quizRepositoryTypeOrm.createNewAnswer(noAnswer);
+          }
+        }
+        const gameBeforeFinish =
+          await this.quizRepositoryTypeOrm.findGameBeforeFinish(player.gameId);
+        if (gameBeforeFinish.firstPlayerFinishId) {
+          await this.quizRepositoryTypeOrm.takeExtraScore(
+            gameBeforeFinish.firstPlayerFinishId,
+          );
+        }
+
+        await this.quizRepositoryTypeOrm.finishTheGameInDbTrm(player.gameId);
+
+        const firstPlayerScoresFinally =
+          await this.quizRepositoryTypeOrm.checkScoresFirstPlayer(player);
+        const secondPlayerScoresFinally =
+          await this.quizRepositoryTypeOrm.checkScoresSecondPlayer(player);
+
+        console.log(firstPlayerScoresFinally, 'очки первого игрока');
+        console.log(secondPlayerScoresFinally, 'очки второго игрока');
+
+        if (firstPlayerScoresFinally > secondPlayerScoresFinally) {
+          await this.quizRepositoryTypeOrm.makeFirstPlayerWin(player);
+        }
+        if (firstPlayerScoresFinally < secondPlayerScoresFinally) {
+          await this.quizRepositoryTypeOrm.makeSecondPlayerWin(player);
+        }
+        if (firstPlayerScoresFinally === secondPlayerScoresFinally) {
+          await this.quizRepositoryTypeOrm.notAWinner(player);
+        }
+      }, 10000);
+
+      return lastAnswerFirstPlayer;
+
+      // return await this.quizRepositoryTypeOrm.createNewAnswer(newAnswer);
     }
     if (firstPlayerAnswers === 4 && secondPlayerAnswers === 5) {
       const checkAnswer = gameQuestions[4].correctAnswers.includes(
@@ -169,26 +244,6 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
         userAnswer = 'Incorrect';
       }
 
-      // const rightAnswersFirstPlayer =
-      //   await this.quizRepositoryTypeOrm.checkRightAnswersFirstPlayer(
-      //     player.userId,
-      //   );
-      // const rightAnswersSecondPlayer =
-      //   await this.quizRepositoryTypeOrm.checkRightAnswersSecondPlayer(
-      //     player,
-      //   );
-      //
-      // if (rightAnswersSecondPlayer >= 1) {
-      //   await this.quizRepositoryTypeOrm.takeExtraScoreForSecondPlayer(
-      //     player,
-      //   );
-      // }
-      // if (
-      //   (rightAnswersSecondPlayer === 0 && rightAnswersFirstPlayer >= 1) ||
-      //   userAnswer === 'Correct'
-      // ) {
-      //   await this.quizRepositoryTypeOrm.takeExtraScoreForFirstPlayer(player);
-      // }
       const newAnswer = new UserAnswersTrm();
       newAnswer.id = new Date().getTime().toString();
       newAnswer.playerId = player.id;
