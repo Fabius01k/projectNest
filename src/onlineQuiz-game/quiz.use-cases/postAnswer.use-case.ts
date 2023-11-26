@@ -226,7 +226,7 @@ export class PostAnswerUseCase implements ICommandHandler<PostAnswerCommand> {
         if (firstPlayerScoresFinally === secondPlayerScoresFinally) {
           await this.quizRepositoryTypeOrm.notAWinner(player);
         }
-      }, 10000);
+      }, 9000);
 
       return lastAnswerFirstPlayer;
 
