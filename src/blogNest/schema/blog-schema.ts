@@ -41,6 +41,18 @@ export type BlogView = {
   createdAt: string;
   isMembership: boolean;
 };
+export type BlogSaView = {
+  id: string;
+  name: string;
+  description: string;
+  websiteUrl: string;
+  createdAt: string;
+  isMembership: boolean;
+  blogOwnerInfo: {
+    userId: string;
+    userLogin: string;
+  };
+};
 
 export interface BlogResponse {
   pagesCount: number;
@@ -48,6 +60,13 @@ export interface BlogResponse {
   pageSize: number;
   totalCount: number;
   items: BlogView[];
+}
+export interface BlogSaResponse {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: BlogSaView[];
 }
 export class BlogSql {
   id: string;

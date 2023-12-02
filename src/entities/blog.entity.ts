@@ -15,6 +15,8 @@ export class BlogTrm {
   createdAt: string;
   @Column()
   isMembership: boolean;
+  @Column()
+  bloggerId: string;
   @OneToMany(() => PostTrm, (p) => p.blogId)
   blogPosts: PostTrm[];
 }

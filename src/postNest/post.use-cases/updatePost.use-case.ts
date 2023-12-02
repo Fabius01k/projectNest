@@ -11,6 +11,7 @@ export class UpdatePostCommand {
     public postId: string,
     public blogId: string,
     public postDto: PostCreateByBlogIdInputModel,
+    public userId: string,
   ) {}
 }
 @CommandHandler(UpdatePostCommand)
@@ -23,6 +24,10 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
   ) {}
 
   async execute(command: UpdatePostCommand): Promise<boolean> {
+    await this.blogRepositoryTypeOrm.checkOwnerBlogInDb(
+      command.blogId,
+      command.userId,
+    );
     const blog = await this.blogRepositoryTypeOrm.findBlogByIdInDbTrm(
       command.blogId,
     );

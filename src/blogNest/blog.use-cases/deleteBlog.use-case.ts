@@ -4,7 +4,10 @@ import { BlogRepositorySql } from '../repository/blog.repositorySql';
 import { BlogRepositoryTypeOrm } from '../repository/blog.repository.TypeOrm';
 
 export class DeleteBlogCommand {
-  constructor(public id: string) {}
+  constructor(
+    public id: string,
+    public userId: string,
+  ) {}
 }
 @CommandHandler(DeleteBlogCommand)
 export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
@@ -14,6 +17,10 @@ export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
   ) {}
 
   async execute(command: DeleteBlogCommand): Promise<boolean> {
+    await this.blogRepositoryTypeOrm.checkOwnerBlogInDb(
+      command.id,
+      command.userId,
+    );
     const blogDeleted = await this.blogRepositoryTypeOrm.deleteBlogInDbTrm(
       command.id,
     );

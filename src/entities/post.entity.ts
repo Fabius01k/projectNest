@@ -27,6 +27,8 @@ export class PostTrm {
   blogName: string;
   @Column()
   createdAt: string;
+  @Column()
+  bloggerId: string;
   @ManyToOne(() => BlogTrm, (b) => b.blogPosts)
   @JoinColumn({ name: 'blogId' })
   blog: BlogTrm;

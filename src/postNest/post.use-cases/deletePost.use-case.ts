@@ -9,6 +9,7 @@ export class DeletePostCommand {
   constructor(
     public postId: string,
     public blogId: string,
+    public userId: string,
   ) {}
 }
 @CommandHandler(DeletePostCommand)
@@ -32,6 +33,10 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
         },
       ]);
     }
+    await this.blogRepositoryTypeOrm.checkOwnerBlogInDb(
+      command.blogId,
+      command.userId,
+    );
     const postDeleted = await this.postRepositoryTypeOrm.deletePostInDbTrm(
       command.postId,
     );

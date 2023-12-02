@@ -8,11 +8,12 @@ import {
 } from '@nestjs/common';
 import { BlogResponse, BlogView } from '../schema/blog-schema';
 import { PostResponse } from '../../postNest/schema/post-schema';
-import { GetToken } from '../../authNest/guards/bearer.guard';
-import { GetAllBlogsCommand } from '../blog.use-cases/getAllBlogs.use-case';
 import { CommandBus } from '@nestjs/cqrs';
 import { GetBlogByIdCommand } from '../blog.use-cases/getBlogById.use-case';
+
+import { GetAllBlogsCommand } from '../blog.use-cases/getAllBlogs.use-case';
 import { GetAllPostsForSpecificBlogCommand } from '../../postNest/post.use-cases/getAllPostForSpecificBlog.use-case';
+import { GetToken } from '../../authNest/guards/bearer.guard';
 
 @Controller('blogs')
 export class BlogController {
@@ -61,35 +62,6 @@ export class BlogController {
       ),
     );
   }
-  @Get(':id')
-  async getBlogById(@Param('id') id: string): Promise<BlogView | null> {
-    const blog = await this.commandBus.execute(new GetBlogByIdCommand(id));
-    return blog;
-  }
-  // @UseGuards(BasicAuthGuard)
-  // @Post()
-  // async postBlog(@Body() blogDto: BlogInputModel): Promise<BlogView> {
-  //   return await this.commandBus.execute(new CreateBlogCommand(blogDto));
-  // }
-  // @UseGuards(BasicAuthGuard)
-  // @Put(':id')
-  // @HttpCode(204)
-  // async putBlog(
-  //   @Param('id') id: string,
-  //   @Body() blogDto: BlogInputModel,
-  // ): Promise<boolean> {
-  //   await this.commandBus.execute(new UpdateBlogCommand(id, blogDto));
-  //
-  //   return true;
-  // }
-  // @UseGuards(BasicAuthGuard)
-  // @Delete(':id')
-  // @HttpCode(204)
-  // async deleteBlog(@Param('id') id: string): Promise<void> {
-  //   await this.commandBus.execute(new DeleteBlogCommand(id));
-  //
-  //   return;
-  // }
   @UseGuards(GetToken)
   @Get(':blogId/posts')
   async getAllPostsForSpecifeldBlog(
@@ -104,6 +76,7 @@ export class BlogController {
     if (req.userId) {
       userId = req.userId;
     }
+
     if (!sortBy) {
       sortBy = 'createdAt';
     }
@@ -139,6 +112,36 @@ export class BlogController {
       ),
     );
   }
+  @Get(':id')
+  async getBlogById(@Param('id') id: string): Promise<BlogView | null> {
+    const blog = await this.commandBus.execute(new GetBlogByIdCommand(id));
+    return blog;
+  }
+  // @UseGuards(BasicAuthGuard)
+  // @Post()
+  // async postBlog(@Body() blogDto: BlogInputModel): Promise<BlogView> {
+  //   return await this.commandBus.execute(new CreateBlogCommand(blogDto));
+  // }
+  // @UseGuards(BasicAuthGuard)
+  // @Put(':id')
+  // @HttpCode(204)
+  // async putBlog(
+  //   @Param('id') id: string,
+  //   @Body() blogDto: BlogInputModel,
+  // ): Promise<boolean> {
+  //   await this.commandBus.execute(new UpdateBlogCommand(id, blogDto));
+  //
+  //   return true;
+  // }
+  // @UseGuards(BasicAuthGuard)
+  // @Delete(':id')
+  // @HttpCode(204)
+  // async deleteBlog(@Param('id') id: string): Promise<void> {
+  //   await this.commandBus.execute(new DeleteBlogCommand(id));
+  //
+  //   return;
+  // }
+
   // @UseGuards(GetToken)
   // @UseGuards(BasicAuthGuard)
   // @Post(':blogId/posts')

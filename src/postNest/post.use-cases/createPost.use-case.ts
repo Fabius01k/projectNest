@@ -12,7 +12,7 @@ export class CreatePostCommand {
   constructor(
     public postDto: PostCreateByBlogIdInputModel,
     public blogId: string,
-    public userId: string | null,
+    public userId: string,
   ) {}
 }
 @CommandHandler(CreatePostCommand)
@@ -28,7 +28,6 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     const blog = await this.blogRepositoryTypeOrm.findBlogByIdInDbTrm(
       command.blogId,
     );
-
     if (!blog) {
       throw new NotFoundException([
         {
@@ -36,6 +35,11 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
         },
       ]);
     }
+    await this.blogRepositoryTypeOrm.checkOwnerBlogInDb(
+      command.blogId,
+      command.userId,
+    );
+
     const dateNow = new Date().getTime().toString();
     const newPost = new PostTrm();
     newPost.id = dateNow;
@@ -45,6 +49,7 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     newPost.blogId = command.blogId;
     newPost.blogName = blog.name;
     newPost.createdAt = new Date().toISOString();
+    newPost.bloggerId = command.userId;
     newPost.postLikedAndDislikes = [];
 
     return await this.postRepositoryTypeOrm.createPostInDbTrm(

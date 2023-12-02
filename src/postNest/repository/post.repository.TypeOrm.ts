@@ -146,8 +146,40 @@ export class PostRepositoryTypeOrm {
 
     return this.mapPostToView(createdPost, userId);
   }
-
   async findAllPostsForSpecifeldBlogInDbTrm(
+    sortBy: string,
+    sortDirection: 'asc' | 'desc',
+    pageSize: number,
+    pageNumber: number,
+    blogId: string,
+    userId: string | null,
+  ): Promise<PostResponse> {
+    const queryBuilder = this.postRepository
+      .createQueryBuilder('PostTrm')
+      .orderBy(
+        'PostTrm.' + sortBy,
+        sortDirection.toUpperCase() as 'ASC' | 'DESC',
+      )
+      .take(pageSize)
+      .skip((pageNumber - 1) * pageSize);
+
+    const posts = await queryBuilder.getMany();
+    const totalCountQuery = await queryBuilder.getCount();
+
+    const items = await Promise.all(
+      posts.map((p) => this.mapPostToView(p, userId)),
+    );
+
+    return {
+      pagesCount: Math.ceil(totalCountQuery / pageSize),
+      page: pageNumber,
+      pageSize,
+      totalCount: totalCountQuery,
+      items,
+    };
+  }
+
+  async findAllPostsForSpecifeldBlogBloggerInDbTrm(
     sortBy: string,
     sortDirection: 'asc' | 'desc',
     pageSize: number,

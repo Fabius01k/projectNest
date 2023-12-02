@@ -24,7 +24,7 @@ import { AuthGuard, GetToken } from './authNest/guards/bearer.guard';
 import { BlogNotFoundValidation } from './inputmodels-validation/inputModel.custom-decoration';
 import { SecurityController } from './securityNest/controler/security.controller';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { GetAllBlogsUseCase } from './blogNest/blog.use-cases/getAllBlogs.use-case';
+
 import { CqrsModule } from '@nestjs/cqrs';
 import { GetBlogByIdUseCase } from './blogNest/blog.use-cases/getBlogById.use-case';
 import { CreateBlogUseCase } from './blogNest/blog.use-cases/createBlog.use-case';
@@ -32,8 +32,7 @@ import { UpdateBlogUseCase } from './blogNest/blog.use-cases/updateBlog.use-case
 import { DeleteBlogUseCase } from './blogNest/blog.use-cases/deleteBlog.use-case';
 import { GetAllPostsUseCase } from './postNest/post.use-cases/getAllPosts.use-case';
 import { GetPostByIdUseCase } from './postNest/post.use-cases/getPotsById.use-case';
-import { GetAllPostsForSpecificBlogUseCase } from './postNest/post.use-cases/getAllPostForSpecificBlog.use-case';
-// import { CreatePostForSpecificBlogUseCase } from './postNest/post.use-cases/createPostForSpecificBlog.use-case';
+
 import { CreatePostUseCase } from './postNest/post.use-cases/createPost.use-case';
 import { UpdatePostUseCase } from './postNest/post.use-cases/updatePost.use-case';
 import { DeletePostUseCase } from './postNest/post.use-cases/deletePost.use-case';
@@ -98,12 +97,19 @@ import { GetGameByIdUseCase } from './onlineQuiz-game/quiz.use-cases/getGameById
 import { PostAnswerUseCase } from './onlineQuiz-game/quiz.use-cases/postAnswer.use-case';
 import { GetAllMyGamesUseCase } from './onlineQuiz-game/quiz.use-cases/getAllMyGames.use-case';
 import { GetTopUsersUseCase } from './onlineQuiz-game/quiz.use-cases/getTopUsers.use-case';
+import { BloggerController } from './bloggerNest/controller/blogger.controller';
+import { GetAllBlogsSAUseCase } from './blogNest/blog.use-cases/getAllBlogs.SA.use-case';
+import { GetAllBlogsUseCase } from './blogNest/blog.use-cases/getAllBlogs.use-case';
+import { GetAllBlogsBloggerUseCase } from './blogNest/blog.use-cases/getAllBlogs.Blogger.use-case';
+import { GetAllPostsForSpecificBlogUseCase } from './postNest/post.use-cases/getAllPostForSpecificBlog.use-case';
+import { GetAllPostsForSpecificBlogBloggerUseCase } from './postNest/post.use-cases/getAllPostForSpecificBlog.Blogger.use-case';
 
 const superAdminControllers = [
   UserController,
   BlogSAController,
   PostSAController,
   QuizGameSaController,
+  BloggerController,
 ];
 const publicControllers = [
   AppController,
@@ -177,6 +183,8 @@ const blogUseCases = [
   CreateBlogUseCase,
   UpdateBlogUseCase,
   DeleteBlogUseCase,
+  GetAllBlogsSAUseCase,
+  GetAllBlogsBloggerUseCase,
 ];
 const postUseCases = [
   GetAllPostsUseCase,
@@ -186,6 +194,7 @@ const postUseCases = [
   UpdatePostUseCase,
   DeletePostUseCase,
   MakeLikeOrDislikePostUseCase,
+  GetAllPostsForSpecificBlogBloggerUseCase,
 ];
 const commentUseCases = [
   GetCommentByIdUseCase,

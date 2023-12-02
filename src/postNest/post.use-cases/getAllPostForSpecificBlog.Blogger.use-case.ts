@@ -4,19 +4,19 @@ import { PostRepositorySql } from '../repository/post.repositorySql';
 import { PostRepositoryTypeOrm } from '../repository/post.repository.TypeOrm';
 import { BlogRepositoryTypeOrm } from '../../blogNest/repository/blog.repository.TypeOrm';
 
-export class GetAllPostsForSpecificBlogCommand {
+export class GetAllPostsForSpecificBlogBloggerCommand {
   constructor(
     public sortBy: string,
     public sortDirection: 'asc' | 'desc',
     public pageSize: number,
     public pageNumber: number,
     public blogId: string,
-    public userId: string | null,
+    public userId: string,
   ) {}
 }
-@CommandHandler(GetAllPostsForSpecificBlogCommand)
-export class GetAllPostsForSpecificBlogUseCase
-  implements ICommandHandler<GetAllPostsForSpecificBlogCommand>
+@CommandHandler(GetAllPostsForSpecificBlogBloggerCommand)
+export class GetAllPostsForSpecificBlogBloggerUseCase
+  implements ICommandHandler<GetAllPostsForSpecificBlogBloggerCommand>
 {
   constructor(
     protected postRepositorySql: PostRepositorySql,
@@ -25,9 +25,13 @@ export class GetAllPostsForSpecificBlogUseCase
   ) {}
 
   async execute(
-    command: GetAllPostsForSpecificBlogCommand,
+    command: GetAllPostsForSpecificBlogBloggerCommand,
   ): Promise<PostResponse> {
-    return await this.postRepositoryTypeOrm.findAllPostsForSpecifeldBlogInDbTrm(
+    await this.blogRepositoryTypeOrm.checkOwnerBlogInDb(
+      command.blogId,
+      command.userId,
+    );
+    return await this.postRepositoryTypeOrm.findAllPostsForSpecifeldBlogBloggerInDbTrm(
       command.sortBy,
       command.sortDirection,
       command.pageSize,

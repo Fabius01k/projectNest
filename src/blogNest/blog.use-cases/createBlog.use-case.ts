@@ -6,7 +6,10 @@ import { BlogRepositoryTypeOrm } from '../repository/blog.repository.TypeOrm';
 import { BlogTrm } from '../../entities/blog.entity';
 
 export class CreateBlogCommand {
-  constructor(public blogDto: BlogInputModel) {}
+  constructor(
+    public blogDto: BlogInputModel,
+    public userId: string,
+  ) {}
 }
 @CommandHandler(CreateBlogCommand)
 export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
@@ -25,6 +28,7 @@ export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
     newBlog.websiteUrl = command.blogDto.websiteUrl;
     newBlog.createdAt = new Date().toISOString();
     newBlog.isMembership = false;
+    newBlog.bloggerId = command.userId;
     newBlog.blogPosts = [];
 
     return await this.blogRepositoryTypeOrm.createBlogInDbTrm(newBlog);

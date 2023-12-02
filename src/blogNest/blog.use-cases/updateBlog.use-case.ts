@@ -8,6 +8,7 @@ export class UpdateBlogCommand {
   constructor(
     public id: string,
     public blogDto: BlogInputModel,
+    public userId: string,
   ) {}
 }
 @CommandHandler(UpdateBlogCommand)
@@ -18,6 +19,10 @@ export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
   ) {}
 
   async execute(command: UpdateBlogCommand): Promise<boolean> {
+    await this.blogRepositoryTypeOrm.checkOwnerBlogInDb(
+      command.id,
+      command.userId,
+    );
     const updatedBlog = await this.blogRepositoryTypeOrm.updateBlogInDbTrm(
       command.id,
       command.blogDto.name,
