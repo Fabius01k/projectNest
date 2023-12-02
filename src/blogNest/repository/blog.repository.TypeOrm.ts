@@ -186,6 +186,13 @@ export class BlogRepositoryTypeOrm {
       .createQueryBuilder('BlogTrm')
       .where('BlogTrm.id = :id', { id: blogId })
       .getOne();
+    if (!blog) {
+      throw new NotFoundException([
+        {
+          message: 'Blog not found',
+        },
+      ]);
+    }
     if (blog?.bloggerId !== userId) {
       throw new ForbiddenException([
         {
