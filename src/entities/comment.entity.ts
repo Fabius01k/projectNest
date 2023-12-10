@@ -22,6 +22,8 @@ export class CommentTrm {
   createdAt: string;
   @Column()
   postId: string;
+  @Column({ nullable: true })
+  isBanned: boolean;
   @OneToMany(() => CommentsLikesAndDislikesTrm, (c) => c.commentId)
   commentLikesAndDislikes: CommentsLikesAndDislikesTrm[];
   @ManyToOne(() => PostTrm, (p) => p.postComments)

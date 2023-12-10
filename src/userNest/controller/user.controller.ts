@@ -6,6 +6,7 @@ import {
   HttpCode,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -17,13 +18,24 @@ import { CommandBus } from '@nestjs/cqrs';
 import { GetAllUsersCommand } from '../user.use-cases/getAllUsers.use-case';
 import { CreateUserCommand } from '../user.use-cases/createUser.use-case';
 import { DeleteUserCommand } from '../user.use-cases/deleteUser.use-case';
-@UseGuards(BasicAuthGuard)
+import { BanUserCommand } from '../user.use-cases/banUser.use-case';
+// @UseGuards(BasicAuthGuard)
 @Controller('sa')
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly commandBus: CommandBus,
   ) {}
+  @Put('users/:id/ban')
+  async banUser(
+    @Param('id') id: string,
+    @Query('isBanned ') isBanned: boolean,
+    @Query('banReason ') banReason: string,
+  ): Promise<void> {
+    return await this.commandBus.execute(
+      new BanUserCommand(id, isBanned, banReason),
+    );
+  }
   @Get('users')
   async getAllUsers(
     @Query('searchLoginTerm') searchLoginTerm: string | null,
@@ -80,6 +92,7 @@ export class UserController {
       ),
     );
   }
+
   @Post('users')
   async postUser(@Body() userDto: UserInputModel): Promise<UserView> {
     return await this.commandBus.execute(new CreateUserCommand(userDto));

@@ -55,6 +55,7 @@ export class CreateCommentUseCase
     newComment.userLogin = user!.login;
     newComment.createdAt = new Date().toISOString();
     newComment.postId = command.postId;
+    newComment.isBanned = false;
 
     return await this.commentRepositoryTypeOrm.createCommentInDbTrm(newComment);
   }

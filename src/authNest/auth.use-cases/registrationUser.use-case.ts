@@ -70,6 +70,7 @@ export class RegistrationUserUseCase
       hours: 1,
     });
     newUserToRegistration.isConfirmed = false;
+    newUserToRegistration.isBanned = false;
     newUserToRegistration.usersSessions = [];
     await this.userRepositoryTypeOrm.registrationUserTrm(newUserToRegistration);
 

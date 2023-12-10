@@ -25,6 +25,10 @@ export class UserTrm {
   resetPasswordCode: string;
   @Column({ nullable: true })
   expirationDatePasswordCode: Date;
+  @Column({ nullable: true })
+  isBanned: boolean;
+  @Column({ default: null })
+  banReason: string;
   @OneToMany(() => UsersSessionTrm, (u) => u.userId)
   usersSessions: UsersSessionTrm[];
 }

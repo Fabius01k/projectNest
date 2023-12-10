@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { UserSessionSql } from '../../userNest/schema/user-session.schema';
@@ -43,6 +47,14 @@ export class AuthService {
     const user =
       await this.userRepositoryTypeOrm.getUserByLoginOrEmailTrm(loginOrEmail);
     if (!user) return null;
+
+    if (user.isBanned) {
+      throw new UnauthorizedException([
+        {
+          message: 'You are not allowed',
+        },
+      ]);
+    }
 
     if (user && (await bcrypt.compare(password, user.passwordHash)))
       return user;

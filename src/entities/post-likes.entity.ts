@@ -21,6 +21,8 @@ export class PostsLikesAndDislikesTrm {
   addedAt: Date;
   @Column()
   userId: string;
+  @Column({ nullable: true })
+  isBanned: boolean;
   @ManyToOne(() => PostTrm, (p) => p.postLikedAndDislikes)
   @JoinColumn({ name: 'postId' })
   post: PostTrm;

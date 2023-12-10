@@ -29,6 +29,8 @@ export class PostTrm {
   createdAt: string;
   @Column()
   bloggerId: string;
+  @Column({ nullable: true })
+  isBanned: boolean;
   @ManyToOne(() => BlogTrm, (b) => b.blogPosts)
   @JoinColumn({ name: 'blogId' })
   blog: BlogTrm;

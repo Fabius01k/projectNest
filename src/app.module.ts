@@ -103,6 +103,7 @@ import { GetAllBlogsUseCase } from './blogNest/blog.use-cases/getAllBlogs.use-ca
 import { GetAllBlogsBloggerUseCase } from './blogNest/blog.use-cases/getAllBlogs.Blogger.use-case';
 import { GetAllPostsForSpecificBlogUseCase } from './postNest/post.use-cases/getAllPostForSpecificBlog.use-case';
 import { GetAllPostsForSpecificBlogBloggerUseCase } from './postNest/post.use-cases/getAllPostForSpecificBlog.Blogger.use-case';
+import { BanUserUseCase } from './userNest/user.use-cases/banUser.use-case';
 
 const superAdminControllers = [
   UserController,
@@ -208,6 +209,7 @@ const userUseCases = [
   GetAllUsersUseCase,
   CreateUserUserCase,
   DeleteUserUseCase,
+  BanUserUseCase,
 ];
 const securityUseCases = [
   GetAllActiveSessionsUseCase,

@@ -31,7 +31,8 @@ export class CommentRepositoryTypeOrm {
       })
       .andWhere('CommentsLikesAndDislikesTrm.commentId = :commentId', {
         commentId: comment.id,
-      });
+      })
+      .andWhere('CommentsLikesAndDislikesTrm.isBanned = false');
 
     const likesCount = await likesBuilder.getCount();
 
@@ -42,7 +43,8 @@ export class CommentRepositoryTypeOrm {
       })
       .andWhere('CommentsLikesAndDislikesTrm.commentId = :commentId', {
         commentId: comment.id,
-      });
+      })
+      .andWhere('CommentsLikesAndDislikesTrm.isBanned = false');
 
     const dislikesCount = await dislikesBuilder.getCount();
 
@@ -98,6 +100,7 @@ export class CommentRepositoryTypeOrm {
     const queryBuilder = await this.commentRepository
       .createQueryBuilder('CommentTrm')
       .where('CommentTrm.postId =:postId', { postId })
+      .andWhere('CommentTrm.isBanned =:status', { status: false })
       .orderBy(
         'CommentTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
@@ -200,5 +203,33 @@ export class CommentRepositoryTypeOrm {
     await this.commentLikesRepository.save(newUsersReaction);
 
     return;
+  }
+  async banComments(id: string, isBanned: boolean): Promise<boolean> {
+    const commentBanned = await this.commentRepository.update(
+      { userId: id },
+      {
+        isBanned: isBanned,
+      },
+    );
+
+    return (
+      commentBanned.affected !== null &&
+      commentBanned.affected !== undefined &&
+      commentBanned.affected > 0
+    );
+  }
+  async banCommentLikes(id: string, isBanned: boolean): Promise<boolean> {
+    const commentsLikeBanned = await this.commentLikesRepository.update(
+      { userId: id },
+      {
+        isBanned: isBanned,
+      },
+    );
+
+    return (
+      commentsLikeBanned.affected !== null &&
+      commentsLikeBanned.affected !== undefined &&
+      commentsLikeBanned.affected > 0
+    );
   }
 }

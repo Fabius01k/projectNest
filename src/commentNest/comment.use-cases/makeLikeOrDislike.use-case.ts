@@ -36,6 +36,7 @@ export class MakeLikeOrDislikeCommentUseCase
       commentId: command.commentId,
       reactionStatus: command.likeDto.likeStatus,
       userId: command.userId,
+      isBanned: false,
     };
     await this.commentRepositoryTypeOrm.createNewReactionCommentTrm(
       newUsersReaction,

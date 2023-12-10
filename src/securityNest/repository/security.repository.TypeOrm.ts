@@ -48,6 +48,17 @@ export class SecurityRepositoryTypeOrm {
       deletedOtherSessions.affected > 0
     );
   }
+  async deleteAllSessionsInDbTrm(id: string): Promise<boolean> {
+    const deletedAllSessions = await this.sessionRepository.delete({
+      userId: id,
+    });
+
+    return (
+      deletedAllSessions.affected !== null &&
+      deletedAllSessions.affected !== undefined &&
+      deletedAllSessions.affected > 0
+    );
+  }
   async findSessionsForDeleteTrm(
     deviceId: string,
   ): Promise<UsersSessionTrm | null> {

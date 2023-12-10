@@ -67,6 +67,7 @@ export class CreateUserUserCase implements ICommandHandler<CreateUserCommand> {
       hours: 1,
     });
     newUser.isConfirmed = true;
+    newUser.isBanned = false;
     newUser.usersSessions = [];
 
     return await this.userRepositoryTypeOrm.createUserInDbTrm(newUser);

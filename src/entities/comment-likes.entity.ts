@@ -10,6 +10,8 @@ export class CommentsLikesAndDislikesTrm {
   reactionStatus: string;
   @Column()
   userId: string;
+  @Column({ nullable: true })
+  isBanned: boolean;
   @ManyToOne(() => CommentTrm, (c) => c.commentLikesAndDislikes)
   comment: CommentTrm;
 }

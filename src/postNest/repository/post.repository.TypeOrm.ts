@@ -26,7 +26,8 @@ export class PostRepositoryTypeOrm {
       })
       .andWhere('PostsLikesAndDislikesTrm.postId = :postId', {
         postId: post.id,
-      });
+      })
+      .andWhere('PostsLikesAndDislikesTrm.isBanned = false');
 
     const likesCount = await likesBuilder.getCount();
 
@@ -37,7 +38,8 @@ export class PostRepositoryTypeOrm {
       })
       .andWhere('PostsLikesAndDislikesTrm.postId = :postId', {
         postId: post.id,
-      });
+      })
+      .andWhere('PostsLikesAndDislikesTrm.isBanned = false');
 
     const dislikesCount = await dislikesBuilder.getCount();
 
@@ -71,6 +73,7 @@ export class PostRepositoryTypeOrm {
       .andWhere('PostsLikesAndDislikesTrm.postId = :postId', {
         postId: post.id,
       })
+      .andWhere('PostsLikesAndDislikesTrm.isBanned = false')
       .orderBy('PostsLikesAndDislikesTrm.addedAt', 'DESC')
       .limit(3)
       .getMany();
@@ -116,6 +119,7 @@ export class PostRepositoryTypeOrm {
         }`,
         { searchNameTerm: `%${searchNameTerm}%` },
       )
+      .andWhere('PostTrm.isBanned = :status', { status: false })
       .orderBy(
         'PostTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
@@ -285,12 +289,39 @@ export class PostRepositoryTypeOrm {
 
     return;
   }
-
   async createNewReactionPostTrm(
     newUsersReaction: PostsLikesAndDislikesSql,
   ): Promise<void> {
     await this.postLikesRepository.save(newUsersReaction);
 
     return;
+  }
+  async banPosts(id: string, isBanned: boolean): Promise<boolean> {
+    const postBanned = await this.postRepository.update(
+      { bloggerId: id },
+      {
+        isBanned: isBanned,
+      },
+    );
+
+    return (
+      postBanned.affected !== null &&
+      postBanned.affected !== undefined &&
+      postBanned.affected > 0
+    );
+  }
+  async banPostLikes(id: string, isBanned: boolean): Promise<boolean> {
+    const postsLikeBanned = await this.postLikesRepository.update(
+      { userId: id },
+      {
+        isBanned: isBanned,
+      },
+    );
+
+    return (
+      postsLikeBanned.affected !== null &&
+      postsLikeBanned.affected !== undefined &&
+      postsLikeBanned.affected > 0
+    );
   }
 }

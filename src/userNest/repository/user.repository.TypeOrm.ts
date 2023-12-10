@@ -270,7 +270,25 @@ export class UserRepositoryTypeOrm {
       deletedUser.affected > 0
     );
   }
+  async banUser(
+    id: string,
+    isBanned: boolean,
+    banReason: string,
+  ): Promise<boolean> {
+    const userBanned = await this.userRepository.update(
+      { id: id },
+      {
+        isBanned: isBanned,
+        banReason: banReason,
+      },
+    );
 
+    return (
+      userBanned.affected !== null &&
+      userBanned.affected !== undefined &&
+      userBanned.affected > 0
+    );
+  }
   async createUserSessionInDbTrm(
     newUserSession: UsersSessionTrm,
   ): Promise<UsersSessionTrm> {

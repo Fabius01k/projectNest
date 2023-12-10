@@ -50,6 +50,7 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     newPost.blogName = blog.name;
     newPost.createdAt = new Date().toISOString();
     newPost.bloggerId = command.userId;
+    newPost.isBanned = false;
     newPost.postLikedAndDislikes = [];
 
     return await this.postRepositoryTypeOrm.createPostInDbTrm(

@@ -40,6 +40,7 @@ export class MakeLikeOrDislikePostUseCase
       reactionStatus: command.likeDto.likeStatus,
       addedAt: command.dateOfLikeDislike,
       userId: command.userId,
+      isBanned: false,
     };
     await this.postRepositoryTypeOrm.createNewReactionPostTrm(newUsersReaction);
 
