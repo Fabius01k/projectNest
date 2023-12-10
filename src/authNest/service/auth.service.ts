@@ -29,7 +29,7 @@ export class AuthService {
   }
   async createAccessToken(userId: string): Promise<string> {
     const payload = { userId };
-    return this.jwtService.sign(payload, { expiresIn: '4m' });
+    return this.jwtService.sign(payload, { expiresIn: '6m' });
   }
 
   async createRefreshToken(
@@ -37,7 +37,7 @@ export class AuthService {
     refreshTokenPayload: any,
   ): Promise<string> {
     const payload = { userId, ...refreshTokenPayload };
-    return this.jwtService.sign(payload, { expiresIn: '4m' });
+    return this.jwtService.sign(payload, { expiresIn: '6m' });
   }
 
   async validateLoginUser(
