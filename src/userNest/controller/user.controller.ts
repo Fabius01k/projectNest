@@ -19,7 +19,7 @@ import { GetAllUsersCommand } from '../user.use-cases/getAllUsers.use-case';
 import { CreateUserCommand } from '../user.use-cases/createUser.use-case';
 import { DeleteUserCommand } from '../user.use-cases/deleteUser.use-case';
 import { BanUserCommand } from '../user.use-cases/banUser.use-case';
-@UseGuards(BasicAuthGuard)
+//@UseGuards(BasicAuthGuard)
 @Controller('sa')
 export class UserController {
   constructor(
@@ -27,10 +27,11 @@ export class UserController {
     private readonly commandBus: CommandBus,
   ) {}
   @Put('users/:id/ban')
+  @HttpCode(204)
   async banUser(
     @Param('id') id: string,
-    @Query('isBanned ') isBanned: boolean,
-    @Query('banReason ') banReason: string,
+    @Body('isBanned') isBanned: boolean,
+    @Body('banReason') banReason: string,
   ): Promise<void> {
     return await this.commandBus.execute(
       new BanUserCommand(id, isBanned, banReason),

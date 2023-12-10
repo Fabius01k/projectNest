@@ -21,10 +21,12 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand> {
     protected commentRepositoryTypeOrm: CommentRepositoryTypeOrm,
   ) {}
   async execute(command: BanUserCommand): Promise<void> {
+    const banDate = new Date().toISOString();
     const userBaned = await this.userRepositoryTypeOrm.banUser(
       command.id,
       command.isBanned,
       command.banReason,
+      banDate,
     );
     if (!userBaned) {
       throw new NotFoundException([

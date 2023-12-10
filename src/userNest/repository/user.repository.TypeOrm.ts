@@ -279,12 +279,13 @@ export class UserRepositoryTypeOrm {
     id: string,
     isBanned: boolean,
     banReason: string,
+    banDate: string,
   ): Promise<boolean> {
     const userBanned = await this.userRepository.update(
       { id: id },
       {
         isBanned: isBanned,
-        banDate: new Date().toISOString(),
+        banDate: banDate,
         banReason: banReason,
       },
     );
