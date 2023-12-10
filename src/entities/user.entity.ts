@@ -29,6 +29,8 @@ export class UserTrm {
   isBanned: boolean;
   @Column({ default: null })
   banReason: string;
+  @Column({ default: null })
+  banDate: string;
   @OneToMany(() => UsersSessionTrm, (u) => u.userId)
   usersSessions: UsersSessionTrm[];
 }

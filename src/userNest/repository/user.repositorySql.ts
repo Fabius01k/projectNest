@@ -11,6 +11,11 @@ const mapUserToView = (user: UserSql): UserView => {
     login: user.login,
     email: user.email,
     createdAt: user.createdAt,
+    banInfo: {
+      isBanned: true,
+      banDate: '123',
+      banReason: '123',
+    },
   };
 };
 @Injectable()
@@ -29,8 +34,8 @@ export class UserRepositorySql {
     pageNumber: number,
   ): Promise<UserResponse> {
     const users = await this.dataSource.query<UserSql[]>(`
-    SELECT *      
-    FROM public."Users"      
+    SELECT *
+    FROM public."Users"
     WHERE
       "login" ILIKE '%${searchLoginTerm ?? ''}%'
       OR
@@ -47,10 +52,10 @@ export class UserRepositorySql {
       { totalCount: string }[]
     >(`
     SELECT COUNT(*) AS "totalCount"
-    FROM public."Users"   
+    FROM public."Users"
     WHERE
       "login" ILIKE '%${searchLoginTerm ?? ''}%'
-      OR 
+      OR
       "email" ILIKE '%${searchEmailTerm ?? ''}%'
   `);
     const items = users.map((u) => mapUserToView(u));
@@ -65,8 +70,8 @@ export class UserRepositorySql {
   }
   async getUserByLoginOrEmailSql(loginOrEmail: string) {
     const user: QueryResult<UserSql> = await this.dataSource.query<UserSql>(`
-    SELECT *      
-    FROM public."Users"      
+    SELECT *
+    FROM public."Users"
     WHERE
     "email" = '${loginOrEmail}'
     OR
@@ -78,8 +83,8 @@ export class UserRepositorySql {
   async findSessionByRefreshTokenSql(refreshToken: string) {
     const session: QueryResult<UserSessionSql> = await this.dataSource
       .query<UserSessionSql>(`
-    SELECT *      
-    FROM public."UserSession"      
+    SELECT *
+    FROM public."UserSession"
     WHERE
     "refreshToken" = '${refreshToken}'
     `);
@@ -89,18 +94,18 @@ export class UserRepositorySql {
   async getUserByConfirmationCodeSql(code: string) {
     const user: QueryResult<UserSql> = await this.dataSource.query<UserSql>(`
     SELECT *
-    FROM public."Users"      
+    FROM public."Users"
     WHERE
-    "confirmationCode" = '${code}'    
+    "confirmationCode" = '${code}'
     `);
     return user;
   }
   async getUserByResetPasswordCodeSql(recoveryCode: string) {
     const user: QueryResult<UserSql> = await this.dataSource.query<UserSql>(`
     SELECT *
-    FROM public."Users"      
+    FROM public."Users"
     WHERE
-    "resetPasswordCode" = '${recoveryCode}' 
+    "resetPasswordCode" = '${recoveryCode}'
     `);
     return user;
   }
@@ -108,7 +113,7 @@ export class UserRepositorySql {
   async findUserByIdInDbSql(id: string) {
     const user: QueryResult<UserSql> = await this.dataSource.query<UserSql>(`
     SELECT *
-    FROM public."Users"      
+    FROM public."Users"
     WHERE
     "id" = '${id}'
     `);
@@ -192,7 +197,7 @@ export class UserRepositorySql {
     return true;
   }
   async deleteUserInDbSql(id: string): Promise<boolean> {
-    const query = `    
+    const query = `
     DELETE
     FROM public."Users"
     WHERE "id" = $1`;
@@ -264,7 +269,7 @@ export class UserRepositorySql {
     const query = `
     UPDATE public."Users"
     SET "isConfirmed" = $1
-    
+
     WHERE "id" = $2`;
 
     const values = [true, id];
@@ -280,7 +285,7 @@ export class UserRepositorySql {
     const query = `
     UPDATE public."Users"
     SET "confirmationCode" = $1
-    
+
     WHERE "id" = $2`;
 
     const values = [confirmationCode, id];
@@ -297,7 +302,7 @@ export class UserRepositorySql {
     UPDATE public."Users"
     SET "passwordSalt" = $1,
         "passwordHash" = $2
-   
+
    WHERE "id" = $3`;
 
     const values = [passwordSalt, passwordHash, id];
@@ -314,7 +319,7 @@ export class UserRepositorySql {
     UPDATE public."Users"
     SET "resetPasswordCode" = $1,
         "expirationDatePasswordCode" = $2
-        
+
         WHERE "id" = $3`;
 
     const values = [NewResetPasswordCode, NewExpirationDatePasswordCode, id];

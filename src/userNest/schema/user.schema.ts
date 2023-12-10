@@ -91,6 +91,11 @@ export type UserView = {
   login: string;
   email: string;
   createdAt: string;
+  banInfo: {
+    isBanned: boolean;
+    banDate: string;
+    banReason: string;
+  };
 };
 
 export interface UserResponse {

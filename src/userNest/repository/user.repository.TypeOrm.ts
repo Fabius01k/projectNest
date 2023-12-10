@@ -13,6 +13,11 @@ const mapUserToView = (user: UserTrm): UserView => {
     login: user.login,
     email: user.email,
     createdAt: user.createdAt,
+    banInfo: {
+      isBanned: user.isBanned,
+      banDate: user.banDate,
+      banReason: user.banReason,
+    },
   };
 };
 @Injectable()
@@ -279,6 +284,7 @@ export class UserRepositoryTypeOrm {
       { id: id },
       {
         isBanned: isBanned,
+        banDate: new Date().toISOString(),
         banReason: banReason,
       },
     );

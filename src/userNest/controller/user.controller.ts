@@ -19,7 +19,7 @@ import { GetAllUsersCommand } from '../user.use-cases/getAllUsers.use-case';
 import { CreateUserCommand } from '../user.use-cases/createUser.use-case';
 import { DeleteUserCommand } from '../user.use-cases/deleteUser.use-case';
 import { BanUserCommand } from '../user.use-cases/banUser.use-case';
-// @UseGuards(BasicAuthGuard)
+@UseGuards(BasicAuthGuard)
 @Controller('sa')
 export class UserController {
   constructor(
