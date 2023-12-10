@@ -15,8 +15,8 @@ const mapUserToView = (user: UserTrm): UserView => {
     createdAt: user.createdAt,
     banInfo: {
       isBanned: user.isBanned,
-      banDate: user.banDate,
-      banReason: user.banReason,
+      banDate: user.isBanned ? user.banDate : null,
+      banReason: user.isBanned ? user.banReason : null,
     },
   };
 };
