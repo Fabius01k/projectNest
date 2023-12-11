@@ -27,12 +27,10 @@ export class GetBannedUsersUseCase
     console.log(command.banStatus, 'status use case not all');
     let banStatus = true;
 
-    if (command.banStatus !== 'all') {
-      if (command.banStatus === 'notBanned') {
-        banStatus = false;
-      } else if (command.banStatus === 'banned') {
-        banStatus = true;
-      }
+    if (command.banStatus === 'notBanned') {
+      banStatus = false;
+    } else if (command.banStatus === 'banned') {
+      banStatus = true;
     }
     return await this.userRepositoryTypeOrm.findBannedUsersInDbTrm(
       banStatus,

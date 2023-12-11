@@ -170,20 +170,23 @@ export class UserRepositoryTypeOrm {
       .where('UserTrm.isBanned =:status', { status: banStatus })
       .andWhere(
         `${
-          searchLoginTerm
-            ? 'UserTrm.login ilike :searchLoginTerm'
+          searchLoginTerm || searchEmailTerm
+            ? 'UserTrm.login ilike :searchLoginTerm OR UserTrm.email ilike :searchEmailTerm'
             : 'UserTrm.login is not null'
         }`,
-        { searchLoginTerm: `%${searchLoginTerm}%` },
+        {
+          searchLoginTerm: `%${searchLoginTerm}%`,
+          searchEmailTerm: `%${searchEmailTerm}%`,
+        },
       )
-      .orWhere(
-        `${
-          searchEmailTerm
-            ? 'UserTrm.email ilike :searchEmailTerm'
-            : 'UserTrm.email is not null'
-        }`,
-        { searchEmailTerm: `%${searchEmailTerm}%` },
-      )
+      // .orWhere(
+      //   `${
+      //     searchEmailTerm
+      //       ? 'UserTrm.email ilike :searchEmailTerm'
+      //       : 'UserTrm.email is not null'
+      //   }`,
+      //   { searchEmailTerm: `%${searchEmailTerm}%` },
+      // )
       .orderBy(
         'UserTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
