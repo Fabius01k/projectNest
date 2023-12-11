@@ -104,6 +104,7 @@ import { GetAllBlogsBloggerUseCase } from './blogNest/blog.use-cases/getAllBlogs
 import { GetAllPostsForSpecificBlogUseCase } from './postNest/post.use-cases/getAllPostForSpecificBlog.use-case';
 import { GetAllPostsForSpecificBlogBloggerUseCase } from './postNest/post.use-cases/getAllPostForSpecificBlog.Blogger.use-case';
 import { BanUserUseCase } from './userNest/user.use-cases/banUser.use-case';
+import { GetBannedUsersUseCase } from './userNest/user.use-cases/getBannedUsers.use-case';
 
 const superAdminControllers = [
   UserController,
@@ -210,6 +211,7 @@ const userUseCases = [
   CreateUserUserCase,
   DeleteUserUseCase,
   BanUserUseCase,
+  GetBannedUsersUseCase,
 ];
 const securityUseCases = [
   GetAllActiveSessionsUseCase,
@@ -237,7 +239,7 @@ const authUseCases = [
       // database: 'MyNestProject',
       autoLoadEntities: true,
       synchronize: true,
-      logging: false,
+      logging: true,
       url: process.env.NEON_URL,
       ssl: true,
     }),

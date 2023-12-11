@@ -568,7 +568,7 @@ export class QuizRepositoryTypeOrm {
   }
   async findPublishQuestionsInDbTrm(
     bodySearchTerm: string,
-    publishedStatus,
+    publishedStatus: boolean,
     sortBy: string,
     sortDirection: 'asc' | 'desc',
     pageSize: number,

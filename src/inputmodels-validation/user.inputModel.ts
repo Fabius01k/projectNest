@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsString,
+  Length,
+  Matches,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class UserInputModel {
@@ -20,4 +26,16 @@ export class UserInputModel {
   @Matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
   @Transform(({ value }) => value.trim())
   email: string;
+}
+
+export class BanUserInputModel {
+  @IsNotEmpty()
+  @IsBoolean()
+  isBanned: boolean;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(20, 1000)
+  @Transform(({ value }) => value.trim())
+  banReason: string;
 }

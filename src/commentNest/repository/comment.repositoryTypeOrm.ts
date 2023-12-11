@@ -82,6 +82,7 @@ export class CommentRepositoryTypeOrm {
     const comment = await this.commentRepository
       .createQueryBuilder('CommentTrm')
       .where('CommentTrm.id =:id', { id })
+      .andWhere('CommentTrm.isBanned = false')
       .getOne();
     if (comment) {
       return this.mapCommentToView(comment, userId);

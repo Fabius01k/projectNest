@@ -1,9 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { UserResponse, UserSql, UserView } from '../schema/user.schema';
-import { QueryResult } from 'pg';
-import { UserSessionSql } from '../schema/user-session.schema';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserResponse, UserView } from '../schema/user.schema';
+
 import { UserTrm } from '../../entities/user.entity';
 import { UsersSessionTrm } from '../../entities/usersSession.entity';
 
@@ -40,6 +39,136 @@ export class UserRepositoryTypeOrm {
     const queryBuilder = this.userRepository
       .createQueryBuilder('UserTrm')
       .where(
+        `${
+          searchLoginTerm
+            ? 'UserTrm.login ilike :searchLoginTerm'
+            : 'UserTrm.login is not null'
+        }`,
+        { searchLoginTerm: `%${searchLoginTerm}%` },
+      )
+      .orWhere(
+        `${
+          searchEmailTerm
+            ? 'UserTrm.email ilike :searchEmailTerm'
+            : 'UserTrm.email is not null'
+        }`,
+        { searchEmailTerm: `%${searchEmailTerm}%` },
+      )
+      .orderBy(
+        'UserTrm.' + sortBy,
+        sortDirection.toUpperCase() as 'ASC' | 'DESC',
+      )
+      .take(pageSize)
+      .skip((pageNumber - 1) * pageSize);
+
+    const users = await queryBuilder.getMany();
+    const totalCountQuery = await queryBuilder.getCount();
+
+    const items = users.map((u) => mapUserToView(u));
+
+    return {
+      pagesCount: Math.ceil(totalCountQuery / pageSize),
+      page: pageNumber,
+      pageSize,
+      totalCount: totalCountQuery,
+      items,
+    };
+  }
+
+  async findBannedUsersInDbTrm(
+    banStatus: boolean,
+    searchLoginTerm: string | null,
+    searchEmailTerm: string | null,
+    sortBy: string,
+    sortDirection: 'asc' | 'desc',
+    pageSize: number,
+    pageNumber: number,
+  ): Promise<UserResponse> {
+    console.log(banStatus, 'status repo');
+    // if (banStatus) {
+    //   const queryBuilder = this.userRepository
+    //     .createQueryBuilder('UserTrm')
+    //     .where('UserTrm.isBanned = true')
+    //     .andWhere(
+    //       `${
+    //         searchLoginTerm
+    //           ? 'UserTrm.login ilike :searchLoginTerm'
+    //           : 'UserTrm.login is not null'
+    //       }`,
+    //       { searchLoginTerm: `%${searchLoginTerm}%` },
+    //     )
+    //     .orWhere(
+    //       `${
+    //         searchEmailTerm
+    //           ? 'UserTrm.email ilike :searchEmailTerm'
+    //           : 'UserTrm.email is not null'
+    //       }`,
+    //       { searchEmailTerm: `%${searchEmailTerm}%` },
+    //     )
+    //     .andWhere('UserTrm.isBanned = true')
+    //     .orderBy(
+    //       'UserTrm.' + sortBy,
+    //       sortDirection.toUpperCase() as 'ASC' | 'DESC',
+    //     )
+    //     .take(pageSize)
+    //     .skip((pageNumber - 1) * pageSize);
+    //
+    //   const users = await queryBuilder.getMany();
+    //   const totalCountQuery = await queryBuilder.getCount();
+    //
+    //   const items = users.map((u) => mapUserToView(u));
+    //
+    //   return {
+    //     pagesCount: Math.ceil(totalCountQuery / pageSize),
+    //     page: pageNumber,
+    //     pageSize,
+    //     totalCount: totalCountQuery,
+    //     items,
+    //   };
+    // } else {
+    //   const queryBuilder = this.userRepository
+    //     .createQueryBuilder('UserTrm')
+    //     .where('UserTrm.isBanned = false')
+    //     .andWhere(
+    //       `${
+    //         searchLoginTerm
+    //           ? 'UserTrm.login ilike :searchLoginTerm'
+    //           : 'UserTrm.login is not null'
+    //       }`,
+    //       { searchLoginTerm: `%${searchLoginTerm}%` },
+    //     )
+    //     .orWhere(
+    //       `${
+    //         searchEmailTerm
+    //           ? 'UserTrm.email ilike :searchEmailTerm'
+    //           : 'UserTrm.email is not null'
+    //       }`,
+    //       { searchEmailTerm: `%${searchEmailTerm}%` },
+    //     )
+    //     .orderBy(
+    //       'UserTrm.' + sortBy,
+    //       sortDirection.toUpperCase() as 'ASC' | 'DESC',
+    //     )
+    //     .take(pageSize)
+    //     .skip((pageNumber - 1) * pageSize);
+    //
+    //   const users = await queryBuilder.getMany();
+    //   const totalCountQuery = await queryBuilder.getCount();
+    //
+    //   const items = users.map((u) => mapUserToView(u));
+    //
+    //   return {
+    //     pagesCount: Math.ceil(totalCountQuery / pageSize),
+    //     page: pageNumber,
+    //     pageSize,
+    //     totalCount: totalCountQuery,
+    //     items,
+    //   };
+    // }
+    const queryBuilder = this.userRepository
+      .createQueryBuilder('UserTrm')
+      .where('UserTrm.isBanned =:status', { status: banStatus })
+      .andWhere(
         `${
           searchLoginTerm
             ? 'UserTrm.login ilike :searchLoginTerm'

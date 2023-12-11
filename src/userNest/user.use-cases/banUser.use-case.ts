@@ -4,12 +4,12 @@ import { NotFoundException } from '@nestjs/common';
 import { SecurityRepositoryTypeOrm } from '../../securityNest/repository/security.repository.TypeOrm';
 import { PostRepositoryTypeOrm } from '../../postNest/repository/post.repository.TypeOrm';
 import { CommentRepositoryTypeOrm } from '../../commentNest/repository/comment.repositoryTypeOrm';
+import { BanUserInputModel } from '../../inputmodels-validation/user.inputModel';
 
 export class BanUserCommand {
   constructor(
     public id: string,
-    public isBanned: boolean,
-    public banReason: string,
+    public banUserDto: BanUserInputModel,
   ) {}
 }
 @CommandHandler(BanUserCommand)
@@ -24,8 +24,8 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand> {
     const banDate = new Date().toISOString();
     const userBaned = await this.userRepositoryTypeOrm.banUser(
       command.id,
-      command.isBanned,
-      command.banReason,
+      command.banUserDto.isBanned,
+      command.banUserDto.banReason,
       banDate,
     );
     if (!userBaned) {
@@ -36,15 +36,21 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand> {
       ]);
     }
     await this.securityRepositoryTypeOrm.deleteAllSessionsInDbTrm(command.id);
-    await this.postRepositoryTypeOrm.banPosts(command.id, command.isBanned);
+    await this.postRepositoryTypeOrm.banPosts(
+      command.id,
+      command.banUserDto.isBanned,
+    );
     await this.commentRepositoryTypeOrm.banComments(
       command.id,
-      command.isBanned,
+      command.banUserDto.isBanned,
     );
     await this.commentRepositoryTypeOrm.banCommentLikes(
       command.id,
-      command.isBanned,
+      command.banUserDto.isBanned,
     );
-    await this.postRepositoryTypeOrm.banPostLikes(command.id, command.isBanned);
+    await this.postRepositoryTypeOrm.banPostLikes(
+      command.id,
+      command.banUserDto.isBanned,
+    );
   }
 }
