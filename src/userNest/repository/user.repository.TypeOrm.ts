@@ -124,8 +124,8 @@ export class UserRepositoryTypeOrm {
 
     const queryBuilder = await this.userRepository
       .createQueryBuilder('UserTrm')
-      // .where('UserTrm.id IN (:userIds)', { userIds: userIds })
-      .where('UserTrm.id IN (:...userIds)', { userIds })
+      //.where('UserTrm.id IN (:userIds)', { userIds: userIds })
+      .where('UserTrm.id IN (:...userIds)', { userIds: userIds })
       .orderBy(
         'UserTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
