@@ -203,9 +203,10 @@ export class BloggerController {
   async banUserForSpecifeldBlog(
     @Param('id') id: string,
     @Body() banUserForBlogDto: BanUserForBlogInputModel,
+    @Request() req,
   ): Promise<void> {
     return await this.commandBus.execute(
-      new BanUserForBlogCommand(id, banUserForBlogDto),
+      new BanUserForBlogCommand(id, banUserForBlogDto, req.userId),
     );
   }
   @Get('users/blog/:id')
