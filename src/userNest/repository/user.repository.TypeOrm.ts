@@ -117,7 +117,6 @@ export class UserRepositoryTypeOrm {
       })
       .getRawMany();
     console.log(bannedUserForBlog, 'repo 1');
-    // const userIds = bannedUserForBlog.map((row) => row.userId);
     const userIds = bannedUserForBlog.map(
       (row) => row.BannedUsersInBlogsEntityTrm_userId,
     );
@@ -125,7 +124,8 @@ export class UserRepositoryTypeOrm {
 
     const queryBuilder = await this.userRepository
       .createQueryBuilder('UserTrm')
-      .where('UserTrm.id IN (:userIds)', { userIds: userIds })
+      // .where('UserTrm.id IN (:userIds)', { userIds: userIds })
+      .where('UserTrm.id IN (:...userIds)', { userIds })
       .orderBy(
         'UserTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
@@ -137,7 +137,6 @@ export class UserRepositoryTypeOrm {
     console.log(users, 'repo 3');
     const totalCountQuery = await queryBuilder.getCount();
 
-    // const items = users.map((u) => this.mapBanUserToView(u));
     const items = await Promise.all(
       users.map((userId) => this.mapBanUserToView(userId)),
     );
