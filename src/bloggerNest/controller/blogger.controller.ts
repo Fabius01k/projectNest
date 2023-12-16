@@ -209,6 +209,7 @@ export class BloggerController {
       new BanUserForBlogCommand(id, banUserForBlogDto, req.userId),
     );
   }
+  @UseGuards(AuthGuard)
   @Get('users/blog/:id')
   async getAllBannedUserForSpecifeldBlog(
     @Param('id') id: string,
