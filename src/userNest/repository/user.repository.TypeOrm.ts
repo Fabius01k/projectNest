@@ -1,10 +1,15 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserResponse, UserView } from '../schema/user.schema';
 
 import { UserTrm } from '../../entities/user.entity';
 import { UsersSessionTrm } from '../../entities/usersSession.entity';
+import { BannedUsersInBlogsEntityTrm } from '../../entities/bannedUsersInBlogs.entity';
 
 const mapUserToView = (user: UserTrm): UserView => {
   return {
@@ -19,6 +24,7 @@ const mapUserToView = (user: UserTrm): UserView => {
     },
   };
 };
+
 @Injectable()
 export class UserRepositoryTypeOrm {
   constructor(
@@ -26,7 +32,29 @@ export class UserRepositoryTypeOrm {
     protected userRepository: Repository<UserTrm>,
     @InjectRepository(UsersSessionTrm)
     protected sessionRepository: Repository<UsersSessionTrm>,
+    @InjectRepository(BannedUsersInBlogsEntityTrm)
+    protected banUserForBlogRepository: Repository<BannedUsersInBlogsEntityTrm>,
   ) {}
+
+  private async mapBanUserToView(user: UserTrm): Promise<UserView> {
+    const banUser = await this.banUserForBlogRepository
+      .createQueryBuilder('BannedUsersInBlogsEntityTrm')
+      .where('BannedUsersInBlogsEntityTrm.userId = :userId', {
+        userId: user.id,
+      })
+      .getOne();
+    return {
+      id: user.id,
+      login: user.login,
+      email: user.email,
+      createdAt: user.createdAt,
+      banInfo: {
+        isBanned: banUser!.isBanned,
+        banDate: banUser!.banDate,
+        banReason: banUser!.banReason,
+      },
+    };
+  }
 
   async findAllUsersInDbTrm(
     searchLoginTerm: string | null,
@@ -74,7 +102,54 @@ export class UserRepositoryTypeOrm {
       items,
     };
   }
+  async findAllBannedUserForSpecifeldBlogTrm(
+    searchLoginTerm: string | null,
+    sortBy: string,
+    sortDirection: 'asc' | 'desc',
+    pageSize: number,
+    pageNumber: number,
+    id: string,
+  ): Promise<UserResponse> {
+    const bannedUserForBlog = await this.banUserForBlogRepository
+      .createQueryBuilder('BannedUsersInBlogsEntityTrm')
+      .where('BannedUsersInBlogsEntityTrm.blogId = :blogId', {
+        blogId: id,
+      })
+      .getRawMany();
+    console.log(bannedUserForBlog, 'repo 1');
+    // const userIds = bannedUserForBlog.map((row) => row.userId);
+    const userIds = bannedUserForBlog.map(
+      (row) => row.BannedUsersInBlogsEntityTrm_userId,
+    );
+    console.log(userIds, 'repo 2');
 
+    const queryBuilder = await this.userRepository
+      .createQueryBuilder('UserTrm')
+      .where('UserTrm.id IN (:...userIds)', { userIds })
+      .orderBy(
+        'UserTrm.' + sortBy,
+        sortDirection.toUpperCase() as 'ASC' | 'DESC',
+      )
+      .take(pageSize)
+      .skip((pageNumber - 1) * pageSize);
+
+    const users = await queryBuilder.getMany();
+    console.log(users, 'repo 3');
+    const totalCountQuery = await queryBuilder.getCount();
+
+    // const items = users.map((u) => this.mapBanUserToView(u));
+    const items = await Promise.all(
+      users.map((userId) => this.mapBanUserToView(userId)),
+    );
+    console.log(items, 'repo 4');
+    return {
+      pagesCount: Math.ceil(totalCountQuery / pageSize),
+      page: pageNumber,
+      pageSize,
+      totalCount: totalCountQuery,
+      items,
+    };
+  }
   async findBannedUsersInDbTrm(
     banStatus: boolean,
     searchLoginTerm: string | null,
@@ -85,86 +160,7 @@ export class UserRepositoryTypeOrm {
     pageNumber: number,
   ): Promise<UserResponse> {
     console.log(banStatus, 'status repo');
-    // if (banStatus) {
-    //   const queryBuilder = this.userRepository
-    //     .createQueryBuilder('UserTrm')
-    //     .where('UserTrm.isBanned = true')
-    //     .andWhere(
-    //       `${
-    //         searchLoginTerm
-    //           ? 'UserTrm.login ilike :searchLoginTerm'
-    //           : 'UserTrm.login is not null'
-    //       }`,
-    //       { searchLoginTerm: `%${searchLoginTerm}%` },
-    //     )
-    //     .orWhere(
-    //       `${
-    //         searchEmailTerm
-    //           ? 'UserTrm.email ilike :searchEmailTerm'
-    //           : 'UserTrm.email is not null'
-    //       }`,
-    //       { searchEmailTerm: `%${searchEmailTerm}%` },
-    //     )
-    //     .andWhere('UserTrm.isBanned = true')
-    //     .orderBy(
-    //       'UserTrm.' + sortBy,
-    //       sortDirection.toUpperCase() as 'ASC' | 'DESC',
-    //     )
-    //     .take(pageSize)
-    //     .skip((pageNumber - 1) * pageSize);
-    //
-    //   const users = await queryBuilder.getMany();
-    //   const totalCountQuery = await queryBuilder.getCount();
-    //
-    //   const items = users.map((u) => mapUserToView(u));
-    //
-    //   return {
-    //     pagesCount: Math.ceil(totalCountQuery / pageSize),
-    //     page: pageNumber,
-    //     pageSize,
-    //     totalCount: totalCountQuery,
-    //     items,
-    //   };
-    // } else {
-    //   const queryBuilder = this.userRepository
-    //     .createQueryBuilder('UserTrm')
-    //     .where('UserTrm.isBanned = false')
-    //     .andWhere(
-    //       `${
-    //         searchLoginTerm
-    //           ? 'UserTrm.login ilike :searchLoginTerm'
-    //           : 'UserTrm.login is not null'
-    //       }`,
-    //       { searchLoginTerm: `%${searchLoginTerm}%` },
-    //     )
-    //     .orWhere(
-    //       `${
-    //         searchEmailTerm
-    //           ? 'UserTrm.email ilike :searchEmailTerm'
-    //           : 'UserTrm.email is not null'
-    //       }`,
-    //       { searchEmailTerm: `%${searchEmailTerm}%` },
-    //     )
-    //     .orderBy(
-    //       'UserTrm.' + sortBy,
-    //       sortDirection.toUpperCase() as 'ASC' | 'DESC',
-    //     )
-    //     .take(pageSize)
-    //     .skip((pageNumber - 1) * pageSize);
-    //
-    //   const users = await queryBuilder.getMany();
-    //   const totalCountQuery = await queryBuilder.getCount();
-    //
-    //   const items = users.map((u) => mapUserToView(u));
-    //
-    //   return {
-    //     pagesCount: Math.ceil(totalCountQuery / pageSize),
-    //     page: pageNumber,
-    //     pageSize,
-    //     totalCount: totalCountQuery,
-    //     items,
-    //   };
-    // }
+
     const queryBuilder = this.userRepository
       .createQueryBuilder('UserTrm')
       .where('UserTrm.isBanned =:status', { status: banStatus })
@@ -179,14 +175,7 @@ export class UserRepositoryTypeOrm {
           searchEmailTerm: `%${searchEmailTerm}%`,
         },
       )
-      // .orWhere(
-      //   `${
-      //     searchEmailTerm
-      //       ? 'UserTrm.email ilike :searchEmailTerm'
-      //       : 'UserTrm.email is not null'
-      //   }`,
-      //   { searchEmailTerm: `%${searchEmailTerm}%` },
-      // )
+
       .orderBy(
         'UserTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
@@ -433,5 +422,31 @@ export class UserRepositoryTypeOrm {
   ): Promise<UsersSessionTrm> {
     const createdSession = await this.sessionRepository.save(newUserSession);
     return createdSession;
+  }
+  async banUserForSpecifeldBlog(
+    newUserForBlogBanned: BannedUsersInBlogsEntityTrm,
+  ): Promise<void> {
+    await this.banUserForBlogRepository.save(newUserForBlogBanned);
+  }
+  async unbanUserForSpecifeldBlog(id: string, blogId: string): Promise<void> {
+    await this.banUserForBlogRepository.delete({ userId: id, blogId: blogId });
+  }
+  async checkBannedUser(blogId: string, userId: string): Promise<void> {
+    const userBanned = await this.banUserForBlogRepository
+      .createQueryBuilder('BannedUsersInBlogsEntityTrm')
+      .where('BannedUsersInBlogsEntityTrm.blogId = :blogId', {
+        blogId: blogId,
+      })
+      .andWhere('BannedUsersInBlogsEntityTrm.userId = :userId', {
+        userId: userId,
+      })
+      .getOne();
+    if (userBanned) {
+      throw new ForbiddenException([
+        {
+          message: 'You are not allowed',
+        },
+      ]);
+    }
   }
 }

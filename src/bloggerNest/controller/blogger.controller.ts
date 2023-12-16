@@ -25,6 +25,10 @@ import { DeleteBlogCommand } from '../../blogNest/blog.use-cases/deleteBlog.use-
 import { DeletePostCommand } from '../../postNest/post.use-cases/deletePost.use-case';
 import { GetAllBlogsBloggerCommand } from '../../blogNest/blog.use-cases/getAllBlogs.Blogger.use-case';
 import { GetAllPostsForSpecificBlogBloggerCommand } from '../../postNest/post.use-cases/getAllPostForSpecificBlog.Blogger.use-case';
+import { BanUserForBlogInputModel } from '../../inputmodels-validation/user.inputModel';
+import { BanUserForBlogCommand } from '../blogger.use-cases/banUserForBlog.use-case';
+import { UserResponse } from '../../userNest/schema/user.schema';
+import { GetBannedUsersForSpecifeldBlogCommand } from '../blogger.use-cases/getBannedUsersForSpecifeldBlog.use-case';
 
 @Controller('blogger')
 export class BloggerController {
@@ -192,5 +196,67 @@ export class BloggerController {
     );
 
     return;
+  }
+  @UseGuards(AuthGuard)
+  @Put('users/:id/ban')
+  @HttpCode(204)
+  async banUserForSpecifeldBlog(
+    @Param('id') id: string,
+    @Body() banUserForBlogDto: BanUserForBlogInputModel,
+  ): Promise<void> {
+    return await this.commandBus.execute(
+      new BanUserForBlogCommand(id, banUserForBlogDto),
+    );
+  }
+  @Get('users/blog/:id')
+  async getAllBannedUserForSpecifeldBlog(
+    @Param('id') id: string,
+    @Query('searchLoginTerm') searchLoginTerm: string | null,
+    @Query('sortBy') sortBy: string,
+    @Query('sortDirection') sortDirection: 'asc' | 'desc',
+    @Query('pageSize') pageSize: number,
+    @Query('pageNumber') pageNumber: number,
+  ): Promise<UserResponse> {
+    console.log(id, 'controller 1');
+    if (!searchLoginTerm) {
+      searchLoginTerm = null;
+    }
+    if (!sortBy) {
+      sortBy = 'createdAt';
+    }
+    if (sortBy === 'login') {
+      sortBy = 'login';
+    }
+    if (sortBy === 'email') {
+      sortBy = 'email';
+    }
+
+    if (!sortDirection || sortDirection.toLowerCase() !== 'asc') {
+      sortDirection = 'desc';
+    }
+
+    const checkPageSize = +pageSize;
+    if (!pageSize || !Number.isInteger(checkPageSize) || checkPageSize <= 0) {
+      pageSize = 10;
+    }
+
+    const checkPageNumber = +pageNumber;
+    if (
+      !pageNumber ||
+      !Number.isInteger(checkPageNumber) ||
+      checkPageNumber <= 0
+    ) {
+      pageNumber = 1;
+    }
+    return await this.commandBus.execute(
+      new GetBannedUsersForSpecifeldBlogCommand(
+        searchLoginTerm,
+        sortBy,
+        sortDirection,
+        pageSize,
+        pageNumber,
+        id,
+      ),
+    );
   }
 }

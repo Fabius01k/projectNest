@@ -11,6 +11,9 @@ export class TestingService {
 
   async deleteAllData() {
     await this.dataSource.query(
+      `DELETE FROM public."banned_users_in_blogs_entity_trm"`,
+    );
+    await this.dataSource.query(
       `DELETE FROM public."comments_likes_and_dislikes_trm"`,
     );
     await this.dataSource.query(

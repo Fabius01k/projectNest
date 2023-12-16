@@ -39,3 +39,20 @@ export class BanUserInputModel {
   @Transform(({ value }) => value.trim())
   banReason: string;
 }
+
+export class BanUserForBlogInputModel {
+  @IsNotEmpty()
+  @IsBoolean()
+  isBanned: boolean;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(20, 1000)
+  @Transform(({ value }) => value.trim())
+  banReason: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value.trim())
+  blogId: string;
+}

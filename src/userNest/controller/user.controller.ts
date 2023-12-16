@@ -49,7 +49,6 @@ export class UserController {
     @Query('pageSize') pageSize: number,
     @Query('pageNumber') pageNumber: number,
   ): Promise<UserResponse> {
-    console.log(banStatus, 'status controller 1 ');
     if (!banStatus) {
       banStatus = 'all';
     }

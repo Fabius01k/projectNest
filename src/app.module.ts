@@ -105,6 +105,9 @@ import { GetAllPostsForSpecificBlogUseCase } from './postNest/post.use-cases/get
 import { GetAllPostsForSpecificBlogBloggerUseCase } from './postNest/post.use-cases/getAllPostForSpecificBlog.Blogger.use-case';
 import { BanUserUseCase } from './userNest/user.use-cases/banUser.use-case';
 import { GetBannedUsersUseCase } from './userNest/user.use-cases/getBannedUsers.use-case';
+import { BannedUsersInBlogsEntityTrm } from './entities/bannedUsersInBlogs.entity';
+import { BanUserForBlogUseCase } from './bloggerNest/blogger.use-cases/banUserForBlog.use-case';
+import { GetBannedUsersForSpecifeldBlogUseCase } from './bloggerNest/blogger.use-cases/getBannedUsersForSpecifeldBlog.use-case';
 
 const superAdminControllers = [
   UserController,
@@ -212,6 +215,8 @@ const userUseCases = [
   DeleteUserUseCase,
   BanUserUseCase,
   GetBannedUsersUseCase,
+  BanUserForBlogUseCase,
+  GetBannedUsersForSpecifeldBlogUseCase,
 ];
 const securityUseCases = [
   GetAllActiveSessionsUseCase,
@@ -239,7 +244,7 @@ const authUseCases = [
       // database: 'MyNestProject',
       autoLoadEntities: true,
       synchronize: true,
-      logging: true,
+      logging: false,
       url: process.env.NEON_URL,
       ssl: true,
     }),
@@ -255,6 +260,7 @@ const authUseCases = [
       UserAnswersTrm,
       QuizGameTrm,
       PlayerTrm,
+      BannedUsersInBlogsEntityTrm,
     ]),
     CqrsModule,
     ConfigModule.forRoot(),

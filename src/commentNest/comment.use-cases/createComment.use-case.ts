@@ -44,6 +44,10 @@ export class CreateCommentUseCase
         },
       ]);
     }
+    await this.userRepositoryTypeOrm.checkBannedUser(
+      post.blogId,
+      command.userId,
+    );
     const user = await this.userRepositoryTypeOrm.findUserByIdInDbTrm(
       command.userId,
     );
