@@ -1,6 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserRepositoryTypeOrm } from '../../userNest/repository/user.repository.TypeOrm';
-import { UserResponse } from '../../userNest/schema/user.schema';
+import {
+  BanForBlogUserResponse,
+  UserResponse,
+} from '../../userNest/schema/user.schema';
 import { BlogRepositoryTypeOrm } from '../../blogNest/repository/blog.repository.TypeOrm';
 
 export class GetBannedUsersForSpecifeldBlogCommand {
@@ -25,7 +28,7 @@ export class GetBannedUsersForSpecifeldBlogUseCase
 
   async execute(
     command: GetBannedUsersForSpecifeldBlogCommand,
-  ): Promise<UserResponse> {
+  ): Promise<BanForBlogUserResponse> {
     await this.blogRepositoryTypeOrm.checkOwnerBlogInDb(
       command.id,
       command.userId,

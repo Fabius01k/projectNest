@@ -97,6 +97,16 @@ export type UserView = {
     banReason: string | null;
   };
 };
+export type BanForBlogUserView = {
+  id: string;
+  login: string;
+
+  banInfo: {
+    isBanned: boolean;
+    banDate: string | null;
+    banReason: string | null;
+  };
+};
 
 export interface UserResponse {
   pagesCount: number;
@@ -104,6 +114,13 @@ export interface UserResponse {
   pageSize: number;
   totalCount: number;
   items: UserView[];
+}
+export interface BanForBlogUserResponse {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: BanForBlogUserView[];
 }
 export class UserSql {
   id: string;

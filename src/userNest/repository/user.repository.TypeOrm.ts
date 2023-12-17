@@ -5,7 +5,12 @@ import {
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserResponse, UserView } from '../schema/user.schema';
+import {
+  BanForBlogUserResponse,
+  BanForBlogUserView,
+  UserResponse,
+  UserView,
+} from '../schema/user.schema';
 
 import { UserTrm } from '../../entities/user.entity';
 import { UsersSessionTrm } from '../../entities/usersSession.entity';
@@ -36,7 +41,7 @@ export class UserRepositoryTypeOrm {
     protected banUserForBlogRepository: Repository<BannedUsersInBlogsEntityTrm>,
   ) {}
 
-  private async mapBanUserToView(user: UserTrm): Promise<UserView> {
+  private async mapBanUserToView(user: UserTrm): Promise<BanForBlogUserView> {
     const banUser = await this.banUserForBlogRepository
       .createQueryBuilder('BannedUsersInBlogsEntityTrm')
       .where('BannedUsersInBlogsEntityTrm.userId = :userId', {
@@ -46,8 +51,6 @@ export class UserRepositoryTypeOrm {
     return {
       id: user.id,
       login: user.login,
-      email: user.email,
-      createdAt: user.createdAt,
       banInfo: {
         isBanned: banUser!.isBanned,
         banDate: banUser!.banDate,
@@ -109,7 +112,7 @@ export class UserRepositoryTypeOrm {
     pageSize: number,
     pageNumber: number,
     id: string,
-  ): Promise<UserResponse> {
+  ): Promise<BanForBlogUserResponse> {
     const bannedUserForBlog = await this.banUserForBlogRepository
       .createQueryBuilder('BannedUsersInBlogsEntityTrm')
       .where('BannedUsersInBlogsEntityTrm.blogId = :blogId', {

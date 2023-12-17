@@ -27,7 +27,10 @@ import { GetAllBlogsBloggerCommand } from '../../blogNest/blog.use-cases/getAllB
 import { GetAllPostsForSpecificBlogBloggerCommand } from '../../postNest/post.use-cases/getAllPostForSpecificBlog.Blogger.use-case';
 import { BanUserForBlogInputModel } from '../../inputmodels-validation/user.inputModel';
 import { BanUserForBlogCommand } from '../blogger.use-cases/banUserForBlog.use-case';
-import { UserResponse } from '../../userNest/schema/user.schema';
+import {
+  BanForBlogUserResponse,
+  UserResponse,
+} from '../../userNest/schema/user.schema';
 import { GetBannedUsersForSpecifeldBlogCommand } from '../blogger.use-cases/getBannedUsersForSpecifeldBlog.use-case';
 
 @Controller('blogger')
@@ -219,7 +222,7 @@ export class BloggerController {
     @Query('pageSize') pageSize: number,
     @Query('pageNumber') pageNumber: number,
     @Request() req,
-  ): Promise<UserResponse> {
+  ): Promise<BanForBlogUserResponse> {
     console.log(id, 'controller 1');
     if (!searchLoginTerm) {
       searchLoginTerm = null;
