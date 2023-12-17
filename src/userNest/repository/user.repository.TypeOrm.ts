@@ -125,7 +125,10 @@ export class UserRepositoryTypeOrm {
     const queryBuilder = await this.userRepository
       .createQueryBuilder('UserTrm')
       //.where('UserTrm.id IN (:userIds)', { userIds: userIds })
-      .where('UserTrm.id IN (:...userIds)', { userIds: userIds })
+      //.where('UserTrm.id IN (:...userIds)', { userIds: userIds })
+      .where('UserTrm.id = any(:userIds)', { userIds: userIds })
+      //.where('UserTrm.id IN (:...userIds)', { userIds })
+      //.where('UserTrm.id IN (:userIds)', { userIds: userIds.join(',') })
       .orderBy(
         'UserTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
@@ -134,6 +137,7 @@ export class UserRepositoryTypeOrm {
       .skip((pageNumber - 1) * pageSize);
 
     const users = await queryBuilder.getMany();
+
     console.log(users, 'repo 3');
     const totalCountQuery = await queryBuilder.getCount();
 
