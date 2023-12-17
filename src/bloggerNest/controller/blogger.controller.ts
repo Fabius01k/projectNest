@@ -218,6 +218,7 @@ export class BloggerController {
     @Query('sortDirection') sortDirection: 'asc' | 'desc',
     @Query('pageSize') pageSize: number,
     @Query('pageNumber') pageNumber: number,
+    @Request() req,
   ): Promise<UserResponse> {
     console.log(id, 'controller 1');
     if (!searchLoginTerm) {
@@ -258,6 +259,7 @@ export class BloggerController {
         pageSize,
         pageNumber,
         id,
+        req.userId,
       ),
     );
   }
