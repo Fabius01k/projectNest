@@ -73,7 +73,7 @@ export class BlogRepositoryTypeOrm {
         }`,
         { searchNameTerm: `%${searchNameTerm}%` },
       )
-      .andWhere('BlogTrm.isBanned != :status', { status: true })
+      .andWhere('BlogTrm.isBanned = :status', { status: false })
       .orderBy(
         'BlogTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
@@ -150,7 +150,7 @@ export class BlogRepositoryTypeOrm {
         }`,
         { searchNameTerm: `%${searchNameTerm}%` },
       )
-      .andWhere('BlogTrm.isBanned != :status', { status: true })
+      .andWhere('BlogTrm.isBanned = :status', { status: false })
       .orderBy(
         'BlogTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
@@ -176,7 +176,7 @@ export class BlogRepositoryTypeOrm {
     const blog = await this.blogRepository
       .createQueryBuilder('BlogTrm')
       .where('BlogTrm.id =:id', { id })
-      .andWhere('BlogTrm.isBanned != :status', { status: true })
+      .andWhere('BlogTrm.isBanned = :status', { status: false })
       .getOne();
     if (blog) {
       return mapBlogToView(blog);

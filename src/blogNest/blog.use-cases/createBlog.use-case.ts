@@ -29,6 +29,7 @@ export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
     newBlog.createdAt = new Date().toISOString();
     newBlog.isMembership = false;
     newBlog.bloggerId = command.userId;
+    newBlog.isBanned = false;
     newBlog.blogPosts = [];
 
     return await this.blogRepositoryTypeOrm.createBlogInDbTrm(newBlog);
