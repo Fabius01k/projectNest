@@ -160,6 +160,7 @@ export class PostRepositoryTypeOrm {
   ): Promise<PostResponse> {
     const queryBuilder = this.postRepository
       .createQueryBuilder('PostTrm')
+      .where('PostTrm.isBanned = :status', { status: false })
       .orderBy(
         'PostTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
@@ -224,6 +225,7 @@ export class PostRepositoryTypeOrm {
     const post = await this.postRepository
       .createQueryBuilder('PostTrm')
       .where('PostTrm.id =:id', { id })
+      .andWhere('PostTrm.isBanned = :status', { status: false })
       .getOne();
     if (post) {
       return this.mapPostToView(post, userId);

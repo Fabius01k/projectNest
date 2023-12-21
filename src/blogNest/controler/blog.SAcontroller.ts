@@ -1,8 +1,19 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { BlogSaResponse } from '../schema/blog-schema';
 import { CommandBus } from '@nestjs/cqrs';
 import { GetAllBlogsSACommand } from '../blog.use-cases/getAllBlogs.SA.use-case';
 import { BasicAuthGuard } from '../../authNest/guards/basic-auth.guard';
+import { BanBlogInputModel } from '../../inputmodels-validation/blog.inputModel';
+import { BanBlogCommand } from '../blog.use-cases/banBlog.SA.use.case';
 
 @Controller('sa')
 export class BlogSAController {
@@ -52,6 +63,16 @@ export class BlogSAController {
       ),
     );
   }
+  @UseGuards(BasicAuthGuard)
+  @Put('blogs/:id/ban')
+  @HttpCode(204)
+  async banBlog(
+    @Param('id') id: string,
+    @Body() banBlogDto: BanBlogInputModel,
+  ): Promise<void> {
+    return await this.commandBus.execute(new BanBlogCommand(id, banBlogDto));
+  }
+
   // @UseGuards(BasicAuthGuard)
   // @Post('blogs')
   // async postBlog(@Body() blogDto: BlogInputModel): Promise<BlogView> {

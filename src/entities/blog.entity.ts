@@ -17,6 +17,8 @@ export class BlogTrm {
   isMembership: boolean;
   @Column()
   bloggerId: string;
+  @Column({ nullable: true })
+  isBanned: boolean;
   @OneToMany(() => PostTrm, (p) => p.blogId)
   blogPosts: PostTrm[];
 }

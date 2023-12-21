@@ -172,14 +172,21 @@ export class BlogRepositoryTypeOrm {
 
   async findBlogByIdInDbTrm(id: string): Promise<BlogView | null> {
     const blog = await this.blogRepository
-      .createQueryBuilder('BlogSql')
-      .where('BlogSql.id =:id', { id })
+      .createQueryBuilder('BlogTrm')
+      .where('BlogTrm.id =:id', { id })
       .getOne();
     if (blog) {
       return mapBlogToView(blog);
     } else {
       return null;
     }
+  }
+  async findBlogForBanInDbTrm(id: string): Promise<BlogTrm | null> {
+    const blog = await this.blogRepository
+      .createQueryBuilder('BlogTrm')
+      .where('BlogTrm.id =:id', { id })
+      .getOne();
+    return blog;
   }
   async checkOwnerBlogInDb(blogId: string, userId: string): Promise<void> {
     const blog = await this.blogRepository
@@ -233,6 +240,18 @@ export class BlogRepositoryTypeOrm {
       deletedBlog.affected !== null &&
       deletedBlog.affected !== undefined &&
       deletedBlog.affected > 0
+    );
+  }
+  async banBlog(id: string, isBanned: boolean): Promise<boolean> {
+    const blogBanned = await this.blogRepository.update(
+      { id: id },
+      { isBanned: isBanned },
+    );
+
+    return (
+      blogBanned.affected !== null &&
+      blogBanned.affected !== undefined &&
+      blogBanned.affected > 0
     );
   }
 }

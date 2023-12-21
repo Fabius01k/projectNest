@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsString,
+  Length,
+  Matches,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class BlogInputModel {
@@ -21,4 +27,9 @@ export class BlogInputModel {
   )
   @Transform(({ value }) => value.trim())
   websiteUrl: string;
+}
+export class BanBlogInputModel {
+  @IsNotEmpty()
+  @IsBoolean()
+  isBanned: boolean;
 }
