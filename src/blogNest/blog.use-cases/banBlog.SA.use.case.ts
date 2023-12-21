@@ -18,6 +18,7 @@ export class BanBlogUseCase implements ICommandHandler<BanBlogCommand> {
     protected blogRepositoryTypeOrm: BlogRepositoryTypeOrm,
   ) {}
   async execute(command: BanBlogCommand): Promise<void> {
+    const banDate = new Date().toISOString();
     const blog = await this.blogRepositoryTypeOrm.findBlogInDbTrm(command.id);
     if (!blog) {
       throw new NotFoundException([
@@ -29,6 +30,7 @@ export class BanBlogUseCase implements ICommandHandler<BanBlogCommand> {
     await this.blogRepositoryTypeOrm.banBlog(
       command.id,
       command.banBlogDto.isBanned,
+      banDate,
     );
     await this.postRepositoryTypeOrm.banPosts(
       blog.bloggerId,

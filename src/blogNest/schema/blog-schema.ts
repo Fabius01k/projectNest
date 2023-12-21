@@ -52,6 +52,10 @@ export type BlogSaView = {
     userId: string;
     userLogin: string;
   };
+  banInfo: {
+    isBanned: boolean;
+    banDate: string;
+  };
 };
 
 export interface BlogResponse {

@@ -54,6 +54,10 @@ export class BlogRepositoryTypeOrm {
         userId: user!.id,
         userLogin: user!.login,
       },
+      banInfo: {
+        isBanned: blog.isBanned,
+        banDate: blog.banDate,
+      },
     };
   }
   async findAllBlogsInDbTrm(
@@ -245,10 +249,14 @@ export class BlogRepositoryTypeOrm {
       deletedBlog.affected > 0
     );
   }
-  async banBlog(id: string, isBanned: boolean): Promise<boolean> {
+  async banBlog(
+    id: string,
+    isBanned: boolean,
+    banDate: string,
+  ): Promise<boolean> {
     const blogBanned = await this.blogRepository.update(
       { id: id },
-      { isBanned: isBanned },
+      { isBanned: isBanned, banDate: banDate },
     );
 
     return (
