@@ -18,7 +18,7 @@ import { BanBlogCommand } from '../blog.use-cases/banBlog.SA.use.case';
 @Controller('sa')
 export class BlogSAController {
   constructor(private readonly commandBus: CommandBus) {}
-  // @UseGuards(BasicAuthGuard)
+  @UseGuards(BasicAuthGuard)
   @Get('blogs')
   async getAllBlogsSa(
     @Query('searchNameTerm') searchNameTerm: string | null,
