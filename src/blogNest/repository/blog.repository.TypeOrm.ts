@@ -73,6 +73,7 @@ export class BlogRepositoryTypeOrm {
         }`,
         { searchNameTerm: `%${searchNameTerm}%` },
       )
+      .andWhere('BlogTrm.isBanned = :status', { status: false })
       .orderBy(
         'BlogTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
@@ -174,6 +175,7 @@ export class BlogRepositoryTypeOrm {
     const blog = await this.blogRepository
       .createQueryBuilder('BlogTrm')
       .where('BlogTrm.id =:id', { id })
+      .andWhere('BlogTrm.isBanned = :status', { status: false })
       .getOne();
     if (blog) {
       return mapBlogToView(blog);
@@ -181,7 +183,7 @@ export class BlogRepositoryTypeOrm {
       return null;
     }
   }
-  async findBlogForBanInDbTrm(id: string): Promise<BlogTrm | null> {
+  async findBlogInDbTrm(id: string): Promise<BlogTrm | null> {
     const blog = await this.blogRepository
       .createQueryBuilder('BlogTrm')
       .where('BlogTrm.id =:id', { id })

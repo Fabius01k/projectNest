@@ -3,6 +3,7 @@ import { PostResponse } from '../schema/post-schema';
 import { PostRepositorySql } from '../repository/post.repositorySql';
 import { PostRepositoryTypeOrm } from '../repository/post.repository.TypeOrm';
 import { BlogRepositoryTypeOrm } from '../../blogNest/repository/blog.repository.TypeOrm';
+import { NotFoundException } from '@nestjs/common';
 
 export class GetAllPostsForSpecificBlogCommand {
   constructor(
@@ -27,6 +28,16 @@ export class GetAllPostsForSpecificBlogUseCase
   async execute(
     command: GetAllPostsForSpecificBlogCommand,
   ): Promise<PostResponse> {
+    const blog = await this.blogRepositoryTypeOrm.findBlogInDbTrm(
+      command.blogId,
+    );
+    if (!blog) {
+      throw new NotFoundException([
+        {
+          message: 'User not found',
+        },
+      ]);
+    }
     return await this.postRepositoryTypeOrm.findAllPostsForSpecifeldBlogInDbTrm(
       command.sortBy,
       command.sortDirection,

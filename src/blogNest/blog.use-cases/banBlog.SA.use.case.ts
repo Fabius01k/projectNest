@@ -18,9 +18,7 @@ export class BanBlogUseCase implements ICommandHandler<BanBlogCommand> {
     protected blogRepositoryTypeOrm: BlogRepositoryTypeOrm,
   ) {}
   async execute(command: BanBlogCommand): Promise<void> {
-    const blog = await this.blogRepositoryTypeOrm.findBlogForBanInDbTrm(
-      command.id,
-    );
+    const blog = await this.blogRepositoryTypeOrm.findBlogInDbTrm(command.id);
     if (!blog) {
       throw new NotFoundException([
         {
