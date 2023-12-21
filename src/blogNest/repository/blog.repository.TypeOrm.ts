@@ -154,7 +154,7 @@ export class BlogRepositoryTypeOrm {
         }`,
         { searchNameTerm: `%${searchNameTerm}%` },
       )
-      .andWhere('BlogTrm.isBanned = :status', { status: false })
+      // .andWhere('BlogTrm.isBanned = :status', { status: false })
       .orderBy(
         'BlogTrm.' + sortBy,
         sortDirection.toUpperCase() as 'ASC' | 'DESC',
