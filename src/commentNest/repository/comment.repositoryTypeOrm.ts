@@ -1,4 +1,6 @@
 import {
+  AllCommentForCurrentBloggerView,
+  CommentForCurrentBloggerResponse,
   CommentResponse,
   CommentSql,
   CommentView,
@@ -11,6 +13,7 @@ import { DataSource, Repository } from 'typeorm';
 import { QueryResult } from 'pg';
 import { CommentTrm } from '../../entities/comment.entity';
 import { CommentsLikesAndDislikesTrm } from '../../entities/comment-likes.entity';
+import { PostTrm } from '../../entities/post.entity';
 
 @Injectable()
 export class CommentRepositoryTypeOrm {
@@ -19,6 +22,8 @@ export class CommentRepositoryTypeOrm {
     protected commentRepository: Repository<CommentTrm>,
     @InjectRepository(CommentsLikesAndDislikesTrm)
     protected commentLikesRepository: Repository<CommentsLikesAndDislikesTrm>,
+    @InjectRepository(PostTrm)
+    protected postRepository: Repository<PostTrm>,
   ) {}
   private mapCommentToView = async (
     comment: CommentTrm,
@@ -72,6 +77,72 @@ export class CommentRepositoryTypeOrm {
         likesCount: likesCount,
         dislikesCount: dislikesCount,
         myStatus: userStatus,
+      },
+    };
+  };
+  private mapCommentsForCurrentBloggerToView = async (
+    comment: CommentTrm,
+    userId: string | null,
+  ): Promise<AllCommentForCurrentBloggerView> => {
+    const likesBuilder = await this.commentLikesRepository
+      .createQueryBuilder('CommentsLikesAndDislikesTrm')
+      .where('CommentsLikesAndDislikesTrm.reactionStatus = :status', {
+        status: 'Like',
+      })
+      .andWhere('CommentsLikesAndDislikesTrm.commentId = :commentId', {
+        commentId: comment.id,
+      })
+      .andWhere('CommentsLikesAndDislikesTrm.isBanned = false');
+
+    const likesCount = await likesBuilder.getCount();
+
+    const dislikesBuilder = await this.commentLikesRepository
+      .createQueryBuilder('CommentsLikesAndDislikesTrm')
+      .where('CommentsLikesAndDislikesTrm.reactionStatus = :status', {
+        status: 'Dislike',
+      })
+      .andWhere('CommentsLikesAndDislikesTrm.commentId = :commentId', {
+        commentId: comment.id,
+      })
+      .andWhere('CommentsLikesAndDislikesTrm.isBanned = false');
+
+    const dislikesCount = await dislikesBuilder.getCount();
+
+    const userStatusQuery = await this.commentLikesRepository
+      .createQueryBuilder('CommentsLikesAndDislikesTrm')
+      .where('CommentsLikesAndDislikesTrm.userId = :userId', { userId: userId })
+      .andWhere('CommentsLikesAndDislikesTrm.commentId = :commentId', {
+        commentId: comment.id,
+      })
+      .getOne();
+
+    const userStatus = userStatusQuery
+      ? userStatusQuery.reactionStatus
+      : 'None';
+
+    const post: PostTrm | null = await this.postRepository
+      .createQueryBuilder('PostTrm')
+      .where('PostTrm.id =:id', { id: comment.postId })
+      .getOne();
+
+    return {
+      id: comment.id,
+      content: comment.content,
+      commentatorInfo: {
+        userId: comment.userId,
+        userLogin: comment.userLogin,
+      },
+      createdAt: comment.createdAt,
+      likesInfo: {
+        likesCount: likesCount,
+        dislikesCount: dislikesCount,
+        myStatus: userStatus,
+      },
+      postInfo: {
+        id: post!.id,
+        title: post!.title,
+        blogId: post!.blogId,
+        blogName: post!.blogName,
       },
     };
   };
@@ -232,5 +303,37 @@ export class CommentRepositoryTypeOrm {
       commentsLikeBanned.affected !== undefined &&
       commentsLikeBanned.affected > 0
     );
+  }
+  async findAllCommentsForCurrentBloggerInDbTrm(
+    sortBy: string,
+    sortDirection: 'asc' | 'desc',
+    pageSize: number,
+    pageNumber: number,
+    userId: string | null,
+  ): Promise<CommentForCurrentBloggerResponse> {
+    const queryBuilder = await this.commentRepository
+      .createQueryBuilder('CommentTrm')
+      .innerJoinAndSelect('CommentTrm.post', 'post')
+      .where('post.bloggerId = :userId', { userId })
+      .orderBy(
+        'CommentTrm.' + sortBy,
+        sortDirection.toUpperCase() as 'ASC' | 'DESC',
+      )
+      .take(pageSize)
+      .skip((pageNumber - 1) * pageSize);
+
+    const [comments, totalCountQuery] = await queryBuilder.getManyAndCount();
+
+    const items = await Promise.all(
+      comments.map((c) => this.mapCommentsForCurrentBloggerToView(c, userId)),
+    );
+
+    return {
+      pagesCount: Math.ceil(totalCountQuery / pageSize),
+      page: pageNumber,
+      pageSize,
+      totalCount: totalCountQuery,
+      items,
+    };
   }
 }

@@ -109,6 +109,7 @@ import { BannedUsersInBlogsEntityTrm } from './entities/bannedUsersInBlogs.entit
 import { BanUserForBlogUseCase } from './bloggerNest/blogger.use-cases/banUserForBlog.use-case';
 import { GetBannedUsersForSpecifeldBlogUseCase } from './bloggerNest/blogger.use-cases/getBannedUsersForSpecifeldBlog.use-case';
 import { BanBlogUseCase } from './blogNest/blog.use-cases/banBlog.SA.use.case';
+import { GetAllCommentsForCurrentBloggerUseCase } from './bloggerNest/blogger.use-cases/getAllCommentsForCurrentBlooger.use-case';
 
 const superAdminControllers = [
   UserController,
@@ -210,6 +211,7 @@ const commentUseCases = [
   UpdateCommentUseCase,
   DeleteCommentUseCase,
   MakeLikeOrDislikeCommentUseCase,
+  GetAllCommentsForCurrentBloggerUseCase,
 ];
 const userUseCases = [
   GetAllUsersUseCase,

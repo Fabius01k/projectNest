@@ -32,6 +32,8 @@ import {
   UserResponse,
 } from '../../userNest/schema/user.schema';
 import { GetBannedUsersForSpecifeldBlogCommand } from '../blogger.use-cases/getBannedUsersForSpecifeldBlog.use-case';
+import { CommentForCurrentBloggerResponse } from '../../commentNest/schema/comment.schema';
+import { GetAllCommentsForCurrentBloggerCommand } from '../blogger.use-cases/getAllCommentsForCurrentBlooger.use-case';
 
 @Controller('blogger')
 export class BloggerController {
@@ -262,6 +264,46 @@ export class BloggerController {
         pageSize,
         pageNumber,
         id,
+        req.userId,
+      ),
+    );
+  }
+  @UseGuards(AuthGuard)
+  @Get('blogs/comments')
+  async getAllCommentForCurrentBlogger(
+    @Query('sortBy') sortBy: string,
+    @Query('sortDirection') sortDirection: 'asc' | 'desc',
+    @Query('pageSize') pageSize: number,
+    @Query('pageNumber') pageNumber: number,
+    @Request() req,
+  ): Promise<CommentForCurrentBloggerResponse> {
+    if (!sortBy) {
+      sortBy = 'createdAt';
+    }
+
+    if (!sortDirection || sortDirection.toLowerCase() !== 'asc') {
+      sortDirection = 'desc';
+    }
+
+    const checkPageSize = +pageSize;
+    if (!pageSize || !Number.isInteger(checkPageSize) || checkPageSize <= 0) {
+      pageSize = 10;
+    }
+
+    const checkPageNumber = +pageNumber;
+    if (
+      !pageNumber ||
+      !Number.isInteger(checkPageNumber) ||
+      checkPageNumber <= 0
+    ) {
+      pageNumber = 1;
+    }
+    return await this.commandBus.execute(
+      new GetAllCommentsForCurrentBloggerCommand(
+        sortBy,
+        sortDirection,
+        pageSize,
+        pageNumber,
         req.userId,
       ),
     );

@@ -67,6 +67,26 @@ export type CommentView = {
     myStatus: string;
   };
 };
+export type AllCommentForCurrentBloggerView = {
+  id: string;
+  content: string;
+  commentatorInfo: {
+    userId: string;
+    userLogin: string;
+  };
+  createdAt: string;
+  likesInfo: {
+    likesCount: number;
+    dislikesCount: number;
+    myStatus: string;
+  };
+  postInfo: {
+    id: string;
+    title: string;
+    blogId: string;
+    blogName: string;
+  };
+};
 
 export interface CommentResponse {
   pagesCount: number;
@@ -74,6 +94,13 @@ export interface CommentResponse {
   pageSize: number;
   totalCount: number;
   items: CommentView[];
+}
+export interface CommentForCurrentBloggerResponse {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: AllCommentForCurrentBloggerView[];
 }
 export class CommentSql {
   id: string;

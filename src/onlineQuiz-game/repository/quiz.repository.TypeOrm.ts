@@ -230,26 +230,6 @@ export class QuizRepositoryTypeOrm {
       finishGameDate: newGame.finishGameDate,
     };
   }
-
-  // private async mapAllGameToView(
-  //   game: QuizGameTrm,
-  //   player: PlayerTrm,
-  // ): Promise<QuizGameView> {
-  //   const firstPlayerPromise = await this.playerRepository
-  //     .createQueryBuilder('PlayerTrm')
-  //     .where('PlayerTrm.gameId = :gameId', { gameId: unfinishedGame.id })
-  //     .andWhere('PlayerTrm.IsFirstInGame = :status', { status: true })
-  //     .getOne();
-  //
-  //   const secondPlayerPromise = await this.playerRepository
-  //     .createQueryBuilder('PlayerTrm')
-  //     .where('PlayerTrm.gameId = :gameId', { gameId: unfinishedGame.id })
-  //     .andWhere('PlayerTrm.userId != :userId', {
-  //       userId: firstPlayerPromise!.userId,
-  //     })
-  //     .getOne();
-  // }
-
   private async mapUnfinishedGame(
     unfinishedGame: QuizGameTrm,
     // player: PlayerTrm,
